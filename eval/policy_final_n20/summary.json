@@ -1,0 +1,59 @@
+{
+ "mode": "policy",
+ "n": 20,
+ "seed": 1000,
+ "checkpoint": "/work/outputs_large/final_models/molmoact2_sim_v1_023400/pretrained_model",
+ "interp": "lag",
+ "max_sim_s": 40.0,
+ "workers": 1,
+ "obs_codec": "h264",
+ "smooth": "none",
+ "ema_alpha": 0.5,
+ "replan_every": 5,
+ "success_L_full": 15,
+ "success_rate_L_full": 0.75,
+ "wilson95_L_full": [
+  0.5313,
+  0.8881
+ ],
+ "success_L_task": 17,
+ "success_rate_L_task": 0.85,
+ "wilson95_L_task": [
+  0.6396,
+  0.9476
+ ],
+ "style_only_failures": 0,
+ "reason_counts": {
+  "never_carried": 3,
+  "not_carried_into_bin": 3,
+  "not_in_place_region": 3,
+  "not_lifted": 3,
+  "arm_table_collision": 1,
+  "dropped_or_slipped": 1,
+  "self_collision": 1,
+  "torque_saturation": 1
+ },
+ "stop_reasons": {
+  "task_done_1s": 17,
+  "time_limit": 3
+ },
+ "rate_limit_clipped_frames": 620,
+ "frames": 11346,
+ "rate_limit_clipped_frac": 0.0546,
+ "joint_range_clipped_steps": 5,
+ "steps_10hz": 3782,
+ "max_rate_excess_rad": 0.0267,
+ "wall_s_total": 343.4,
+ "episode_wall_s_mean": 11.75,
+ "sim_s_mean": 18.91,
+ "episodes_per_hour_wall": 209.7,
+ "episodes_per_hour_steady": 306.3,
+ "timing_s_mean": {
+  "render": 2.81,
+  "policy": 7.73,
+  "physics": 0.89
+ },
+ "policy_load_s": 108.0,
+ "inference_chunk_ms_median_of_episode_medians": 363.1,
+ "episodes_per_hour_excluding_load": 305.9
+}

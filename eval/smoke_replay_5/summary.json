@@ -1,0 +1,42 @@
+{
+ "mode": "dataset-replay",
+ "n": 5,
+ "seed": 1000,
+ "checkpoint": null,
+ "interp": "lag",
+ "max_sim_s": 40.0,
+ "workers": 1,
+ "success_L_full": 5,
+ "success_rate_L_full": 1.0,
+ "wilson95_L_full": [
+  0.5655,
+  1.0
+ ],
+ "success_L_task": 5,
+ "success_rate_L_task": 1.0,
+ "wilson95_L_task": [
+  0.5655,
+  1.0
+ ],
+ "style_only_failures": 0,
+ "reason_counts": {},
+ "stop_reasons": {
+  "actions_exhausted": 5
+ },
+ "rate_limit_clipped_frames": 0,
+ "frames": 2841,
+ "rate_limit_clipped_frac": 0.0,
+ "joint_range_clipped_steps": 0,
+ "steps_10hz": 947,
+ "max_rate_excess_rad": 0.0,
+ "wall_s_total": 75.5,
+ "episode_wall_s_mean": 14.01,
+ "sim_s_mean": 19.24,
+ "episodes_per_hour_wall": 238.4,
+ "timing_s_mean": {
+  "render": 12.5,
+  "policy": 0.0,
+  "physics": 1.08
+ },
+ "policy_load_s": null
+}

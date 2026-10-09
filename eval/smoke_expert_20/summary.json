@@ -1,0 +1,45 @@
+{
+ "mode": "expert",
+ "n": 20,
+ "seed": 1000,
+ "checkpoint": null,
+ "interp": "lag",
+ "max_sim_s": 40.0,
+ "workers": 3,
+ "success_L_full": 20,
+ "success_rate_L_full": 1.0,
+ "wilson95_L_full": [
+  0.8389,
+  1.0
+ ],
+ "success_L_task": 20,
+ "success_rate_L_task": 1.0,
+ "wilson95_L_task": [
+  0.8389,
+  1.0
+ ],
+ "style_only_failures": 0,
+ "reason_counts": {},
+ "stop_reasons": {
+  "actions_exhausted": 20
+ },
+ "rate_limit_clipped_frames": 0,
+ "frames": 10830,
+ "rate_limit_clipped_frac": 0.0,
+ "joint_range_clipped_steps": 0,
+ "steps_10hz": 3610,
+ "max_rate_excess_rad": 0.0,
+ "wall_s_total": 39.0,
+ "episode_wall_s_mean": 2.21,
+ "sim_s_mean": 18.35,
+ "episodes_per_hour_wall": 1845.1,
+ "timing_s_mean": {
+  "render": 1.11,
+  "policy": 0.0,
+  "physics": 0.94
+ },
+ "policy_load_s": null,
+ "expert_native_verifier_pass": 20,
+ "expert_native_phase_free_pass": 20,
+ "harness_vs_native_expert_verifier_agree": 20
+}

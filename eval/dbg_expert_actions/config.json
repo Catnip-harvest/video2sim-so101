@@ -1,0 +1,23 @@
+{
+ "mode": "expert",
+ "checkpoint": null,
+ "seed": 1000,
+ "dataset": "/work/outputs_large/datagen/sugar_v10_n1000_molmoact2",
+ "spec": "/work/wt-eval/demo/outputs/pexels_7488188_sugar_cube/so101_task_spec.json",
+ "max_sim_s": 40.0,
+ "interp": "lag",
+ "quality": "fast",
+ "tail_s": 0.3,
+ "video_ids": [],
+ "out": "/work/outputs_large/eval/dbg_expert_actions",
+ "pinch_width": 0.016,
+ "device": "cuda",
+ "workers": 1,
+ "check_images": false,
+ "ids": [
+  0,
+  1,
+  2
+ ],
+ "obs_codec": true
+}

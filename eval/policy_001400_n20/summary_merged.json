@@ -1,0 +1,79 @@
+{
+ "mode": "policy",
+ "n": 20,
+ "seed": 1000,
+ "checkpoint": "/work/outputs_large/train/molmoact2_sim_v1/checkpoints/001400/pretrained_model",
+ "interp": "lag",
+ "max_sim_s": 40.0,
+ "workers": 1,
+ "obs_codec": "h264",
+ "success_L_full": 10,
+ "success_rate_L_full": 0.5,
+ "wilson95_L_full": [
+  0.2993,
+  0.7007
+ ],
+ "success_L_task": 15,
+ "success_rate_L_task": 0.75,
+ "wilson95_L_task": [
+  0.5313,
+  0.8881
+ ],
+ "style_only_failures": 0,
+ "reason_counts": {
+  "never_carried": 5,
+  "not_carried_into_bin": 5,
+  "not_in_place_region": 5,
+  "not_lifted": 5,
+  "arm_table_collision": 5,
+  "not_released": 2,
+  "arm_bin_collision": 1,
+  "object_disturbed_before_grasp": 1,
+  "torque_saturation": 1
+ },
+ "stop_reasons": {
+  "time_limit": 5,
+  "task_done_1s": 15
+ },
+ "rate_limit_clipped_frames": 522,
+ "frames": 13098,
+ "rate_limit_clipped_frac": 0.0399,
+ "joint_range_clipped_steps": 50,
+ "steps_10hz": 4366,
+ "max_rate_excess_rad": 0.1192,
+ "wall_s_total": 619.9,
+ "episode_wall_s_mean": 30.99,
+ "sim_s_mean": 21.83,
+ "episodes_per_hour_wall": 116.1,
+ "episodes_per_hour_steady": 116.1,
+ "timing_s_mean": {
+  "render": 6.11,
+  "policy": 22.39,
+  "physics": 1.88
+ },
+ "policy_load_s": null,
+ "inference_chunk_ms_median_of_episode_medians": 833.2,
+ "note": "ids 0-14 ran with 2 replicas (contended, stopped), 15-19 with 1 replica; wall_s_total = sum of episode walls",
+ "ids": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ]
+}

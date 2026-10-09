@@ -19,8 +19,11 @@ One episode (all modes):
                             (default ArmCalib) -> lerobot_to_molmoact2, float32 [6]
        images             = cam_head (sim "front") and cam_right (sim "wrist_cam") rendered
                             like datagen: separate render model + MjData set to the current
-                            qpos, render quality "fast", 256x256 uint8 -> float32 [0,1] CHW
-                            (lerobot's prepare_observation_for_inference); only rendered when
+                            qpos, render quality "fast", 256x256 uint8, then (default
+                            --obs-codec h264) one encode/decode with the dataset's video
+                            settings, since training frames were h264-decoded -> float32
+                            [0,1] CHW (lerobot's prepare_observation_for_inference, same
+                            dtype/range/shape LeRobotDataset gives); only rendered when
                             the policy will read them (start of each 10-action chunk) or for
                             video
        task               = "pick up the cube and place it in the bin"
@@ -123,12 +126,37 @@ def setup_scene(spec, v: Variation, size=(256, 256), init_obj_z: float | None = 
   return sc
 
 
+def h264_roundtrip(img: np.ndarray) -> np.ndarray:
+  """Encode one frame with the datagen video settings (libx264 crf 23, veryfast, yuv420p)
+  and decode it, so the policy sees the same codec artefacts its training frames had."""
+  import io
+
+  import av
+  buf = io.BytesIO()
+  c = av.open(buf, mode="w", format="mp4")
+  st = c.add_stream("libx264", rate=10)
+  st.width, st.height = img.shape[1], img.shape[0]
+  st.pix_fmt = "yuv420p"
+  st.options = {"crf": "23", "g": "2", "preset": "veryfast"}
+  f = av.VideoFrame.from_ndarray(np.ascontiguousarray(img), format="rgb24")
+  for pk in st.encode(f):
+    c.mux(pk)
+  for pk in st.encode():
+    c.mux(pk)
+  c.close()
+  buf.seek(0)
+  with av.open(buf) as c2:
+    return next(iter(c2.decode(video=0))).to_ndarray(format="rgb24")
+
+
 class ObsRenderer:
   """Renders like r2s/render.render_episode: its own model built from the Variation, the
   quality flags of --render-quality, and a separate MjData set to the live qpos (rendering
   never touches the physics)."""
 
-  def __init__(self, spec, v: Variation, size=(256, 256), quality: str = "fast"):
+  def __init__(self, spec, v: Variation, size=(256, 256), quality: str = "fast",
+               codec: bool = False):
+    self.codec = codec
     sc = S.build_episode_scene(v, object_kind=spec.object.kind, render_size=size)
     self.m = sc.model
     self.flags = _apply_quality(self.m, quality)
@@ -144,7 +172,8 @@ class ObsRenderer:
       self.r.update_scene(self.d, camera=cam)
       for f, val in self.flags.items():
         self.r.scene.flags[f] = val
-      out[key] = self.r.render().copy()
+      img = self.r.render().copy()
+      out[key] = h264_roundtrip(img) if self.codec else img
     return out
 
   def close(self) -> None:
@@ -190,12 +219,12 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
                         interp: str = "lag", early_stop: bool = False, video: Path | None = None,
                         quality: str = "fast", size=(256, 256), tail_s: float = 0.0,
                         cal: ArmCalib | None = None, keep_obs: list | None = None,
-                        init_obj_z: float | None = None) -> dict:
+                        init_obj_z: float | None = None, obs_codec: bool = False) -> dict:
   t_wall = time.perf_counter()
   sc = setup_scene(spec, v, size, init_obj_z)
   m, d = sc.model, sc.data
   mon = PhaseFreeMonitor(sc)
-  rend = ObsRenderer(spec, v, size, quality) if (source.needs_images or video or keep_obs is not None) else None
+  rend = ObsRenderer(spec, v, size, quality, obs_codec) if (source.needs_images or video or keep_obs is not None) else None
   enc = _Encoder(video, (2 * size[0], size[1]), "h264", fps=10) if video else None
   lo, hi = sc.joint_lo, sc.joint_hi
   cap = np.array([ARM_VMAX] * 5 + [JAW_VMAX]) * RATE_FRAC / S.FPS
@@ -337,7 +366,8 @@ def _episode(item) -> dict:
     vdir.mkdir(parents=True, exist_ok=True)
     vid = vdir / f"{mode}_{idx:05d}.mp4"
   row: dict = {"mode": mode}
-  kw = dict(max_sim_s=cfg["max_sim_s"], interp=cfg["interp"], video=vid, quality=cfg["quality"])
+  kw = dict(max_sim_s=cfg["max_sim_s"], interp=cfg["interp"], video=vid, quality=cfg["quality"],
+            obs_codec=cfg["obs_codec"])
   if mode == "policy":
     v = sample_variation(spec, cfg["seed"], idx, variety=True)
     r = run_harness_episode(spec, v, PolicySource(_G["runner"]), early_stop=True, **kw)
@@ -408,6 +438,25 @@ def _compare_with_dataset(e: int, keep: list, st: np.ndarray) -> dict:
       ps.append(99.0 if mse == 0 else 10 * math.log10(255 ** 2 / mse))
     out["per_cam_mean_abs_diff_0_255"][key] = [round(x, 2) for x in mads]
     out["per_cam_psnr_db"][key] = [round(x, 1) for x in ps]
+  # Same frames through the datagen video encoder (h264 crf 23, render._Encoder) and back:
+  # isolates codec noise. Frame 0 shows an identical scene state in both (state diff 0).
+  import tempfile
+
+  import av
+  m0 = min(n, 12)
+  out["codec_roundtrip_frame0_psnr_db"] = {}
+  for key in CAMS:
+    with tempfile.TemporaryDirectory() as td:
+      fp = Path(td) / "x.mp4"
+      enc = _Encoder(fp, keep[0]["images"][key].shape[1::-1], "h264", fps=10)
+      for o in keep[:m0]:
+        enc.add(o["images"][key])
+      enc.close()
+      with av.open(str(fp)) as c:
+        dec0 = next(iter(c.decode(video=0))).to_ndarray(format="rgb24").astype(np.float64)
+    ref = ds[start][key].numpy().transpose(1, 2, 0) * 255.0
+    mse = float(((dec0 - ref) ** 2).mean())
+    out["codec_roundtrip_frame0_psnr_db"][key] = 99.0 if mse == 0 else round(10 * math.log10(255 ** 2 / mse), 1)
   hs = np.array([o["state"] for o in keep[:n]])
   dd = np.abs(hs - st[:n])
   out["state_abs_diff_deg"] = {"step0_max": round(float(dd[0].max()), 4),
@@ -431,6 +480,7 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
   s = {
     "mode": cfg["mode"], "n": n, "seed": cfg.get("seed"), "checkpoint": cfg.get("checkpoint"),
     "interp": cfg["interp"], "max_sim_s": cfg["max_sim_s"], "workers": cfg["workers"],
+    "obs_codec": "h264" if cfg.get("obs_codec") else "none",
     "success_L_full": k_full, "success_rate_L_full": round(k_full / max(n, 1), 4),
     "wilson95_L_full": [round(x, 4) for x in wilson(k_full, n)],
     "success_L_task": k_task, "success_rate_L_task": round(k_task / max(n, 1), 4),
@@ -487,6 +537,9 @@ def main() -> None:
   ap.add_argument("--interp", default="lag", choices=["lag", "hold"])
   ap.add_argument("--quality", default="fast", choices=["full", "shadow", "fast"])
   ap.add_argument("--tail-s", type=float, default=0.3, help="replay modes: hold the last goal this long")
+  ap.add_argument("--obs-codec", default="h264", choices=["h264", "none"],
+                  help="pass each observation image through the dataset's h264 settings "
+                       "(training frames were h264-decoded); none = raw renders")
   ap.add_argument("--videos", type=int, default=0, help="write mp4s for the first N episodes")
   ap.add_argument("--check-images", action="store_true",
                   help="dataset-replay: compare harness images/state with LeRobotDataset frames")
@@ -506,7 +559,8 @@ def main() -> None:
          "spec": a.spec, "max_sim_s": a.max_sim_s, "interp": a.interp, "quality": a.quality,
          "tail_s": a.tail_s, "video_ids": ids[: a.videos], "out": str(out),
          "pinch_width": pinch_width_from_spec(Path(a.spec)), "device": a.device,
-         "workers": a.workers, "check_images": a.check_images, "ids": ids}
+         "workers": a.workers, "check_images": a.check_images, "ids": ids,
+         "obs_codec": a.obs_codec == "h264"}
   (out / "config.json").write_text(json.dumps(cfg, indent=1))
   t0 = time.perf_counter()
   rows = []

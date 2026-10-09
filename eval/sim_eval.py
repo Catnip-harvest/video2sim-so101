@@ -39,7 +39,8 @@ One episode (all modes):
   Policy mode stops early once the task has been done for 1 s (cube resting in the bin,
   no jaw contact) or the cube fell off the table; otherwise at --max-sim-s.
 
-Writes OUT/episodes.jsonl (one row per episode), OUT/summary.json (success rate with a 95 %
+Writes OUT/episodes.jsonl (one row per episode), OUT/actions/*.npz (the 10 Hz actions and
+observed states, so any episode can be replayed/re-judged on CPU), OUT/summary.json (success rate with a 95 %
 Wilson CI, throughput, clipping, inference latency) and OUT/videos/*.mp4 for --videos N.
 """
 
@@ -235,6 +236,8 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
   clip = {"frames": 0, "frames_clipped": 0, "steps": 0, "steps_range_clipped": 0,
           "max_excess_rad": 0.0}
   done_run, stop_reason, k = 0, "time_limit", 0
+  log_a: list = []  # actions as the source gave them (MolmoAct2 frame), for CPU re-judging
+  log_s: list = []
   source.reset()
   for k in range(n_steps):
     q = np.r_[d.qpos[sc.arm_qadr], d.qpos[sc.g_qadr]]
@@ -255,6 +258,8 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
     if a is None:
       stop_reason = "actions_exhausted"
       break
+    log_a.append(np.asarray(a, np.float32))
+    log_s.append(state)
     goal = mm2_to_sim(a, cal)
     clip["steps"] += 1
     g2 = np.clip(goal, lo, hi)
@@ -317,7 +322,8 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
   if rend:
     rend.close()
   verdict = mon.verdict(spec, v)
-  return {"verdict": verdict, "steps_10hz": clip["steps"], "stop_reason": stop_reason,
+  return {"verdict": verdict, "actions_mm2": np.array(log_a, np.float32).reshape(-1, 6),
+          "states_mm2": np.array(log_s, np.float32).reshape(-1, 6), "steps_10hz": clip["steps"], "stop_reason": stop_reason,
           "sim_s": round(float(d.time), 3), "clip": clip,
           "timing_s": {k2: round(x, 3) for k2, x in tm.items()},
           "wall_s": round(time.perf_counter() - t_wall, 3)}
@@ -327,7 +333,22 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
 _G: dict = {}
 
 
-def _init(cfg: dict) -> None:
+def _exit_with_parent() -> None:
+  """Pool workers (each holding a GPU replica) exit if the parent process dies."""
+  import threading
+  ppid = os.getppid()
+
+  def watch():
+    while True:
+      time.sleep(2)
+      if os.getppid() != ppid:
+        os._exit(1)
+  threading.Thread(target=watch, daemon=True).start()
+
+
+def _init(cfg: dict, worker: bool = False) -> None:
+  if worker:
+    _exit_with_parent()
   _G["cfg"] = cfg
   _G["spec"] = load_task_spec(cfg["spec"])
   if cfg["mode"] == "policy":
@@ -403,6 +424,12 @@ def _episode(item) -> dict:
   else:
     raise ValueError(mode)
   vd = r.pop("verdict")
+  adir = Path(cfg["out"]) / "actions"
+  adir.mkdir(parents=True, exist_ok=True)
+  # Re-judge on CPU later: ReplaySource(np.load(...)["actions_mm2"]) reproduces the episode
+  # (same scene, same physics; the policy's chunks are open-loop between observations).
+  np.savez_compressed(adir / f"{mode}_{idx:05d}.npz", actions_mm2=r.pop("actions_mm2"),
+                      states_mm2=r.pop("states_mm2"))
   row.update({"pass": vd["passed"], "L_task": vd["L_task"], "L_full": vd["L_full"],
               "reasons": vd["reasons"], "style_only": vd["style_only"], **r,
               "verify_stats": vd["stats"]})
@@ -495,6 +522,9 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
     "wall_s_total": round(wall_s, 1), "episode_wall_s_mean": round(float(np.mean(ep_wall)), 2) if rows else None,
     "sim_s_mean": round(float(np.mean([r["sim_s"] for r in rows])), 2) if rows else None,
     "episodes_per_hour_wall": round(3600 * n / max(wall_s, 1e-9), 1),
+    # steady state (policy load excluded): K processes each spending mean episode wall time
+    "episodes_per_hour_steady": round(3600 * cfg["workers"] / max(float(np.mean(ep_wall)), 1e-9), 1)
+    if rows else None,
     "timing_s_mean": {k: round(float(np.mean([r["timing_s"][k] for r in rows])), 2)
                       for k in ("render", "policy", "physics")} if rows else {},
     "policy_load_s": load_s,
@@ -582,7 +612,7 @@ def main() -> None:
       emit(_episode(i))
   else:
     import multiprocessing as mp
-    with mp.get_context("spawn").Pool(a.workers, initializer=_init, initargs=(cfg,)) as pool:
+    with mp.get_context("spawn").Pool(a.workers, initializer=_init, initargs=(cfg, True)) as pool:
       for r in pool.imap_unordered(_episode, ids):
         emit(r)
   log.close()

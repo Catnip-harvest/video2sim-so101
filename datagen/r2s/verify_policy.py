@@ -127,6 +127,7 @@ class PhaseFreeMonitor:
     self.pen_run = 0
     self.max_pen_run = 0
     self.passive_min_dist = 0.0
+    self.arm_table_first: dict | None = None
     self.last_jaw_contact_t = -math.inf
     self.foreign: dict[str, int] = {}
     self.first: dict[str, float] = {}
@@ -155,6 +156,19 @@ class PhaseFreeMonitor:
   def _mark(self, key: str, t: float | None = None) -> None:
     self.first.setdefault(key, round(float(self.sc.data.time if t is None else t), 3))
 
+  def _robot_table_contact(self) -> dict:
+    d, m, cat = self.sc.data, self.sc.model, self.sc.geom_cat
+    best = None
+    for i in range(d.ncon):
+      g1, g2 = int(d.contact.geom[i, 0]), int(d.contact.geom[i, 1])
+      for a, b in ((g1, g2), (g2, g1)):
+        if cat[a] in ROBOT_CATS and cat[b] == S.CAT_TABLE:
+          if best is None or d.contact.dist[i] < best[1]:
+            best = (m.geom(a).name, float(d.contact.dist[i]))
+    if best is None:
+      return {"t": round(float(d.time), 3)}
+    return {"t": round(float(d.time), 3), "geom": best[0], "dist_mm": round(best[1] * 1e3, 3)}
+
   def _obj_bottom_z(self) -> float:
     d, sc = self.sc.data, self.sc
     z = float(d.xpos[sc.obj_body, 2])
@@ -174,8 +188,11 @@ class PhaseFreeMonitor:
   # ---- per physics step, called AFTER mj_step ------------------------------------------
   def step(self, v: Variation | None = None) -> None:
     sc, d, cat = self.sc, self.sc.data, self.sc.geom_cat
+    n_tab = self.base.c["arm_table"]
     self.base.step("none", None)
     self.n_steps += 1
+    if self.arm_table_first is None and self.base.c["arm_table"] > n_tab:
+      self.arm_table_first = self._robot_table_contact()
     t = float(d.time)
     n = d.ncon
     fixed = moving = table = floor = wall = robot = False
@@ -320,6 +337,8 @@ class PhaseFreeMonitor:
         "disturb_mm_at_first_grasp": None if self.disturb_mm_at_grasp is None
         else round(self.disturb_mm_at_grasp, 2),
         "foreign_contact_kinds": self.foreign,
+        "arm_table_first_contact": self.arm_table_first,
+        "first_both_jaw_t": None if self.first_both_jaw_t is None else round(self.first_both_jaw_t, 3),
         "max_tracking_error_rad": round(self.max_track_err, 4),
         "max_goal_speed_rad_s": [round(x, 4) for x in self.max_goal_speed],
         "max_arm_torque_frac": np.round(b.max_torque_frac, 3).tolist(),

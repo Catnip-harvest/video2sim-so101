@@ -261,7 +261,12 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
                 keep_arrays: bool = True, servo_foh: bool = True) -> EpisodeResult:
   wall0 = time.perf_counter()
   cfg = cfg or PlanConfig()
-  sc = S.build_episode_scene(v, object_kind=spec.object.kind, render_size=render_size)
+  mesh = getattr(spec, "mesh", None)  # object3d hook (object kind "mesh"); None = primitive
+  sc = S.build_episode_scene(v, object_kind=spec.object.kind, render_size=render_size,
+                             mesh=mesh, with_visual=False)
+  if mesh is not None:  # logged with the variation so every episode records its object
+    v.extras["mesh"] = {"name": mesh.name, "xml": str(mesh.xml), "scale_mult": mesh.scale_mult,
+                        "half_extents_m": [float(x) for x in mesh.half]}
   m, d = sc.model, sc.data
   assert m.neq == 0 and m.nmocap == 0, "model must have no equality constraints or mocap"
   # Initial placement (the only state write in the episode).
@@ -432,7 +437,8 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
   op = d.xpos[sc.obj_body]
   bx, by = v.bin_xy
   lim = mj_scene.BIN_INNER_HALF - spec.place.success_xy_margin
-  rest_z = mj_scene.bin_floor_top() + v.obj_size / 2
+  half_z = v.obj_size / 2 if sc.obj_half_extents is None else float(sc.obj_half_extents[2])
+  rest_z = mj_scene.bin_floor_top() + half_z
   in_xy = abs(op[0] - bx) <= lim and abs(op[1] - by) <= lim
   on_floor = abs(op[2] - rest_z) < 0.004
   if not (in_xy and on_floor):

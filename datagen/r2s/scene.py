@@ -53,6 +53,42 @@ class EpisodeScene:
   joint_lo: np.ndarray  # (6,) arm + gripper
   joint_hi: np.ndarray
   effort: np.ndarray  # (6,)
+  # Mesh objects only (object3d hook): bounding-box half sizes about the body origin, in
+  # the body frame. None for the primitive box/cylinder (sizes come from Variation.obj_size).
+  obj_half_extents: np.ndarray | None = None
+
+
+def enable_mesh_contacts(spec: mujoco.MjSpec) -> None:
+  """Contact settings a mesh object needs (object3d hook; never used for the cube).
+
+  MuJoCo collides a mesh as a convex hull. Measured with a 30 mm single-hull cube and this
+  solver (object3d/README.md, "Contact findings"):
+    * plane-vs-mesh gives only three contacts: a slow rocking (2-25 mm/s) that never comes
+      to rest. So the object rests on a box table top instead (see add_table);
+    * box-vs-mesh gives ONE contact if ``multiccd`` is off (on by default in 3.11; kept on);
+    * with MuJoCo's native CCD, the mesh cube put down in the bin ended 2-4 mm deep in the
+      4 mm bin floor in a jitter cycle in 5 of 8 episodes ("not_resting"); with the libccd
+      path (native CCD off) all 8 were accepted. So native CCD is off for mesh scenes."""
+  spec.option.disableflags &= ~int(mujoco.mjtDisableBit.mjDSBL_MULTICCD)
+  spec.option.disableflags |= int(mujoco.mjtDisableBit.mjDSBL_NATIVECCD)
+
+
+def add_table(spec: mujoco.MjSpec, material: str | None = None, mesh_object: bool = False,
+              half_size: float = 0.8) -> None:
+  """The table at z = 0: a plane (cube scenes: everything collides with it). With
+  ``mesh_object``, the plane only collides with the robot and a box top (named
+  ``table_top``, top face at z = 0, invisible) carries the object."""
+  kw = {} if material is None else {"material": material}
+  plane = spec.worldbody.add_geom(name="table", type=mujoco.mjtGeom.mjGEOM_PLANE,
+                                  size=(half_size, half_size, 0.01),
+                                  contype=rm.WORLD_CONTYPE, conaffinity=rm.WORLD_CONAFFINITY, **kw)
+  if mesh_object:
+    plane.contype = 0
+    plane.conaffinity = rm.ROBOT_CONTYPE  # robot geoms (contype 2) still hit the plane
+    spec.worldbody.add_geom(name="table_top", type=mujoco.mjtGeom.mjGEOM_BOX,
+                            size=(half_size, half_size, 0.01), pos=(0.0, 0.0, -0.01),
+                            contype=0, conaffinity=rm.WORLD_CONAFFINITY, group=3,
+                            rgba=(0.5, 0.5, 0.5, 0.0))
 
 
 def _cam_xyaxes(pos: np.ndarray, lookat: np.ndarray) -> list[float]:
@@ -65,7 +101,10 @@ def _cam_xyaxes(pos: np.ndarray, lookat: np.ndarray) -> list[float]:
 
 
 def build_episode_scene(v: Variation, object_kind: str = "box",
-                        render_size: tuple[int, int] = (256, 256)) -> EpisodeScene:
+                        render_size: tuple[int, int] = (256, 256), mesh=None,
+                        with_visual: bool = True) -> EpisodeScene:
+  """``mesh``: a ``r2s.mesh_object.MeshObject`` to use instead of the primitive object
+  (object kind "mesh"); ``with_visual=False`` leaves out its drawn-only mesh (physics runs)."""
   spec = mujoco.MjSpec()
   spec.option.timestep = TIMESTEP
   spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
@@ -95,19 +134,24 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
                             fovy=v.cam_fovy)
 
   # --- physical scene (mirrors mj_scene.build_cpu_scene) -------------------------
-  spec.worldbody.add_geom(name="table", type=mujoco.mjtGeom.mjGEOM_PLANE,
-                          size=(0.8, 0.8, 0.01), material="table_mat",
-                          contype=rm.WORLD_CONTYPE, conaffinity=rm.WORLD_CONAFFINITY)
+  add_table(spec, material="table_mat", mesh_object=mesh is not None)
+  if mesh is not None:
+    enable_mesh_contacts(spec)
   robot = rm.so101_spec()
   robot.option.timestep = TIMESTEP  # avoid the attach-conflict warning; parent wins anyway
   rm.add_position_actuators(robot, arm_effort_limit=v.arm_effort,
                             gripper_effort_limit=v.gripper_effort)
   spec.attach(robot, prefix="", frame=spec.worldbody.add_frame(pos=(0.0, 0.0, 0.0)))
 
-  half = v.obj_size / 2
-  obj = mj_scene.object_spec(kind=object_kind, size=v.obj_size, height=v.obj_size,
-                             mass=v.obj_mass, friction=(v.obj_friction, 0.005, 0.0001),
-                             rgba=(*v.object_rgb, 1.0))
+  if mesh is None:
+    half = v.obj_size / 2
+    obj = mj_scene.object_spec(kind=object_kind, size=v.obj_size, height=v.obj_size,
+                               mass=v.obj_mass, friction=(v.obj_friction, 0.005, 0.0001),
+                               rgba=(*v.object_rgb, 1.0))
+  else:  # object3d hook: body origin = bounding-box centre, so it rests at its half height
+    half = float(mesh.half[2])
+    obj = mesh.object_spec(mass=v.obj_mass, friction=(v.obj_friction, 0.005, 0.0001),
+                           rgba=(*v.object_rgb, 1.0), with_visual=with_visual)
   # Start 0.5 mm above the table; the unrecorded settle phase lets it come to rest.
   obj.body("object").pos = (v.obj_xy[0], v.obj_xy[1], half + 0.0005)
   obj.body("object").quat = (np.cos(v.obj_yaw / 2), 0.0, 0.0, np.sin(v.obj_yaw / 2))
@@ -142,11 +186,12 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
 
   # Geom categories + finger friction DR.
   cat = np.zeros(model.ngeom, dtype=np.int8)
+  obj_body = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "object")
   for g in range(model.ngeom):
     name = model.geom(g).name
-    if name == "table":
+    if name in ("table", "table_top"):
       cat[g] = CAT_TABLE
-    elif name == "object_geom":
+    elif name == "object_geom" or model.geom_bodyid[g] == obj_body:  # mesh: every piece
       cat[g] = CAT_OBJECT
     elif name == "bin_floor":
       cat[g] = CAT_BIN_FLOOR
@@ -173,4 +218,5 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
     geom_cat=cat,
     joint_lo=model.jnt_range[all_j, 0].copy(), joint_hi=model.jnt_range[all_j, 1].copy(),
     effort=effort,
+    obj_half_extents=None if mesh is None else np.asarray(mesh.half, float).copy(),
   )

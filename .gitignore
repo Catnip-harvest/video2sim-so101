@@ -30,3 +30,7 @@ outputs_large/
 *.npz
 !demo/test_assets/*.npz
 demo/third_party/*/
+
+# object3d: downloaded scans (fetch_ycb.py; CC BY 4.0) and generated MJCF objects
+object3d/third_party/ycb/
+object3d/out/

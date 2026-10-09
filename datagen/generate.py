@@ -31,7 +31,7 @@ if str(HERE) not in sys.path:
 
 import numpy as np  # noqa: E402
 
-from r2s.paths import load_task_spec  # noqa: E402
+from r2s.mesh_object import load_spec as load_task_spec  # noqa: E402  (+ object kind "mesh")
 
 DEFAULT_TASK = "pick up the cube and place it in the bin"
 ROBOT_TYPE = "so101_follower"
@@ -93,7 +93,8 @@ def _attempt(i: int) -> dict:
       paths = {k: f"{stem}.{k.split('.')[-1]}.mp4" for k in cfg["video_keys"]}
       row["image_stats"] = render_episode(v, res.qpos_full, cfg["video_keys"], paths,
                                           size=tuple(cfg["size"]), codec=cfg["codec"],
-                                          object_kind=spec.object.kind)
+                                          object_kind=spec.object.kind,
+                                          mesh=getattr(spec, "mesh", None))
       row["render_seconds"] = round(time.perf_counter() - t0, 3)
     (Path(str(stem) + ".json")).write_text(json.dumps(row))
   return row

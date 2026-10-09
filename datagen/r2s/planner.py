@@ -75,6 +75,9 @@ class PlanConfig:
   carry_app_tol_deg: float = 25.0
   smooth_window: int = 5
   close_jaw: bool = True  # False = negative control (tests): the jaw never closes
+  # Mesh objects only (object3d hook); the defaults keep the cube planner's behaviour.
+  open_max_rad: float = 1.0  # widest jaw opening the planner commands (1.0 rad = 87 mm mouth)
+  grasp_height_max: float | None = None  # cap on the grasp-site height (tall objects)
 
 
 class PlanError(RuntimeError):
@@ -136,22 +139,32 @@ class Expert:
     self.hi = sc.joint_hi[:5]
     mid, half = (self.lo + self.hi) / 2, (self.hi - self.lo) / 2
     self.soft_lo, self.soft_hi = mid - SOFT_LIMIT * half, mid + SOFT_LIMIT * half
-    self.half = v.obj_size / 2
-    self.half_w = v.obj_size / 2
-    self.rest_z = self.half
-    width = pinch_width if pinch_width is not None else v.obj_size
-    width = float(np.clip(width, v.obj_size, 0.050))  # never open less than the object
-    self.g_open = float(np.clip(mouth_to_jaw_angle(width + cfg.open_margin), 0.6, 1.0))
-    self.g_close = float(max(rm.GRIPPER_CLOSED,
-                             mouth_to_jaw_angle(v.obj_size) - cfg.squeeze))
-    self.g_release = float(np.clip(mouth_to_jaw_angle(v.obj_size + cfg.release_mouth_margin),
-                                   0.25, self.g_open))
-    if not cfg.close_jaw:
-      self.g_close = self.g_open
+    # Mesh object (object3d hook): bounding-box half extents in the object frame.
+    self.ext = None if sc.obj_half_extents is None else np.asarray(sc.obj_half_extents, float)
+    self.pinch_width = pinch_width
+    if self.ext is None:
+      self.half = v.obj_size / 2
+      self.half_w = v.obj_size / 2
+      self.rest_z = self.half
+      width = pinch_width if pinch_width is not None else v.obj_size
+      width = float(np.clip(width, v.obj_size, 0.050))  # never open less than the object
+      self.g_open = float(np.clip(mouth_to_jaw_angle(width + cfg.open_margin), 0.6, 1.0))
+      self.g_close = float(max(rm.GRIPPER_CLOSED,
+                               mouth_to_jaw_angle(v.obj_size) - cfg.squeeze))
+      self.g_release = float(np.clip(mouth_to_jaw_angle(v.obj_size + cfg.release_mouth_margin),
+                                     0.25, self.g_open))
+      if not cfg.close_jaw:
+        self.g_close = self.g_open
+    else:
+      self.half = float(self.ext[2])
+      self.rest_z = self.half
+      self.half_w = float(min(self.ext[:2]))
+      self._set_jaw_for_width(2 * self.half_w)
     # Grasp-site height: object centre, but the lowest fixed-jaw point stays
     # cfg.tip_clearance above the table (the grasp gate uses 3 mm; 2 mm puts the pads
     # lower on small cubes, which stops them squeezing out at the tip spheres).
-    self.grasp_z = max(self.half, rm.JAW_TIP_BELOW_SITE + cfg.tip_clearance)
+    centre_z = self.half if cfg.grasp_height_max is None else min(self.half, cfg.grasp_height_max)
+    self.grasp_z = max(centre_z, rm.JAW_TIP_BELOW_SITE + cfg.tip_clearance)
     # IK runs on a kinematic copy whose arm ranges are shrunk to 95 %, so solutions
     # respect the soft limits instead of being rejected after the fact.
     self.plan_model = copy.deepcopy(m)
@@ -170,6 +183,20 @@ class Expert:
     self.ik_worst = {"pos_mm": 0.0, "app_deg": 0.0}
     d = np.asarray(spec.approach.direction, float)
     self.spec_dir = d / np.linalg.norm(d)
+
+  def _set_jaw_for_width(self, w: float) -> None:
+    """Mesh objects: jaw targets for squeezing a width ``w`` (m), same rules as the cube
+    (open = pinch + margin, close = contact angle - squeeze, release = w + margin), with
+    the widest opening set by cfg.open_max_rad."""
+    cfg = self.cfg
+    width = self.pinch_width if self.pinch_width is not None else w
+    width = float(np.clip(width, w, max(0.050, w)))
+    self.g_open = float(np.clip(mouth_to_jaw_angle(width + cfg.open_margin), 0.6, cfg.open_max_rad))
+    self.g_close = float(max(rm.GRIPPER_CLOSED, mouth_to_jaw_angle(w) - cfg.squeeze))
+    self.g_release = float(np.clip(mouth_to_jaw_angle(w + cfg.release_mouth_margin),
+                                   0.25, self.g_open))
+    if not cfg.close_jaw:
+      self.g_close = self.g_open
 
   # --- geometry helpers ---------------------------------------------------------
   def spec_tilt(self, pick_az: float) -> float:
@@ -345,7 +372,13 @@ class Expert:
     # Cube faces: try the 4 face normals, nearest to the natural closing axis first.
     normals = [np.array([math.cos(obj_yaw + k * math.pi / 2),
                          math.sin(obj_yaw + k * math.pi / 2), 0.0]) for k in range(4)]
-    normals.sort(key=lambda n: -float(np.dot(n, c_nat)))
+    # Half width of the object along each normal: object x for k = 0, 2 and y for k = 1, 3
+    # (mesh objects); the cube is the same along all four.
+    halves = ([self.half_w] * 4 if self.ext is None
+              else [float(self.ext[0]), float(self.ext[1])] * 2)
+    order = sorted(range(4), key=lambda k: -float(np.dot(normals[k], c_nat)))
+    halves = [halves[k] for k in order]
+    normals = [normals[k] for k in order]
     # Candidate finger tilts: the spec's approach side first, then vertical, then
     # outward / inward 15 deg. Candidate faces: the two nearest the natural closing axis.
     t_spec = self.spec_tilt(pick_az)
@@ -353,8 +386,11 @@ class Expert:
                         if abs(t - t_spec) > 1e-3]
     last_err = None
     for tilt in tilts:
-      for closing in normals[:2]:
+      for closing, half_w in zip(normals[:2], halves[:2]):
         self.tilt = tilt
+        if self.ext is not None:
+          self.half_w = half_w
+          self._set_jaw_for_width(2 * half_w)
         try:
           plan, info = self._plan_pick_with(plan, q_start, obj_pos, closing, pick_az)
           info["tilt_deg"] = math.degrees(tilt)
@@ -410,6 +446,8 @@ class Expert:
             "pick_az": pick_az,
             "grasp_site": grasp.tolist(), "approach_side_used": side_used,
             "g_open": self.g_open, "g_close": self.g_close, "g_release": self.g_release}
+    if self.ext is not None:
+      info["squeezed_width_mm"] = round(2e3 * self.half_w, 2)
     return plan, info
 
   # --- stages 2 and 3: re-planned from the simulated state ----------------------
@@ -481,7 +519,12 @@ class Expert:
     open, retreat, go home."""
     cfg = self.cfg
     self.off_local = R_grip.T @ (np.asarray(obj_pos) - np.asarray(site_pos))
-    below = self.half if R_obj is None else float(np.abs(np.asarray(R_obj)[2, :]).sum() * self.half)
+    if R_obj is None:
+      below = self.half
+    elif self.ext is not None:  # mesh: lowest bounding-box corner from the measured turn
+      below = float(np.abs(np.asarray(R_obj)[2, :]) @ self.ext)
+    else:
+      below = float(np.abs(np.asarray(R_obj)[2, :]).sum() * self.half)
     release_z = mj_scene.bin_floor_top() + below + cfg.release_gap
     obj_pos = np.asarray(obj_pos, float)
     top = np.array([bin_xy[0], bin_xy[1], max(float(obj_pos[2]), self.carry_height())])

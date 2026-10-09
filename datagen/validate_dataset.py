@@ -177,7 +177,8 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
       p = env[start:start + L, :3]
       start += L
       v = meta[e]["variation"]
-      half = v["obj_size"] / 2
+      mesh = (v.get("extras") or {}).get("mesh")  # object3d hook: mesh objects log their size
+      half = v["obj_size"] / 2 if not mesh else mesh["half_extents_m"][2]
       bx, by = v["bin_xy"]
       lim = mj_scene.BIN_INNER_HALF - 0.005
       ok = (abs(p[0, 2] - half) < 0.003 and p[:, 2].max() - p[0, 2] >= 0.02

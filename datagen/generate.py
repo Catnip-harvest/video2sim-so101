@@ -93,7 +93,8 @@ def _attempt(i: int) -> dict:
       paths = {k: f"{stem}.{k.split('.')[-1]}.mp4" for k in cfg["video_keys"]}
       row["image_stats"] = render_episode(v, res.qpos_full, cfg["video_keys"], paths,
                                           size=tuple(cfg["size"]), codec=cfg["codec"],
-                                          object_kind=spec.object.kind)
+                                          object_kind=spec.object.kind,
+                                          quality=cfg.get("render_quality", "full"))
       row["render_seconds"] = round(time.perf_counter() - t0, 3)
     (Path(str(stem) + ".json")).write_text(json.dumps(row))
   return row
@@ -247,6 +248,9 @@ def main() -> None:
   ap.add_argument("--no-render", dest="render", action="store_false")
   ap.set_defaults(render=False)
   ap.add_argument("--size", default="256x256", help="WxH of rendered images")
+  ap.add_argument("--render-quality", default="full", choices=["full", "shadow", "fast"],
+                  help="full: shadows+reflection+MSAA (slow on OSMesa); shadow: 1024 shadow map, "
+                       "no reflection/MSAA; fast: none of them")
   ap.add_argument("--no-wrist", action="store_true", help="front camera only")
   ap.add_argument("--codec", default="h264", choices=["h264", "av1"])
   ap.add_argument("--task", default=DEFAULT_TASK)
@@ -271,13 +275,14 @@ def main() -> None:
     "video_keys": ["observation.images.front"] + ([] if args.no_wrist else
                                                   ["observation.images.wrist"]),
     "pinch_width": pinch_width_from_spec(Path(spec_path)), "no_dataset": args.no_dataset,
-    "servo_hold": args.servo_hold,
+    "servo_hold": args.servo_hold, "render_quality": args.render_quality,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
-    for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold"):
-      if old.get(k) != cfg[k]:
+    for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
+              "render_quality"):
+      if old.get(k, "full" if k == "render_quality" else None) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:
       sys.exit(f"{out} was started with --render; keep --render to resume")

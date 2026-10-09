@@ -22,6 +22,24 @@ from .variations import Variation
 
 CAMERAS = {"observation.images.front": "front", "observation.images.wrist": "wrist_cam"}
 CODECS = {"h264": "libx264", "av1": "libsvtav1"}
+# OSMesa (CPU) cost per image, measured on the droplet with LP_NUM_THREADS=1 at 256x256:
+# full 3.7/s, shadow 12/s, fast 39/s. Shadows + floor reflection + 4x MSAA dominate.
+QUALITIES = ("full", "shadow", "fast")
+
+
+def _apply_quality(m: mujoco.MjModel, quality: str) -> dict:
+  """Set model-level render options; return scene flags to force on every frame."""
+  if quality not in QUALITIES:
+    raise ValueError(f"render quality {quality!r} not in {QUALITIES}")
+  if quality == "full":
+    return {}
+  m.vis.quality.offsamples = 0
+  flags = {mujoco.mjtRndFlag.mjRND_REFLECTION: 0}
+  if quality == "shadow":
+    m.vis.quality.shadowsize = 1024
+  else:
+    flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+  return flags
 
 
 def gl_available() -> tuple[bool, str]:
@@ -70,11 +88,13 @@ class _Encoder:
 
 def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
                    out_paths: dict, size: tuple[int, int] = (256, 256), codec: str = "h264",
-                   object_kind: str = "box", stats_every: int = 5) -> dict:
+                   object_kind: str = "box", stats_every: int = 5,
+                   quality: str = "full") -> dict:
   """Write one mp4 per key in ``video_keys``; return per-key image stats in [0, 1]
   (sum, sumsq, min, max per channel, pixel count) from every ``stats_every``-th frame."""
   sc = build_episode_scene(v, object_kind=object_kind, render_size=size)
   m = sc.model
+  flags = _apply_quality(m, quality)
   d = mujoco.MjData(m)
   w, h = size
   r = mujoco.Renderer(m, h, w)
@@ -87,6 +107,8 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
       mujoco.mj_forward(m, d)
       for k in video_keys:
         r.update_scene(d, camera=CAMERAS[k])
+        for f, val in flags.items():
+          r.scene.flags[f] = val
         img = r.render()
         encs[k].add(img)
         if i % stats_every == 0:

@@ -51,6 +51,15 @@ class PolicyRunner:
     self.device = device
     self.task = task
     self.policy, self.pre, self.post = load_policy(path, device)
+    # Map the harness's camera keys onto the policy's own. SmolVLA was trained with
+    # --rename_map cam_head->camera1, cam_right->camera2, but lerobot 0.6.1 saves an EMPTY
+    # rename_map in the preprocessor, so the eval must rename (identity for MolmoAct2/ACT).
+    feats = set(getattr(self.policy.config, "input_features", {}) or {})
+    self.cam_map = {k: k for k in CAMERA_KEYS}
+    if not all(k in feats for k in CAMERA_KEYS) and {"observation.images.camera1",
+                                                        "observation.images.camera2"} <= feats:
+      self.cam_map = {"observation.images.cam_head": "observation.images.camera1",
+                      "observation.images.cam_right": "observation.images.camera2"}
     self.chunk_ms: list[float] = []  # wall time of each call that generated a new chunk
     self.call_ms: list[float] = []
 
@@ -68,7 +77,7 @@ class PolicyRunner:
     torch = self.torch
     obs = {"observation.state": np.asarray(state_mm2, np.float32)}
     for key in CAMERA_KEYS:
-      obs[key] = images[key]
+      obs[self.cam_map[key]] = images[key]
     t0 = time.perf_counter()
     batch = self.pre(prepare_observation_for_inference(obs, torch.device(self.device), self.task))
     with torch.inference_mode():
@@ -93,7 +102,7 @@ class PolicyRunner:
       for k in CAMERA_KEYS:
         img = images[k]
         assert img.dtype == np.uint8 and img.ndim == 3 and img.shape[2] == 3, (k, img.shape, img.dtype)
-        obs[k] = img
+        obs[self.cam_map[k]] = img
     new_chunk = self.needs_obs()
     t0 = time.perf_counter()
     if new_chunk:

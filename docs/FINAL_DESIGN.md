@@ -103,3 +103,26 @@ Laptop, in parallel: phase-free verifier, eval harness, calibration.
 n≥1,000 eval "in minutes" (measured speed says hours); pure-DAgger control (expert restart cut); second SFT on default-spec data (no budget); RLinf as early go/no-go (a pass cannot wrap our env this weekend).
 
 **PAYWALLED:** none. Unread: Ilia's references, RECAP past 100k chars, Robometer appendices, V-JEPA 2.1 body, 2510.16240 split tables, pi.website (HTTP 429).
+## 10. Model choice update (9 Oct, after the owner asked about MolmoAct 2)
+
+**Facts checked on 9 Oct:**
+- **LeRobot 0.6.1 ships the policies we need.** `src/lerobot/policies` at tag v0.6.1 contains `molmoact2`, `pi05` and `vla_jepa`.
+- **`allenai/MolmoAct2-SO100_101` exists.** It is already fine-tuned on an SO-100/101 data mixture: absolute joint-pose control, language-annotated tasks such as "grasp the lemon … drop it into the red bowl".
+  - Not gated. 21.8 GB in fp32 (about 5.4B parameters).
+  - Inference needs about 24–26 GB in fp32. bf16 is supported and needs roughly half.
+  - Its state vector is in LeRobot SO-101 joint units (degrees), not our sim's radians.
+  - The licence is not stated on the model card. Check before publishing.
+- **π0.5 (`lerobot/pi05_base`) is a generalist base.** It is about 3.3B parameters, needs the gated PaliGemma tokenizer, and AMD has reported fine-tuning it on MI300X.
+
+**Decision: smoke-test both before committing.** The table has a time box for each.
+
+| Step | Pass if | Time box |
+|---|---|---|
+| π0.5: 20 training steps in bf16 on our sim data | finite loss; record s/step and peak memory | 20 min |
+| MolmoAct2-SO100_101: 20 training steps in bf16 via LeRobot `molmoact2`, CUDA graphs OFF on ROCm | finite loss; record s/step and peak memory | 30 min |
+
+**Which model becomes primary:**
+- **MolmoAct2-SO100_101,** if it trains on ROCm and fits roughly 2 epochs in about 10 h. It has already seen real SO-101 data, which is a better prior for later transfer to the friend's arm, and the friend's team uses Molmo too.
+- **π0.5 otherwise.**
+
+Either way, the sim data must be exported in the chosen model's joint units through the single tested conversion module (§6). A deployment GPU for MolmoAct 2 needs at least 16 GB (bf16). The laptop's RTX 4060 (8 GB) cannot run it.

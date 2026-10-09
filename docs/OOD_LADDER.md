@@ -74,3 +74,20 @@ Notes.
   still builds and the verifier still agrees. Only the distractor rung can change physics.
 * **Camera visibility.** Checked by eye on the 4x4 contact sheets in
   `/work/outputs_large/eval/ood_sheets/<rung>.png` (front camera, first frame of ids 0-15).
+
+## 3. Checks done before any policy run (9 Oct, 21:40 UTC)
+
+* `eval/tests/test_ood.py` (10 tests) and `datagen/tests/test_free_bodies.py` (4 tests) pass;
+  `test_verify_policy.py` and `test_datagen.py` still pass. `--ood none` reproduces the
+  Variations of the P1.1 harness run (`policy_final_n200_seed3000/episodes.jsonl`) byte for byte.
+* Expert ceiling, seed 4000 ids 0-19, 2 workers: **17/20 L_full, 19/20 L_task on every rung**
+  (none, camera, the 4 camera sub-rungs, exposure, colour, combo, distractor), identical
+  failures (2 arm_table_collision, 1 placement). The expert never touched a distractor
+  (moved 0.0 mm in all 20 episodes), `wrong_object_in_bin` = 0.
+* First-frame visibility (front camera segmentation, ids 0-49, cube and gripper >= 10 px):
+  50/50 on none, camera, camera_height, camera_yaw, camera_distance, distractor; 48/50 on
+  camera_pitch (ids 17 and 45: gripper out of frame at the start, cube visible). Colour and
+  exposure do not move geometry. Script: `outputs_large/eval/ood_sheets/visibility_check.py`.
+* Contact sheets `outputs_large/eval/ood_sheets/<rung>.png`, looked at by eye. The `colour`
+  dim-light episodes (and so half of `combo`) are very dark: the black bin almost disappears,
+  the magenta cube stays visible. That is the intended stress, not a bug.

@@ -1,0 +1,14 @@
+[14:05:38] video third_party/pexels_7986194/7986194-sd_960_540_25fps.mp4: 88 frames at 12.5 fps, 960x540 (source 960x540 @ 25.00 fps)
+mediapipe native library unavailable ([WinError 4551] An Application Control policy has blocked this file); using the ONNX/OpenCV backend
+[14:05:42] hand detected in 49% of frames (mediapipe_models_onnx_opencv_dnn)
+[14:05:42] A4 calibration: f=535.5px (hfov_prior), camera height 0.182 m, reproj 31.763px
+[14:05:42] A4 candidate rejected: corner reprojection 31.8 px > 2 px
+[14:05:42] reusing object masks from outputs\pexels_7986194_keys\object_masks.npz
+Loading weights:   0%|          | 0/287 [00:00<?, ?it/s]Loading weights: 100%|##########| 287/287 [00:00<00:00, 4493.10it/s]
+[14:05:51] grasp 3.92s, lift 3.92s, set-down 4.80s, release 4.88s, hand scale 0.255
+[14:05:52] wrote outputs\pexels_7986194_keys\task_spec.json
+[14:05:52] WARNING: camera moved ~23 px between hand-free frames 0 and 87: calibration and the object path assume a still camera
+[14:05:52] WARNING: A4 candidate rejected (corner reprojection 31.8 px > 2 px); using the no-A4 fallback
+[14:05:52] WARNING: calibration is the no-A4 fallback: metric scale from an average hand, table plane from the depth model with zero-shift assumption; expect several-cm errors
+[14:05:52] WARNING: object left the view (or was occluded) before being set down; place = last tracked position
+[14:05:52] WARNING: hand scale 0.26 outside 0.7-1.4: unusual hand or poor monocular hand depth (hand depth has the lowest weight in the object-depth fusion)

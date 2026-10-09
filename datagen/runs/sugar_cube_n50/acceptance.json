@@ -1,0 +1,46 @@
+{
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\mi300x-rss\\sprint\\manip\\demo\\outputs\\pexels_7488188_sugar_cube\\so101_task_spec.json",
+  "seed": 0,
+  "attempts": 50,
+  "accepted": 50,
+  "acceptance_rate": 1.0,
+  "rejections_by_primary_reason": {},
+  "rejections_any_reason": {},
+  "acceptance_by_servo_variant": {
+    "7v4": {
+      "attempts": 25,
+      "accepted": 25,
+      "rate": 1.0
+    },
+    "12v": {
+      "attempts": 25,
+      "accepted": 25,
+      "rate": 1.0
+    }
+  },
+  "cpu_seconds_total": 132.7,
+  "sim_seconds_total": 871.7,
+  "attempts_per_cpu_second": 0.3768,
+  "accepted_episodes_per_cpu_second": 0.3768,
+  "sim_to_cpu_ratio": 6.57,
+  "wall_seconds_this_session": 23.0,
+  "workers": 8,
+  "render": false,
+  "accepted_mean_frames": 523.0,
+  "accepted_in_hand_slip_mm": {
+    "median": 0.15,
+    "p90": 0.28,
+    "max": 0.42
+  },
+  "accepted_final_offset_from_bin_centre_mm": {
+    "median": 4.03,
+    "p90": 5.89,
+    "max": 7.61
+  },
+  "accepted_object_tilt_in_hand_before_lowering_deg": {
+    "median": 0.4,
+    "p90": 10.2,
+    "max": 10.5
+  },
+  "attempts_logged_total": 65
+}

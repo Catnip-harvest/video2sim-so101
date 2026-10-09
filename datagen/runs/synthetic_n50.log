@@ -1,0 +1,17 @@
+[datagen] spec=synthetic n=50 workers=8 render=False resume: 0 logged, 0 accepted
+[datagen] 10 attempts, 10 accepted (100.0 %), 0.57 attempts/s wall
+[datagen] 20 attempts, 20 accepted (100.0 %), 0.75 attempts/s wall
+[datagen] 30 attempts, 29 accepted (96.7 %), 0.83 attempts/s wall
+[datagen] 40 attempts, 39 accepted (97.5 %), 0.86 attempts/s wall
+[datagen] 50 attempts, 49 accepted (98.0 %), 0.90 attempts/s wall
+[datagen] 51 attempts, 50 accepted (98.0 %), 0.90 attempts/s wall
+[datagen] 60 attempts, 58 accepted (96.7 %), 0.93 attempts/s wall
+{
+ "attempts": 51,
+ "accepted": 50,
+ "acceptance_rate": 0.9804,
+ "rejections_by_primary_reason": {
+  "arm_bin_collision": 1
+ }
+}
+wrote C:\Users\vieth\Documents\lablab hackathon\mi300x-rss\sprint\manip\datagen\runs\synthetic_n50\lerobot: 50 episodes, 45767 frames

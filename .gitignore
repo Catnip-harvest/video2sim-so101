@@ -1,0 +1,32 @@
+# secrets — never commit
+.env
+.env.*
+!.env.example
+*token*
+*.pem
+id_*
+
+# python / venvs
+__pycache__/
+*.egg-info/
+.venv*/
+.pytest_cache/
+
+# generated data, logs, model weights (fetched by scripts, pushed to Hugging Face)
+runs/*/lerobot/
+runs/*/staging/
+runs/*/attempts.jsonl
+datagen/runs/*/lerobot/
+datagen/runs/*/staging/
+datagen/runs/*/attempts.jsonl
+logs/
+hf_home/
+outputs_large/
+*.safetensors
+*.task
+*.onnx
+*.pt
+*.ckpt
+*.npz
+!demo/test_assets/*.npz
+demo/third_party/*/

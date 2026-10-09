@@ -1,0 +1,14 @@
+[14:34:12] video test_assets/pexels_7488188_sugar_cube_0-3s.mp4: 90 frames at 30.0 fps, 540x960 (source 540x960 @ 29.97 fps)
+mediapipe native library unavailable ([WinError 4551] An Application Control policy has blocked this file); using the ONNX/OpenCV backend
+[14:34:15] hand detected in 22% of frames (mediapipe_models_onnx_opencv_dnn)
+[14:34:16] A4 calibration: f=740.9px (hfov_prior), camera height 1.612 m, reproj 14.152px
+[14:34:16] A4 candidate rejected: corner reprojection 14.2 px > 2 px
+[14:34:16] reusing object masks from outputs\pexels_7488188_sugar_cube\object_masks.npz
+Loading weights:   0%|          | 0/287 [00:00<?, ?it/s]Loading weights: 100%|##########| 287/287 [00:00<00:00, 4633.50it/s]
+[14:34:46] grasp 1.03s, lift 1.20s, set-down 2.00s, release 2.07s, hand scale 0.911
+[14:34:46] so101 export: object size 16.0 mm clamped to 20 mm (task band 20-50 mm)
+[14:34:47] wrote outputs\pexels_7488188_sugar_cube\task_spec.json
+[14:34:47] WARNING: A4 candidate rejected (corner reprojection 14.2 px > 2 px); using the no-A4 fallback
+[14:34:47] WARNING: calibration is the no-A4 fallback: metric scale from the known object size, focal length from --hfov-deg, table tilt from cli_camera_pitch_level_horizon; expect several-cm errors
+[14:34:47] WARNING: object left the view (or was occluded) before being set down; place = last tracked position
+[14:34:47] WARNING: hand not detected around the grasp; grasp time = lift-off - 0.2 s

@@ -1,0 +1,19 @@
+[datagen] spec=synthetic n=50 workers=8 render=False resume: 0 logged, 0 accepted
+[datagen] 10 attempts, 6 accepted (60.0 %), 0.45 attempts/s wall
+[datagen] 20 attempts, 16 accepted (80.0 %), 0.58 attempts/s wall
+[datagen] 30 attempts, 25 accepted (83.3 %), 0.63 attempts/s wall
+[datagen] 40 attempts, 34 accepted (85.0 %), 0.64 attempts/s wall
+[datagen] 50 attempts, 44 accepted (88.0 %), 0.67 attempts/s wall
+[datagen] 56 attempts, 50 accepted (89.3 %), 0.67 attempts/s wall
+[datagen] 60 attempts, 53 accepted (88.3 %), 0.68 attempts/s wall
+[datagen] 70 attempts, 61 accepted (87.1 %), 0.68 attempts/s wall
+{
+ "attempts": 56,
+ "accepted": 50,
+ "acceptance_rate": 0.8929,
+ "rejections_by_primary_reason": {
+  "dropped_or_slipped": 4,
+  "foreign_contact_while_carried": 1,
+  "self_collision": 1
+ }
+}

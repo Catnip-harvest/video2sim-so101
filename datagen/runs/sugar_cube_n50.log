@@ -1,0 +1,14 @@
+[datagen] spec=pexels_7488188_sugar_cube n=50 workers=8 render=False resume: 0 logged, 0 accepted
+[datagen] 10 attempts, 10 accepted (100.0 %), 1.86 attempts/s wall
+[datagen] 20 attempts, 20 accepted (100.0 %), 2.52 attempts/s wall
+[datagen] 30 attempts, 30 accepted (100.0 %), 2.60 attempts/s wall
+[datagen] 40 attempts, 40 accepted (100.0 %), 2.70 attempts/s wall
+[datagen] 50 attempts, 50 accepted (100.0 %), 2.79 attempts/s wall
+[datagen] 60 attempts, 60 accepted (100.0 %), 2.71 attempts/s wall
+{
+ "attempts": 50,
+ "accepted": 50,
+ "acceptance_rate": 1.0,
+ "rejections_by_primary_reason": {}
+}
+wrote C:\Users\vieth\Documents\lablab hackathon\mi300x-rss\sprint\manip\datagen\runs\sugar_cube_n50\lerobot: 50 episodes, 26150 frames

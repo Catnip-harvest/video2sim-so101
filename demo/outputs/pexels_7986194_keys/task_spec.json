@@ -1,0 +1,1063 @@
+{
+  "schema_version": "watch_me_once.task_spec/2 (object-centric)",
+  "frame": {
+    "name": "robot_table",
+    "origin": "robot base, on the table surface",
+    "axes": "+x forward, +y left, +z up",
+    "units": "metres, radians, seconds (video time)"
+  },
+  "object": {
+    "size_m": [
+      0.0324,
+      0.0324,
+      0.005
+    ],
+    "size_note": "[width along the grasp closing axis, depth, height]; physical, never scaled",
+    "size_source": "mask_box_fit",
+    "shape_hint": "box",
+    "start_pose_xyz_yaw": [
+      0.1944,
+      -0.0158,
+      0.0025,
+      -3.1398
+    ],
+    "place_pose_xyz_yaw": [
+      0.1944,
+      0.0158,
+      0.0318,
+      -3.1398
+    ],
+    "pose_note": "xyz = object centre; yaw = direction of the grasp closing axis (object faces assumed aligned)"
+  },
+  "place_target_xyz": [
+    0.1944,
+    0.0158,
+    0.0318
+  ],
+  "object_waypoints": [
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.42
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.4533
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.4867
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.52
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.5533
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.5867
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.62
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.6533
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.6867
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.72
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.7533
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.7867
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.82
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.8533
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.8867
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      3.92
+    ],
+    [
+      0.1935,
+      -0.0137,
+      0.0038,
+      3.9533
+    ],
+    [
+      0.1921,
+      -0.0096,
+      0.0062,
+      3.9867
+    ],
+    [
+      0.1912,
+      -0.0062,
+      0.0078,
+      4.02
+    ],
+    [
+      0.1906,
+      -0.003,
+      0.0092,
+      4.0533
+    ],
+    [
+      0.1902,
+      0.0005,
+      0.0101,
+      4.0867
+    ],
+    [
+      0.19,
+      0.0051,
+      0.0107,
+      4.12
+    ],
+    [
+      0.1901,
+      0.0085,
+      0.0112,
+      4.1533
+    ],
+    [
+      0.1902,
+      0.0092,
+      0.0118,
+      4.1867
+    ],
+    [
+      0.1902,
+      0.0096,
+      0.0124,
+      4.22
+    ],
+    [
+      0.1905,
+      0.0094,
+      0.0133,
+      4.2533
+    ],
+    [
+      0.1913,
+      0.0072,
+      0.0146,
+      4.2867
+    ],
+    [
+      0.1923,
+      0.0042,
+      0.0161,
+      4.32
+    ],
+    [
+      0.1933,
+      0.0005,
+      0.0182,
+      4.3533
+    ],
+    [
+      0.1945,
+      -0.0033,
+      0.0207,
+      4.3867
+    ],
+    [
+      0.1955,
+      -0.0054,
+      0.0231,
+      4.42
+    ],
+    [
+      0.1966,
+      -0.0069,
+      0.0258,
+      4.4533
+    ],
+    [
+      0.1971,
+      -0.0072,
+      0.0279,
+      4.4867
+    ],
+    [
+      0.197,
+      -0.0044,
+      0.0296,
+      4.52
+    ],
+    [
+      0.1967,
+      0.0001,
+      0.0309,
+      4.5533
+    ],
+    [
+      0.1962,
+      0.0047,
+      0.0314,
+      4.5867
+    ],
+    [
+      0.1955,
+      0.0099,
+      0.0318,
+      4.62
+    ],
+    [
+      0.195,
+      0.0131,
+      0.032,
+      4.6533
+    ],
+    [
+      0.1947,
+      0.0154,
+      0.0322,
+      4.6867
+    ],
+    [
+      0.1945,
+      0.0164,
+      0.0323,
+      4.72
+    ],
+    [
+      0.1944,
+      0.0162,
+      0.0321,
+      4.7533
+    ],
+    [
+      0.1944,
+      0.0159,
+      0.0318,
+      4.7867
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.82
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.8533
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.8867
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.92
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.9533
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      4.9867
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.02
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.0533
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.0867
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.12
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.1533
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.1867
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.22
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.2533
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      5.2867
+    ]
+  ],
+  "object_waypoints_fields": [
+    "x",
+    "y",
+    "z",
+    "t"
+  ],
+  "object_waypoints_note": "object centre path, smoothed and resampled at 30 Hz from lift-off - 0.5 s to set-down + 0.5 s; static ends held exactly",
+  "object_keyframes": [
+    {
+      "label": "start",
+      "xyz": [
+        0.1944,
+        -0.0158,
+        0.0025
+      ],
+      "t": 3.92
+    },
+    {
+      "label": "apex",
+      "xyz": [
+        0.1945,
+        0.0164,
+        0.0323
+      ],
+      "t": 4.72
+    },
+    {
+      "label": "place",
+      "xyz": [
+        0.1944,
+        0.0158,
+        0.0318
+      ],
+      "t": 4.8
+    }
+  ],
+  "approach_dir": [
+    -0.6323,
+    -0.2545,
+    -0.7317
+  ],
+  "approach_dir_note": "unit vector the gripper should travel along into the grasp = the human hand's wrist->pinch axis at the grasp (use for the pre-grasp offset / approach side)",
+  "approach_top_down_fraction": 0.732,
+  "gripper": {
+    "max_opening_m": 0.06,
+    "grasp_width_m": 0.0324,
+    "grasp_yaw_rad": -3.1398,
+    "closing_axis": [
+      -0.5147,
+      -0.0009,
+      -0.8574
+    ],
+    "approach_axis_from_hand": [
+      -0.6323,
+      -0.2545,
+      -0.7317
+    ],
+    "human_pinch_aperture_m": 0.0076,
+    "note": "two-finger pinch retarget: width = object width along the thumb-index axis, clamped to max_opening; human aperture is tip-to-tip and includes finger thickness"
+  },
+  "waypoints": [
+    [
+      0.2449,
+      0.0045,
+      0.061,
+      0.06,
+      3.32
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      0.06,
+      3.77
+    ],
+    [
+      0.1944,
+      -0.0158,
+      0.0025,
+      0.0324,
+      3.92
+    ],
+    [
+      0.1901,
+      0.0071,
+      0.011,
+      0.0324,
+      4.14
+    ],
+    [
+      0.1936,
+      -0.0002,
+      0.0187,
+      0.0324,
+      4.36
+    ],
+    [
+      0.1954,
+      0.0103,
+      0.0318,
+      0.0324,
+      4.624
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      0.0324,
+      4.8
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.0318,
+      0.06,
+      4.88
+    ],
+    [
+      0.1944,
+      0.0158,
+      0.1118,
+      0.06,
+      5.38
+    ]
+  ],
+  "waypoint_fields": [
+    "x",
+    "y",
+    "z",
+    "gripper_width",
+    "t"
+  ],
+  "waypoint_labels": [
+    "pre_grasp",
+    "grasp_open",
+    "grasp_closed",
+    "lift",
+    "carry_mid",
+    "pre_place",
+    "place",
+    "release",
+    "retreat"
+  ],
+  "waypoints_note": "SUGGESTED gripper plan derived from the object path (object-centric: gripper centre = object centre while held). Not the human hand path.",
+  "grasp_time": 3.92,
+  "release_time": 4.88,
+  "lift_off_time": 3.92,
+  "set_down_time": 4.8,
+  "phases": [
+    {
+      "name": "approach",
+      "t_start": 0.0,
+      "t_end": 3.92
+    },
+    {
+      "name": "grasp",
+      "t_start": 3.92,
+      "t_end": 3.92
+    },
+    {
+      "name": "transport",
+      "t_start": 3.92,
+      "t_end": 4.8
+    },
+    {
+      "name": "release",
+      "t_start": 4.8,
+      "t_end": 5.18
+    },
+    {
+      "name": "retreat",
+      "t_start": 5.18,
+      "t_end": 6.96
+    }
+  ],
+  "workspace_mapping": {
+    "scale_xy": 1.0,
+    "yaw_rad": 3.22876,
+    "offset_xy_m": [
+      0.19292,
+      -0.332
+    ],
+    "z_scale": 1.0,
+    "formula": "xy_robot = scale_xy * Rz(yaw) @ xy_human + offset_xy; z_robot = z_scale * z_human",
+    "robot_reach_m": 0.25,
+    "robot_min_radius_m": 0.1,
+    "human_pick_place_distance_m": 0.0316,
+    "fit_ok": true,
+    "path_radius_min_max_m": [
+      0.1901,
+      0.1972
+    ]
+  },
+  "human_table_frame": {
+    "definition": "no-A4 fallback: origin under the hand at grasp; +x = camera right projected on the table",
+    "object_start_pose_xyz_yaw": [
+      -0.029,
+      -0.3148,
+      0.0025,
+      -0.0853
+    ],
+    "place_target_xyz": [
+      -0.0317,
+      -0.3464,
+      0.0318
+    ],
+    "place_yaw": -0.0853,
+    "approach_dir": [
+      0.6521,
+      0.1985,
+      -0.7317
+    ],
+    "object_waypoints": [
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.42
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.4533
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.4867
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.52
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.5533
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.5867
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.62
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.6533
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.6867
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.72
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.7533
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.7867
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.82
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.8533
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.8867
+      ],
+      [
+        -0.029,
+        -0.3148,
+        0.0025,
+        3.92
+      ],
+      [
+        -0.0283,
+        -0.317,
+        0.0038,
+        3.9533
+      ],
+      [
+        -0.0272,
+        -0.3212,
+        0.0062,
+        3.9867
+      ],
+      [
+        -0.0267,
+        -0.3247,
+        0.0078,
+        4.02
+      ],
+      [
+        -0.0263,
+        -0.328,
+        0.0092,
+        4.0533
+      ],
+      [
+        -0.0262,
+        -0.3315,
+        0.0101,
+        4.0867
+      ],
+      [
+        -0.0265,
+        -0.336,
+        0.0107,
+        4.12
+      ],
+      [
+        -0.0268,
+        -0.3394,
+        0.0112,
+        4.1533
+      ],
+      [
+        -0.0269,
+        -0.3401,
+        0.0118,
+        4.1867
+      ],
+      [
+        -0.0271,
+        -0.3405,
+        0.0124,
+        4.22
+      ],
+      [
+        -0.0273,
+        -0.3403,
+        0.0133,
+        4.2533
+      ],
+      [
+        -0.0279,
+        -0.338,
+        0.0146,
+        4.2867
+      ],
+      [
+        -0.0286,
+        -0.335,
+        0.0161,
+        4.32
+      ],
+      [
+        -0.0294,
+        -0.3312,
+        0.0182,
+        4.3533
+      ],
+      [
+        -0.0302,
+        -0.3273,
+        0.0207,
+        4.3867
+      ],
+      [
+        -0.031,
+        -0.3251,
+        0.0231,
+        4.42
+      ],
+      [
+        -0.0319,
+        -0.3236,
+        0.0258,
+        4.4533
+      ],
+      [
+        -0.0324,
+        -0.3232,
+        0.0279,
+        4.4867
+      ],
+      [
+        -0.0326,
+        -0.326,
+        0.0296,
+        4.52
+      ],
+      [
+        -0.0327,
+        -0.3305,
+        0.0309,
+        4.5533
+      ],
+      [
+        -0.0326,
+        -0.3352,
+        0.0314,
+        4.5867
+      ],
+      [
+        -0.0323,
+        -0.3404,
+        0.0318,
+        4.62
+      ],
+      [
+        -0.0322,
+        -0.3437,
+        0.032,
+        4.6533
+      ],
+      [
+        -0.032,
+        -0.3459,
+        0.0322,
+        4.6867
+      ],
+      [
+        -0.0319,
+        -0.3469,
+        0.0323,
+        4.72
+      ],
+      [
+        -0.0318,
+        -0.3467,
+        0.0321,
+        4.7533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.7867
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.82
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.8533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.8867
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.92
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.9533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        4.9867
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.02
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.0533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.0867
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.12
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.1533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.1867
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.22
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.2533
+      ],
+      [
+        -0.0317,
+        -0.3464,
+        0.0318,
+        5.2867
+      ]
+    ]
+  },
+  "source_video": {
+    "path": "C:\\Users\\vieth\\Documents\\lablab hackathon\\mi300x-rss\\sprint\\manip\\demo\\third_party\\pexels_7986194\\7986194-sd_960_540_25fps.mp4",
+    "source_fps": 25.0,
+    "source_resolution": [
+      960,
+      540
+    ],
+    "source_frames": 176,
+    "processed_fps": 12.5,
+    "processed_resolution": [
+      960,
+      540
+    ],
+    "processed_frames": 88,
+    "processing_scale": 1.0
+  },
+  "calibration": {
+    "method": "no_a4_fallback",
+    "focal_source": "hfov_prior",
+    "K_processing_px": [
+      [
+        753.449,
+        0.0,
+        480.0
+      ],
+      [
+        0.0,
+        753.449,
+        270.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "R_camera_from_table": [
+      [
+        0.999659,
+        0.0,
+        0.026108
+      ],
+      [
+        0.026108,
+        -0.006197,
+        -0.99964
+      ],
+      [
+        0.000162,
+        0.999981,
+        -0.006195
+      ]
+    ],
+    "t_camera_from_table_m": [
+      0.0172,
+      0.01019,
+      0.42612
+    ],
+    "hand_scale_factor": 0.2551,
+    "hand_scale_source": "grasp_contact",
+    "mediapipe_world_z_sign": 1.0,
+    "hand_backend": "mediapipe_models_onnx_opencv_dnn",
+    "fallback_plane_inlier_fraction": 0.493,
+    "fallback_reference_frame": 41,
+    "assumed_pinch_height_m": 0.02,
+    "camera_center_table_m": [
+      -0.0175,
+      -0.4261,
+      0.0124
+    ],
+    "camera_height_above_table_m": 0.0124,
+    "focal_px": 753.45
+  },
+  "quality": {
+    "object_box_fit_rms_px": 6.843,
+    "depth_source_median_rel_disagreement": {
+      "hand": 0.0
+    },
+    "transport_plane_prior_used": false,
+    "approach_motion_dir_table": null,
+    "transport_frames": 12,
+    "transport_frames_rejected": 1,
+    "transport_rejected_by_reason": {
+      "no_mask": 0,
+      "occluded": 0,
+      "mask_leak": 0,
+      "fast_motion": 0,
+      "no_depth": 1
+    },
+    "longest_interpolated_gap_s": 0.08,
+    "hand_detected_fraction": 0.489,
+    "object_tracked_fraction": 0.693,
+    "object_area_px_at_rest": 6076,
+    "pick_hand_vs_object_m": 0.0195,
+    "camera_motion_px_first_to_last": 22.61,
+    "hand_lift_reprojection_rms_px_median": 11.342,
+    "events": {
+      "lift_off_frame": 49,
+      "set_down_frame": 60,
+      "grasp_frame": 49,
+      "release_frame": 61,
+      "grasp_source": "hand_aperture",
+      "release_source": "object_motion_only",
+      "object_left_view": true,
+      "place_source": "last_tracked_position"
+    },
+    "object_prompt": {
+      "mode": "box"
+    },
+    "warnings": [
+      "camera moved ~23 px between hand-free frames 0 and 87: calibration and the object path assume a still camera",
+      "A4 candidate rejected (corner reprojection 31.8 px > 2 px); using the no-A4 fallback",
+      "calibration is the no-A4 fallback: metric scale from an average hand, table plane from the depth model with zero-shift assumption; expect several-cm errors",
+      "object left the view (or was occluded) before being set down; place = last tracked position",
+      "hand scale 0.26 outside 0.7-1.4: unusual hand or poor monocular hand depth (hand depth has the lowest weight in the object-depth fusion)"
+    ],
+    "real_video_validated": false
+  },
+  "progress_curve": null,
+  "files": {
+    "trajectory_debug": "trajectory_debug.json",
+    "overlay": "debug_overlay.mp4",
+    "plot": "trajectories_3d.png",
+    "object_masks": "object_masks.npz"
+  }
+}

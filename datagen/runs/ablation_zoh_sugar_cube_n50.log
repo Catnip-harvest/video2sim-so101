@@ -1,0 +1,18 @@
+[datagen] spec=pexels_7488188_sugar_cube n=50 workers=8 render=False resume: 0 logged, 0 accepted
+[datagen] 10 attempts, 8 accepted (80.0 %), 1.78 attempts/s wall
+[datagen] 20 attempts, 14 accepted (70.0 %), 2.17 attempts/s wall
+[datagen] 30 attempts, 23 accepted (76.7 %), 2.51 attempts/s wall
+[datagen] 40 attempts, 29 accepted (72.5 %), 2.52 attempts/s wall
+[datagen] 50 attempts, 35 accepted (70.0 %), 2.54 attempts/s wall
+[datagen] 60 attempts, 41 accepted (68.3 %), 2.55 attempts/s wall
+[datagen] 69 attempts, 50 accepted (72.5 %), 2.64 attempts/s wall
+[datagen] 70 attempts, 51 accepted (72.9 %), 2.60 attempts/s wall
+[datagen] 80 attempts, 56 accepted (70.0 %), 2.63 attempts/s wall
+{
+ "attempts": 69,
+ "accepted": 50,
+ "acceptance_rate": 0.7246,
+ "rejections_by_primary_reason": {
+  "dropped_or_slipped": 19
+ }
+}

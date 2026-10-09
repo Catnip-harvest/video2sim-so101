@@ -1,0 +1,6 @@
+{
+ "structural": {
+  "passed": 56,
+  "failed": []
+ }
+}

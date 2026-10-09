@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "so101-pickplace"
+version = "0.1.0"
+description = "SO-101 pick-and-place (object-centric, demo-trajectory reward) task for mjlab"
+requires-python = ">=3.10"
+# mjlab (Menlo fork, 1.5.0) is installed separately so torch / warp / mujoco-warp pins
+# stay under the platform setup's control. Pure-MuJoCo parts need only mujoco + numpy.
+dependencies = []
+
+[project.entry-points."mjlab.tasks"]
+so101_pickplace = "so101_pickplace.register"
+
+[tool.setuptools]
+packages = ["so101_pickplace", "so101_pickplace.mdp"]

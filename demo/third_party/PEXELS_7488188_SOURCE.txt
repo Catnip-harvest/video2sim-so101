@@ -1,0 +1,20 @@
+First real demo clip for the extractor (chosen 2026-10-09; the owner's own filmed clip comes later).
+
+Page:     https://www.pexels.com/video/a-person-putting-a-sugar-cube-on-a-hot-beverage-7488188/
+File:     https://videos.pexels.com/video-files/7488188/7488188-sd_540_960_30fps.mp4  (540x960 portrait, 29.97 fps, 19 s)
+Author:   Nataliya Vaitkevich (Pexels), uploaded 2021-04-12
+Content:  still camera, elevated 3/4 view; one hand pinches a sugar cube off the tablecloth with thumb and index,
+          carries it and drops it into a cup of tea (0-2.2 s), then stirs and moves the cup (not used).
+Used:     trimmed to 0.0-3.0 s -> test_assets/pexels_7488188_sugar_cube_0-3s.mp4 (tools/trim_clip.py)
+Licence:  Pexels License (https://www.pexels.com/license/) - free to use and modify, no attribution required;
+          do not redistribute/resell unmodified copies on other stock platforms. Credit welcome:
+          "Video by Nataliya Vaitkevich from Pexels".
+Fetched:  2026-10-09
+
+Candidates looked at and rejected (downloaded one at a time, deleted):
+  Pexels 7986194 keys (camera drifts, keys leave frame - kept separately as the failure-mode test)
+  Pexels 6955866 healing stone into bowl (top-down; stone brought in from off-frame, no pick)
+  Pexels 5987451 stacking sugar cubes (tweezers, no hand)
+  Pexels 7199617 egg into bowl (wide shot, two hands, tiny object)
+  Pexels 7038583 eggs into carton (top-down; eggs brought from off-frame)
+  Mixkit 46306 eggs into basket (camera rotates, two hands)

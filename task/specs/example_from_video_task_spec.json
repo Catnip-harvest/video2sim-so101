@@ -1,0 +1,44 @@
+{
+  "format": "so101_pickplace_task_spec/v2",
+  "frame": "robot_base",
+  "units": "metres, seconds, radians",
+  "source": {
+    "kind": "human_video",
+    "video": "path/or/url/of/demo.mp4",
+    "notes": "EXAMPLE of what the demo-video worker should emit. Numbers are illustrative, not measured from any video. Waypoints are the OBJECT centre on the demo clock; grasp/release times and the approach side come from the hand."
+  },
+  "mount_height": 0.0,
+  "object": {
+    "kind": "box",
+    "size": 0.030,
+    "mass": 0.020,
+    "start_pose_range": {"x": [0.20, 0.24], "y": [-0.04, 0.0], "yaw": [-0.3, 0.3]}
+  },
+  "place_target": {
+    "kind": "bin",
+    "pos_range": {"x": [0.13, 0.16], "y": [0.17, 0.19]},
+    "min_separation": 0.11,
+    "success_xy_margin": 0.005
+  },
+  "approach": {"direction": [0.26, 0.0, -0.97], "weight": 0.25, "gate_std": 0.06},
+  "object_trajectory": {
+    "waypoints": [
+      [0.221, -0.019, 0.015, 0.00],
+      [0.222, -0.020, 0.015, 1.20],
+      [0.220, -0.018, 0.041, 1.60],
+      [0.205,  0.020, 0.088, 2.20],
+      [0.170,  0.120, 0.095, 2.90],
+      [0.148,  0.178, 0.060, 3.40],
+      [0.146,  0.181, 0.021, 3.80],
+      [0.146,  0.181, 0.021, 4.60]
+    ],
+    "grasp_time": 1.15,
+    "release_time": 3.85,
+    "robot_time_scale": 2.0,
+    "smoothing_window_s": 0.3,
+    "resample_dt": 0.1,
+    "weight": 4.0,
+    "std": 0.05,
+    "time_slack_s": 1.0
+  }
+}

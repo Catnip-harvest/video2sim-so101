@@ -1,0 +1,431 @@
+{
+ "device": "cpu",
+ "num_envs": 2,
+ "import_s": 11.5,
+ "env_build_s": 0.5,
+ "step_dt": 0.1,
+ "decimation": 20,
+ "episode_length_steps": 150,
+ "obs_terms": {
+  "actor": [
+   "joint_pos",
+   "joint_target",
+   "object_xy",
+   "target_xy",
+   "clock",
+   "actions",
+   "object_yaw"
+  ],
+  "critic": [
+   "joint_pos",
+   "joint_vel",
+   "joint_target",
+   "object_pos",
+   "object_quat",
+   "object_linvel",
+   "object_rel_ee",
+   "finger_axis",
+   "jaw_contacts",
+   "object_extent",
+   "ref_rel_object",
+   "target_xy",
+   "clock",
+   "actions"
+  ]
+ },
+ "obs_dims": {
+  "actor": [
+   [
+    6
+   ],
+   [
+    6
+   ],
+   [
+    2
+   ],
+   [
+    2
+   ],
+   [
+    1
+   ],
+   [
+    6
+   ],
+   [
+    2
+   ]
+  ],
+  "critic": [
+   [
+    6
+   ],
+   [
+    6
+   ],
+   [
+    6
+   ],
+   [
+    3
+   ],
+   [
+    4
+   ],
+   [
+    3
+   ],
+   [
+    3
+   ],
+   [
+    3
+   ],
+   [
+    2
+   ],
+   [
+    2
+   ],
+   [
+    3
+   ],
+   [
+    2
+   ],
+   [
+    1
+   ],
+   [
+    6
+   ]
+  ]
+ },
+ "action_dim": 6,
+ "reward_terms": [
+  "object_track",
+  "reach",
+  "grasp",
+  "lift",
+  "carry",
+  "placed",
+  "released",
+  "approach_side",
+  "object_dropped",
+  "action_rate_l2",
+  "joint_pos_limits"
+ ],
+ "random_steps": 20,
+ "random_steps_finite": true,
+ "sim_steps_per_s": 126.1,
+ "scripted_ik_max_err_mm": 24.17,
+ "scripted": {
+  "steps": 126,
+  "episode_length_steps_in_training": 150,
+  "resets_during_script": [
+   0,
+   0
+  ],
+  "stage_names": [
+   "pre-grasp",
+   "descend",
+   "at-grasp",
+   "close",
+   "lift",
+   "carry",
+   "lower",
+   "open",
+   "retreat"
+  ],
+  "step_each_stage_completed": [
+   [
+    13,
+    21,
+    28,
+    41,
+    54,
+    77,
+    88,
+    100,
+    116
+   ],
+   [
+    15,
+    22,
+    28,
+    41,
+    53,
+    75,
+    85,
+    97,
+    111
+   ]
+  ],
+  "stages_completed": [
+   9,
+   9
+  ],
+  "stages_total": 9,
+  "object_max_bottom_height_m": [
+   0.0817,
+   0.0815
+  ],
+  "steps_grasped": [
+   57,
+   54
+  ],
+  "steps_lifted": [
+   39,
+   37
+  ],
+  "steps_fixed_jaw_contact": [
+   58,
+   54
+  ],
+  "steps_moving_jaw_contact": [
+   57,
+   55
+  ],
+  "ever_placed": [
+   true,
+   true
+  ],
+  "released_at_end": [
+   true,
+   true
+  ],
+  "episode_return": [
+   106.335,
+   104.359
+  ],
+  "rewards_finite": true,
+  "end_object_minus_bin_centre_m": [
+   [
+    0.0008999999845400453,
+    0.001500000013038516,
+    0.018799999728798866
+   ],
+   [
+    0.005499999970197678,
+    0.0027000000700354576,
+    0.015699999406933784
+   ]
+  ],
+  "end_object_speed_mps": [
+   0.00559999980032444,
+   0.027699999511241913
+  ],
+  "end_jaw_contacts": [
+   [
+    false,
+    false
+   ],
+   [
+    false,
+    false
+   ]
+  ],
+  "dr_draws": {
+   "object_size_m": [
+    [
+     0.015699999406933784,
+     0.015699999406933784,
+     0.015699999406933784
+    ],
+    [
+     0.014399999752640724,
+     0.014399999752640724,
+     0.014399999752640724
+    ]
+   ],
+   "object_mass_kg": [
+    0.0374,
+    0.0326
+   ],
+   "finger_slide_friction_mean": [
+    0.93,
+    0.794
+   ],
+   "gripper_kp": [
+    1905.6,
+    1617.5
+   ],
+   "gripper_force_limit_nm": [
+    0.959,
+    1.024
+   ],
+   "action_latency": [
+    false,
+    false
+   ]
+  }
+ },
+ "scripted_s": 46.5,
+ "train_iters": 2,
+ "train_s": 3.9,
+ "checkpoints": [
+  "model_0.pt",
+  "model_1.pt"
+ ],
+ "onnx_files": [
+  "smoke_cpu.onnx"
+ ],
+ "deploy_contract_written": true,
+ "onnx_inputs": [
+  [
+   "obs",
+   [
+    1,
+    25
+   ]
+  ]
+ ],
+ "onnx_output_shape": [
+  1,
+  6
+ ],
+ "onnx_vs_torch_max_abs_diff": 7.82310962677002e-08,
+ "deploy_contract": {
+  "task_id": "SO101-PickPlace-State",
+  "control_hz": 10.0,
+  "physics_dt": 0.005,
+  "joint_order": [
+   "shoulder_pan",
+   "shoulder_lift",
+   "elbow_flex",
+   "wrist_flex",
+   "wrist_roll",
+   "gripper"
+  ],
+  "action": {
+   "kind": "target_delta_joint_position",
+   "rule": "target += clip(a, -1, 1) * max_delta; target = clip(target, soft limits)",
+   "max_delta_rad": [
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806,
+    0.20000000298023224
+   ],
+   "initial_target": "measured joint position at episode start"
+  },
+  "home_joint_pos": {
+   "shoulder_pan": 0.0,
+   "shoulder_lift": -0.6000000238418579,
+   "elbow_flex": 0.4000000059604645,
+   "wrist_flex": 1.4500000476837158,
+   "wrist_roll": -1.5499999523162842,
+   "gripper": 0.6000000238418579
+  },
+  "observations": {
+   "actor": {
+    "terms": [
+     "joint_pos",
+     "joint_target",
+     "object_xy",
+     "target_xy",
+     "clock",
+     "actions",
+     "object_yaw"
+    ],
+    "dims": [
+     [
+      6
+     ],
+     [
+      6
+     ],
+     [
+      2
+     ],
+     [
+      2
+     ],
+     [
+      1
+     ],
+     [
+      6
+     ],
+     [
+      2
+     ]
+    ]
+   },
+   "critic": {
+    "terms": [
+     "joint_pos",
+     "joint_vel",
+     "joint_target",
+     "object_pos",
+     "object_quat",
+     "object_linvel",
+     "object_rel_ee",
+     "finger_axis",
+     "jaw_contacts",
+     "object_extent",
+     "ref_rel_object",
+     "target_xy",
+     "clock",
+     "actions"
+    ],
+    "dims": [
+     [
+      6
+     ],
+     [
+      6
+     ],
+     [
+      6
+     ],
+     [
+      3
+     ],
+     [
+      4
+     ],
+     [
+      3
+     ],
+     [
+      3
+     ],
+     [
+      3
+     ],
+     [
+      2
+     ],
+     [
+      2
+     ],
+     [
+      3
+     ],
+     [
+      2
+     ],
+     [
+      1
+     ],
+     [
+      6
+     ]
+    ]
+   }
+  },
+  "frames": "robot base frame: x forward, y left, z up, table z=0; pan axis at (0.0388, 0)",
+  "grasp_site_gripper_frame_m": [
+   0.0075,
+   0.0,
+   -0.092
+  ],
+  "reference_duration_s": 11.0,
+  "notes": [
+   "wrist_roll zero: livekit-examples/so-frame measured +90 deg between the so101_new_calib model zero and the real LeRobot-calibrated arm; verify on the real arm before the first rollout."
+  ]
+ }
+}

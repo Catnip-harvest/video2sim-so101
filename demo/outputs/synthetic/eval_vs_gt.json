@@ -1,0 +1,68 @@
+{
+  "focal_px_est_vs_gt": [
+    703.23,
+    703.37
+  ],
+  "focal_error_pct": -0.021,
+  "camera_center_error_m": 0.0041,
+  "camera_height_est_vs_gt_m": [
+    0.312,
+    0.31
+  ],
+  "table_normal_error_deg": 0.218,
+  "a4_corner_error_px_mean_max": [
+    1.023,
+    1.75
+  ],
+  "pick_error_m": 0.0015,
+  "pick_error_xyz_m": [
+    0.0002,
+    0.0015,
+    -0.0003
+  ],
+  "place_error_m": 0.0195,
+  "place_error_xyz_m": [
+    0.0052,
+    -0.013,
+    0.0136
+  ],
+  "object_size_est_vs_gt_m": [
+    [
+      0.039,
+      0.039,
+      0.0395
+    ],
+    0.04
+  ],
+  "object_path_error_m_mean_max_all": [
+    0.013,
+    0.0376
+  ],
+  "object_path_error_m_mean_max_carried": [
+    0.0133,
+    0.0376
+  ],
+  "timing_s_est_vs_gt": {
+    "grasp": [
+      2.4667,
+      2.5
+    ],
+    "lift_off": [
+      2.8,
+      2.73333
+    ],
+    "set_down": [
+      4.9333,
+      4.967
+    ],
+    "release": [
+      5.4,
+      5.2
+    ]
+  },
+  "grasp_yaw_error_deg_mod180": 8.43,
+  "object_mask_iou_mean_min": [
+    0.937,
+    0.8959
+  ]
+}

@@ -1,0 +1,23 @@
+[14:06:02] video test_assets/synthetic_pick_place.mp4: 105 frames at 15.0 fps, 960x540 (source 960x540 @ 30.00 fps)
+mediapipe native library unavailable ([WinError 4551] An Application Control policy has blocked this file); using the ONNX/OpenCV backend
+[14:06:06] hand detected in 63% of frames (mediapipe_models_onnx_opencv_dnn)
+[14:06:06] A4 calibration: f=703.2px (a4_homography), camera height 0.312 m, reproj 0.125px
+[14:06:06] loading SAM 2.1 hiera-tiny
+[transformers] `memory_attention_rope_theta` is deprecated and will be removed in v5.0. Use `rope_parameters['rope_theta']` instead.
+Loading weights:   0%|          | 0/469 [00:00<?, ?it/s]Loading weights: 100%|##########| 469/469 [00:00<00:00, 4842.64it/s]
+[14:06:12] object prompt: {'mode': 'auto_change_blob', 'points': [[388.0, 262.0]], 'labels': [1], 'box': [372.4, 223.4, 437.6, 295.6], 'grasp_frame_used': 37, 'change_blob_px': 1809, 'change_blob_distance_to_pinch_px': 0.3, 'hand_free_frames': [[0, 1, 2, 3, 4], [104, 103, 102, 101, 100]], 'camera_shift_first_to_last_px': [-0.02, 0.03]}
+[14:06:13] sam2 frame 0/105
+[14:06:40] sam2 frame 10/105
+[14:07:11] sam2 frame 20/105
+[14:07:43] sam2 frame 30/105
+[14:08:14] sam2 frame 40/105
+[14:08:46] sam2 frame 50/105
+[14:09:18] sam2 frame 60/105
+[14:09:49] sam2 frame 70/105
+[14:10:21] sam2 frame 80/105
+[14:10:53] sam2 frame 90/105
+[14:11:25] sam2 frame 100/105
+Loading weights:   0%|          | 0/287 [00:00<?, ?it/s]Loading weights: 100%|##########| 287/287 [00:00<00:00, 4421.97it/s]
+[14:12:17] grasp 2.47s, lift 2.80s, set-down 4.93s, release 5.40s, hand scale 1.420
+[14:12:18] wrote outputs\synthetic\task_spec.json
+[14:12:18] WARNING: hand scale 1.42 outside 0.7-1.4: unusual hand or poor monocular hand depth (hand depth has the lowest weight in the object-depth fusion)

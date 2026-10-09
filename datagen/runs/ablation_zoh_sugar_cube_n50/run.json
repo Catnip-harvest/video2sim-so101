@@ -1,0 +1,20 @@
+{
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\mi300x-rss\\sprint\\manip\\demo\\outputs\\pexels_7488188_sugar_cube\\so101_task_spec.json",
+  "n": 50,
+  "seed": 0,
+  "render": false,
+  "size": [
+    256,
+    256
+  ],
+  "codec": "h264",
+  "task": "pick up the cube and place it in the bin",
+  "out": "C:\\Users\\vieth\\Documents\\lablab hackathon\\mi300x-rss\\sprint\\manip\\datagen\\runs\\ablation_zoh_sugar_cube_n50",
+  "video_keys": [
+    "observation.images.front",
+    "observation.images.wrist"
+  ],
+  "pinch_width": 0.016,
+  "no_dataset": true,
+  "servo_hold": "zoh"
+}

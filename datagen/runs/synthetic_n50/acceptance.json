@@ -1,0 +1,50 @@
+{
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\mi300x-rss\\sprint\\manip\\demo\\outputs\\synthetic\\so101_task_spec.json",
+  "seed": 0,
+  "attempts": 51,
+  "accepted": 50,
+  "acceptance_rate": 0.9804,
+  "rejections_by_primary_reason": {
+    "arm_bin_collision": 1
+  },
+  "rejections_any_reason": {
+    "arm_bin_collision": 1
+  },
+  "acceptance_by_servo_variant": {
+    "7v4": {
+      "attempts": 24,
+      "accepted": 24,
+      "rate": 1.0
+    },
+    "12v": {
+      "attempts": 27,
+      "accepted": 26,
+      "rate": 0.963
+    }
+  },
+  "cpu_seconds_total": 426.9,
+  "sim_seconds_total": 1563.6,
+  "attempts_per_cpu_second": 0.1195,
+  "accepted_episodes_per_cpu_second": 0.1171,
+  "sim_to_cpu_ratio": 3.66,
+  "wall_seconds_this_session": 70.5,
+  "workers": 8,
+  "render": false,
+  "accepted_mean_frames": 915.3,
+  "accepted_in_hand_slip_mm": {
+    "median": 1.6,
+    "p90": 3.4,
+    "max": 5.75
+  },
+  "accepted_final_offset_from_bin_centre_mm": {
+    "median": 7.85,
+    "p90": 11.76,
+    "max": 18.41
+  },
+  "accepted_object_tilt_in_hand_before_lowering_deg": {
+    "median": 24.6,
+    "p90": 28.76,
+    "max": 37.2
+  },
+  "attempts_logged_total": 66
+}

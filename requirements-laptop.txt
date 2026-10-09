@@ -1,0 +1,3 @@
+# Laptop (CPU) side: demo extractor — see demo/requirements.txt for exact tested pins.
+-r demo/requirements.txt
+mujoco==3.11.0

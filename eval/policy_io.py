@@ -91,8 +91,16 @@ class PolicyRunner:
     return np.asarray(ch, np.float64).reshape(-1, ch.shape[-1])[:, :6]
 
   def needs_obs(self) -> bool:
-    """True when the next call generates a new chunk (only then is the observation read)."""
-    return len(getattr(self.policy, "_action_queue", ())) == 0
+    """True when the next call generates a new chunk (only then is the observation read).
+    ACT/MolmoAct2 keep the chunk in `_action_queue`; SmolVLA in `_queues["action"]` (its
+    select_action only runs inference when that deque is empty, so skipping the image
+    preprocessing on the other steps changes nothing but speed)."""
+    q = getattr(self.policy, "_action_queue", None)
+    if q is None:
+      qs = getattr(self.policy, "_queues", None)
+      if isinstance(qs, dict) and "action" in qs:
+        q = qs["action"]
+    return q is None or len(q) == 0
 
   def act(self, state_mm2: np.ndarray, images: dict[str, np.ndarray] | None) -> np.ndarray:
     from lerobot.policies.utils import prepare_observation_for_inference

@@ -61,6 +61,26 @@ class PolicyRunner:
       if hasattr(p, "reset"):
         p.reset()
 
+  def chunk(self, state_mm2: np.ndarray, images: dict[str, np.ndarray], k: int = 0) -> np.ndarray:
+    """One full action chunk (H, 6), MolmoAct2 frame, from one observation (control B blend).
+    Same preprocessing as act(); predict_action_chunk is what select_action calls inside."""
+    from lerobot.policies.utils import prepare_observation_for_inference
+    torch = self.torch
+    obs = {"observation.state": np.asarray(state_mm2, np.float32)}
+    for key in CAMERA_KEYS:
+      obs[key] = images[key]
+    t0 = time.perf_counter()
+    batch = self.pre(prepare_observation_for_inference(obs, torch.device(self.device), self.task))
+    with torch.inference_mode():
+      ch = self.policy.predict_action_chunk(batch)  # (1, H, 6) normalised
+    ch = self.post(ch)
+    if torch.is_tensor(ch):
+      ch = ch.detach().float().cpu().numpy()
+    ms = (time.perf_counter() - t0) * 1e3
+    self.chunk_ms.append(ms)
+    self.call_ms.append(ms)
+    return np.asarray(ch, np.float64).reshape(-1, ch.shape[-1])[:, :6]
+
   def needs_obs(self) -> bool:
     """True when the next call generates a new chunk (only then is the observation read)."""
     return len(getattr(self.policy, "_action_queue", ())) == 0

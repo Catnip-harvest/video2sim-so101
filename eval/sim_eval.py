@@ -215,6 +215,70 @@ class PolicySource:
     return self.runner.act(state, images)
 
 
+class EMASource:
+  """Control B (a): exponential moving average of the 10 Hz actions,
+  out_k = alpha * a_k + (1 - alpha) * out_{k-1}, out_0 = a_0. All 6 joints."""
+
+  def __init__(self, inner, alpha: float):
+    self.inner, self.alpha = inner, float(alpha)
+    self.needs_images = inner.needs_images
+    self.prev = None
+
+  def reset(self):
+    self.inner.reset()
+    self.prev = None
+
+  def needs_obs(self) -> bool:
+    return self.inner.needs_obs()
+
+  def act(self, k: int, state, images):
+    a = self.inner.act(k, state, images)
+    if a is None:
+      return None
+    a = np.asarray(a, np.float64)
+    self.prev = a if self.prev is None else self.alpha * a + (1 - self.alpha) * self.prev
+    return self.prev.copy()
+
+
+class BlendSource:
+  """Control B (b): re-plan every ``every`` steps (< chunk length) and cross-fade the
+  overlapping part of the old and new chunks: on the overlap the new chunk's weight rises
+  linearly 1/(n+1) .. n/(n+1). ``runner`` needs ``chunk(state, images) -> (H, 6)`` (MolmoAct2
+  frame). Costs chunk/every times the inference of plain select_action (2x for 10/5)."""
+  needs_images = True
+
+  def __init__(self, runner, every: int = 5):
+    self.runner, self.every = runner, int(every)
+    self.plan: np.ndarray | None = None  # actions for steps start .. start+H-1
+    self.start = 0
+
+  def reset(self):
+    if hasattr(self.runner, "reset"):
+      self.runner.reset()
+    self.plan, self.start = None, 0
+
+  def needs_obs(self) -> bool:
+    return True  # the caller's step counter decides; see act()
+
+  def wants_obs(self, k: int) -> bool:
+    return self.plan is None or k - self.start >= self.every
+
+  def act(self, k: int, state, images):
+    if self.wants_obs(k):
+      new = np.asarray(self.runner.chunk(state, images, k=k), np.float64)
+      if self.plan is not None:
+        old = self.plan[k - self.start:]
+        n = min(len(old), len(new))
+        w = (np.arange(1, n + 1) / (n + 1))[:, None]
+        new = new.copy()
+        new[:n] = (1 - w) * old[:n] + w * new[:n]
+      self.plan, self.start = new, k
+    i = k - self.start
+    if i >= len(self.plan):  # cannot happen with every <= H
+      i = len(self.plan) - 1
+    return self.plan[i].copy()
+
+
 # ---- one episode ---------------------------------------------------------------------------
 def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
                         interp: str = "lag", early_stop: bool = False, video: Path | None = None,
@@ -238,12 +302,16 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
   done_run, stop_reason, k = 0, "time_limit", 0
   log_a: list = []  # actions as the source gave them (MolmoAct2 frame), for CPU re-judging
   log_s: list = []
+  log_g: list = []  # goal actually commanded (joint-range clipped), MolmoAct2 frame
+  log_env: list = []  # object pos + quat (wxyz) at the step start, like datagen's env_state
+  log_q: list = []  # full qpos at the step start (offline re-render, like datagen)
   source.reset()
   for k in range(n_steps):
     q = np.r_[d.qpos[sc.arm_qadr], d.qpos[sc.g_qadr]]
     state = sim_to_mm2(q, cal)
     imgs = None
-    if rend is not None and (video or source.needs_obs() or keep_obs is not None):
+    want = source.wants_obs(k) if hasattr(source, "wants_obs") else source.needs_obs()
+    if rend is not None and (video or want or keep_obs is not None):
       t0 = time.perf_counter()
       imgs = rend.render(d.qpos)
       tm["render"] += time.perf_counter() - t0
@@ -260,12 +328,15 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
       break
     log_a.append(np.asarray(a, np.float32))
     log_s.append(state)
+    log_env.append(np.r_[d.xpos[sc.obj_body], d.xquat[sc.obj_body]].astype(np.float32))
+    log_q.append(d.qpos.copy())
     goal = mm2_to_sim(a, cal)
     clip["steps"] += 1
     g2 = np.clip(goal, lo, hi)
     if np.any(np.abs(g2 - goal) > 1e-9):
       clip["steps_range_clipped"] += 1
     goal = g2
+    log_g.append(sim_to_mm2(goal, cal))
     if interp == "lag":
       frames = [last_goal + (j + 1) / STEP_FRAMES * (goal - last_goal) for j in range(STEP_FRAMES)]
     elif interp == "hold":
@@ -323,7 +394,11 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
     rend.close()
   verdict = mon.verdict(spec, v)
   return {"verdict": verdict, "actions_mm2": np.array(log_a, np.float32).reshape(-1, 6),
-          "states_mm2": np.array(log_s, np.float32).reshape(-1, 6), "steps_10hz": clip["steps"], "stop_reason": stop_reason,
+          "states_mm2": np.array(log_s, np.float32).reshape(-1, 6),
+          "goals_mm2": np.array(log_g, np.float32).reshape(-1, 6),
+          "env_state": np.array(log_env, np.float32).reshape(-1, 7),
+          "qpos_full": np.array(log_q, np.float64).reshape(len(log_q), -1),
+          "steps_10hz": clip["steps"], "stop_reason": stop_reason,
           "sim_s": round(float(d.time), 3), "clip": clip,
           "timing_s": {k2: round(x, 3) for k2, x in tm.items()},
           "wall_s": round(time.perf_counter() - t_wall, 3)}
@@ -356,6 +431,61 @@ def _init(cfg: dict, worker: bool = False) -> None:
     t0 = time.perf_counter()
     _G["runner"] = PolicyRunner(cfg["checkpoint"], device=cfg["device"], task=TASK)
     _G["load_s"] = round(time.perf_counter() - t0, 1)
+
+
+class ExpertChunkRunner:
+  """Stand-in for a policy's chunk API in CPU tests of BlendSource: returns the expert's own
+  10 Hz actions for steps k .. k+H-1 (last action repeated past the end)."""
+
+  def __init__(self, a10: np.ndarray, horizon: int = 10):
+    self.a, self.h = np.asarray(a10), horizon
+
+  def reset(self):
+    pass
+
+  def chunk(self, state, images, k: int = 0):
+    idx = np.minimum(np.arange(k, k + self.h), len(self.a) - 1)
+    return self.a[idx]
+
+
+class ObsEvery:
+  """Replay modes: also render (+ codec) the observation every ``every`` steps, as policy
+  mode does at chunk starts, to measure the CPU side of a policy eval without a GPU."""
+
+  def __init__(self, inner, every: int):
+    self.inner, self.every = inner, int(every)
+    self.needs_images = True
+
+  def reset(self):
+    self.inner.reset()
+
+  def needs_obs(self) -> bool:
+    return False
+
+  def wants_obs(self, k: int) -> bool:
+    return k % self.every == 0
+
+  def act(self, k, state, images):
+    return self.inner.act(k, state, images)
+
+
+def _smoothed(base, chunk_runner, cfg):
+  """Wrap an action source with control-B smoothing (--smooth)."""
+  sm = cfg.get("smooth", "none")
+  if sm == "none":
+    return base
+  if sm == "ema":
+    return EMASource(base, cfg["ema_alpha"])
+  if sm == "blend":
+    if isinstance(base, ReplaySource):  # CPU stand-in: replay ends when the expert's actions do
+      src = BlendSource(chunk_runner, cfg["replan_every"])
+      n = len(base.a)
+      inner = src.act
+      src.act = lambda k, st, im: None if k >= n else inner(k, st, im)
+      src.needs_images = False
+      return src
+    return BlendSource(chunk_runner, cfg["replan_every"])
+  raise ValueError(sm)
 
 
 def _dataset_episode(e: int) -> tuple[Variation, np.ndarray, np.ndarray]:
@@ -391,8 +521,8 @@ def _episode(item) -> dict:
             obs_codec=cfg["obs_codec"])
   if mode == "policy":
     v = sample_variation(spec, cfg["seed"], idx, variety=True)
-    r = run_harness_episode(spec, v, PolicySource(_G["runner"]), early_stop=True, **kw)
     run = _G["runner"]
+    r = run_harness_episode(spec, v, _smoothed(PolicySource(run), run, cfg), early_stop=True, **kw)
     r["inference_ms"] = {"chunks": len(run.chunk_ms),
                          "chunk_median": round(float(np.median(run.chunk_ms)), 1) if run.chunk_ms else None,
                          "chunk_max": round(float(np.max(run.chunk_ms)), 1) if run.chunk_ms else None}
@@ -405,7 +535,10 @@ def _episode(item) -> dict:
     res, pf = run_expert_judged(spec, v, pinch_width=cfg["pinch_width"])
     exp_s = time.perf_counter() - t0
     a10 = sim_to_mm2(res.action[::STEP_FRAMES]) if res.action is not None else np.zeros((0, 6), np.float32)
-    r = run_harness_episode(spec, v, ReplaySource(a10), tail_s=cfg["tail_s"], **kw)
+    src = _smoothed(ReplaySource(a10), ExpertChunkRunner(a10), cfg)
+    if cfg.get("render_obs_every"):
+      src = ObsEvery(src, cfg["render_obs_every"])
+    r = run_harness_episode(spec, v, src, tail_s=cfg["tail_s"], **kw)
     row.update({"seed": cfg["seed"], "attempt": idx, "episode_seed": v.seed,
                 "expert_native": {"expert_verifier_pass": bool(res.accepted),
                                   "expert_reasons": res.reasons,
@@ -424,12 +557,18 @@ def _episode(item) -> dict:
   else:
     raise ValueError(mode)
   vd = r.pop("verdict")
-  adir = Path(cfg["out"]) / "actions"
-  adir.mkdir(parents=True, exist_ok=True)
-  # Re-judge on CPU later: ReplaySource(np.load(...)["actions_mm2"]) reproduces the episode
-  # (same scene, same physics; the policy's chunks are open-loop between observations).
-  np.savez_compressed(adir / f"{mode}_{idx:05d}.npz", actions_mm2=r.pop("actions_mm2"),
-                      states_mm2=r.pop("states_mm2"))
+  rdir = Path(cfg["out"]) / "rollouts"
+  rdir.mkdir(parents=True, exist_ok=True)
+  # Everything needed to (a) replay/re-judge on CPU: ReplaySource(action_raw_mm2) reproduces
+  # the episode (same scene and physics; the source's actions are fixed once chosen), and (b)
+  # write a training dataset like datagen's (eval/rollouts_to_dataset.py): per 10 Hz step the
+  # observed state, the commanded goal, the object pose and the full qpos for re-rendering.
+  np.savez_compressed(rdir / f"{mode}_{idx:05d}.npz", action_raw_mm2=r.pop("actions_mm2"),
+                      state_mm2=r.pop("states_mm2"), action_mm2=r.pop("goals_mm2"),
+                      env_state=r.pop("env_state"), qpos_full=r.pop("qpos_full"))
+  row["rollout_file"] = str(rdir / f"{mode}_{idx:05d}.npz")
+  if mode != "dataset-replay":
+    row["variation"] = v.to_dict()
   row.update({"pass": vd["passed"], "L_task": vd["L_task"], "L_full": vd["L_full"],
               "reasons": vd["reasons"], "style_only": vd["style_only"], **r,
               "verify_stats": vd["stats"]})
@@ -508,6 +647,8 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
     "mode": cfg["mode"], "n": n, "seed": cfg.get("seed"), "checkpoint": cfg.get("checkpoint"),
     "interp": cfg["interp"], "max_sim_s": cfg["max_sim_s"], "workers": cfg["workers"],
     "obs_codec": "h264" if cfg.get("obs_codec") else "none",
+    "smooth": cfg.get("smooth", "none"), "ema_alpha": cfg.get("ema_alpha"),
+    "replan_every": cfg.get("replan_every"),
     "success_L_full": k_full, "success_rate_L_full": round(k_full / max(n, 1), 4),
     "wilson95_L_full": [round(x, 4) for x in wilson(k_full, n)],
     "success_L_task": k_task, "success_rate_L_task": round(k_task / max(n, 1), 4),
@@ -575,6 +716,15 @@ def main() -> None:
                   help="dataset-replay: compare harness images/state with LeRobotDataset frames")
   ap.add_argument("--workers", type=int, default=1, help="processes (policy mode: one replica each)")
   ap.add_argument("--device", default="cuda")
+  ap.add_argument("--smooth", default="none", choices=["none", "ema", "blend"],
+                  help="control B: ema = EMA of 10 Hz actions; blend = re-plan every "
+                       "--replan-every steps and cross-fade overlapping chunks (2x inference)")
+  ap.add_argument("--ema-alpha", type=float, default=0.5)
+  ap.add_argument("--replan-every", type=int, default=5)
+  ap.add_argument("--render-obs-every", type=int, default=0,
+                  help="expert mode: render+codec the observation every N steps like a policy "
+                       "would (CPU-cost measurement); 0 = off")
+  ap.add_argument("--fresh", action="store_true", help="ignore an existing episodes.jsonl in --out")
   ap.add_argument("--out", required=True)
   a = ap.parse_args()
   if a.policy_source == "dataset-replay":
@@ -590,22 +740,42 @@ def main() -> None:
          "tail_s": a.tail_s, "video_ids": ids[: a.videos], "out": str(out),
          "pinch_width": pinch_width_from_spec(Path(a.spec)), "device": a.device,
          "workers": a.workers, "check_images": a.check_images, "ids": ids,
-         "obs_codec": a.obs_codec == "h264"}
+         "obs_codec": a.obs_codec == "h264", "smooth": a.smooth, "ema_alpha": a.ema_alpha,
+         "replan_every": a.replan_every, "render_obs_every": a.render_obs_every}
+  # Resumable: rows already in OUT/episodes.jsonl are kept and their ids skipped, provided
+  # the run-defining settings are the same.
+  rows = []
+  ep_log = out / "episodes.jsonl"
+  if ep_log.exists() and not a.fresh:
+    old = json.loads((out / "config.json").read_text()) if (out / "config.json").exists() else {}
+    for k in ("mode", "checkpoint", "seed", "spec", "max_sim_s", "interp", "quality", "tail_s",
+              "obs_codec", "smooth", "ema_alpha", "replan_every"):
+      if k in old and old[k] != cfg[k]:
+        sys.exit(f"{out} holds a run with {k}={old[k]!r}, now {cfg[k]!r}: use another --out or --fresh")
+    for line in ep_log.read_text().splitlines():
+      if line.strip():
+        rows.append(json.loads(line))
+    done = {r.get("attempt", r.get("episode_index")) for r in rows}
+    ids = [i for i in ids if i not in done]
+    cfg["ids"] = sorted(done | set(ids))
+    print(f"[eval] resume: {len(rows)} episodes already in {ep_log}, {len(ids)} to run", flush=True)
   (out / "config.json").write_text(json.dumps(cfg, indent=1))
   t0 = time.perf_counter()
-  rows = []
-  log = open(out / "episodes.jsonl", "w")
+  n_total = len(rows) + len(ids)
+  log = open(ep_log, "w" if a.fresh else "a")
 
   def emit(r):
     rows.append(r)
     log.write(json.dumps(r) + "\n")
     log.flush()
-    print(f"[eval {a.mode}] {len(rows)}/{len(ids)} id={r.get('attempt', r.get('episode_index'))} "
+    print(f"[eval {a.mode}] {len(rows)}/{n_total} id={r.get('attempt', r.get('episode_index'))} "
           f"pass={r['pass']} L_task={r['L_task']} reasons={r['reasons']} sim={r['sim_s']}s "
           f"wall={r['wall_s']}s stop={r['stop_reason']}", flush=True)
 
   load_s = None
-  if a.workers <= 1:
+  if not ids:
+    pass
+  elif a.workers <= 1:
     _init(cfg)
     load_s = _G.get("load_s")
     for i in ids:

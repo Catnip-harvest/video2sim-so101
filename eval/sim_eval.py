@@ -12,6 +12,8 @@ One episode (all modes):
   1. Variation from (seed, attempt) with variety=True, exactly as datagen draws it. Eval
      seeds default to --seed 1000; the training set used --seed 1 (no overlap: the
      episode seed is seed*1_000_003 + attempt).
+     --ood <rung> (eval/ood.py, docs/OOD_LADDER.md) then edits that Variation for an
+     out-of-distribution test; --ood none (default) leaves it untouched.
   2. Scene built and settled exactly as rollout.run_episode does (same builder, same
      initial placement, same 0.3 s settle). Nothing writes qpos/qvel after that.
   3. Every 10 Hz step (= 3 sim frames of 1/30 s = 21 physics steps):

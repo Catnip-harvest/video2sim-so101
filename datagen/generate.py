@@ -224,6 +224,20 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
     return
   if cfg.get("no_dataset"):
     return
+  export = cfg.get("export", {}) or {}
+  frame = export.get("frame", "sim")
+  cam_map = export.get("camera_names", {}) or {}  # e.g. {"front": "cam_head"}
+  vkeys = cfg["video_keys"] if cfg["render"] else []
+  renamed = {k: "observation.images." + cam_map.get(k.split(".")[-1], k.split(".")[-1]) for k in vkeys}
+  convert, cal = None, None
+  if frame != "sim":
+    sys.path.insert(0, str(HERE.parent / "calib"))
+    from so101_units import ArmCalib, lerobot_to_molmoact2, sim_to_lerobot
+    cal = ArmCalib.load(export["arm_calib"]) if export.get("arm_calib") else ArmCalib()
+
+    def convert(x):  # sim radians -> lerobot degrees (-> molmoact2 frame)
+      y = sim_to_lerobot(x, cal)
+      return (lerobot_to_molmoact2(y) if frame == "molmoact2" else y).astype(np.float32)
   eps = []
   for i in acc_ids:
     stem = out / "staging" / f"attempt_{i:06d}"
@@ -232,23 +246,30 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
     for key in ("state", "action", "env_state", "phases"):
       z[key] = z[key][::k]
     meta = json.loads(Path(str(stem) + ".json").read_text())
-    videos = {k: Path(f"{stem}.{k.split('.')[-1]}.mp4") for k in cfg["video_keys"]} \
-      if cfg["render"] else {}
+    videos = {renamed[k]: Path(f"{stem}.{k.split('.')[-1]}.mp4") for k in vkeys}
+    if convert is not None:
+      z["state"], z["action"] = convert(z["state"]), convert(z["action"])
     eps.append(EpisodeData(
       state=z["state"], action=z["action"], env_state=z["env_state"], task=cfg["task"],
       videos=videos, image_stats=meta.get("image_stats", {}) or {},
       meta={"attempt": i, "seed": meta["variation"]["seed"], "variation": meta["variation"],
             "verification": meta["stats"], "plan": meta["plan"],
             "phase_starts": _phase_starts(z["phases"])}))
-  root = out / "lerobot"
+  root = Path(export["dataset_dir"]) if export.get("dataset_dir") else out / "lerobot"
   if root.exists():
     shutil.rmtree(root)
   extra = {"generator": "manip/datagen/generate.py", "config": cfg, "acceptance": rep,
-           "units": "joint angles in radians (MuJoCo), object pose in metres / wxyz quaternion, "
-                    "robot base frame",
+           "units": {"sim": "joint angles in radians (MuJoCo Menagerie so101)",
+                     "lerobot": "LeRobot new calibration (PR #777, use_degrees): degrees, "
+                                "mid-range zero; gripper 0..100",
+                     "molmoact2": "MolmoAct2-SO100_101 frame = LeRobot pre-PR #777: "
+                                  "lift_old = 90 - lift_new, elbow_old = elbow_new + 90"}[frame]
+                    + "; object pose in metres / wxyz quaternion, robot base frame",
+           "joint_frame": frame, "arm_calib": None if cal is None else vars(cal),
+           "conversion": "calib/so101_units.py",
            "action_semantics": f"absolute joint position target sent at this frame (sim runs "
                                f"30 Hz; recorded every {record_step(cfg)} sim frame(s))"}
-  info = write_dataset(root, eps, fps=int(cfg.get("record_hz", 30)), video_keys=cfg["video_keys"] if cfg["render"] else [],
+  info = write_dataset(root, eps, fps=int(cfg.get("record_hz", 30)), video_keys=list(renamed.values()),
                        video_size=tuple(cfg["size"]), video_codec=cfg["codec"],
                        robot_type=ROBOT_TYPE, extra_meta=extra, move_videos=False)
   print(f"wrote {root}: {info['total_episodes']} episodes, {info['total_frames']} frames")
@@ -274,6 +295,13 @@ def main() -> None:
                   help="dataset frame rate; the sim always runs at 30 Hz")
   ap.add_argument("--keep-rejects", action="store_true",
                   help="also stage and render rejected attempts (judge negatives)")
+  ap.add_argument("--export-frame", default="sim", choices=["sim", "lerobot", "molmoact2"],
+                  help="joint units/convention of the written dataset (calib/so101_units.py)")
+  ap.add_argument("--arm-calib", default=None, help="ArmCalib JSON for sim<->lerobot (default: "
+                  "the module's unverified defaults)")
+  ap.add_argument("--camera-names", default="",
+                  help="rename cameras in the dataset, e.g. front=cam_head,wrist=cam_right")
+  ap.add_argument("--dataset-dir", default=None, help="write the dataset here (default <out>/lerobot)")
   ap.add_argument("--no-wrist", action="store_true", help="front camera only")
   ap.add_argument("--codec", default="h264", choices=["h264", "av1"])
   ap.add_argument("--task", default=DEFAULT_TASK)
@@ -312,6 +340,11 @@ def main() -> None:
     if old.get("render") and not cfg["render"]:
       sys.exit(f"{out} was started with --render; keep --render to resume")
   run_json.write_text(json.dumps(cfg, indent=2))
+  # Export options only change how finalize() writes the dataset, so they are kept out of
+  # run.json (a run can be re-exported with --finalize-only in another frame).
+  cfg["export"] = {"frame": args.export_frame, "arm_calib": args.arm_calib,
+                   "dataset_dir": args.dataset_dir,
+                   "camera_names": dict(kv.split("=") for kv in args.camera_names.split(",") if kv)}
 
   if args.render:
     from r2s.render import gl_available

@@ -155,6 +155,15 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
 
   # physical sanity of actions
   act = data["action"].astype(float)
+  dg = root / "meta" / "datagen.json"
+  frame = json.loads(dg.read_text()).get("joint_frame", "sim") if dg.exists() else "sim"
+  if frame != "sim":  # exported in degrees: convert back to sim radians for the speed caps
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "calib"))
+    from so101_units import ArmCalib, lerobot_to_sim, molmoact2_to_lerobot
+    cal_d = json.loads(dg.read_text()).get("arm_calib")
+    cal = ArmCalib(**cal_d) if cal_d else ArmCalib()
+    act = lerobot_to_sim(molmoact2_to_lerobot(act) if frame == "molmoact2" else act, cal)
+  c.check(True, f"joint frame: {frame}")
   ep_id = data["episode_index"]
   same = ep_id[1:] == ep_id[:-1]
   dv = np.abs(np.diff(act, axis=0))[same] * fps

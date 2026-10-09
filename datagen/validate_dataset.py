@@ -207,7 +207,8 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
   # floor of that episode's bin, inside its walls.
   side = root / "meta" / "datagen_episodes.jsonl"
   meta = [json.loads(x) for x in side.read_text().splitlines() if x.strip()]     if side.exists() else []
-  if meta and all("variation" in mm for mm in meta):
+  # (skipped for the small-model copies, which drop observation.environment_state)
+  if meta and all("variation" in mm for mm in meta) and "observation.environment_state" in data:
     from r2s.paths import mj_scene
     c.check(len(meta) == n_ep, "datagen_episodes.jsonl has one row per episode")
     env = data["observation.environment_state"].astype(float)

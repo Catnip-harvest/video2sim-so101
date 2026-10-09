@@ -22,6 +22,7 @@ from dataclasses import dataclass
 import mujoco
 import numpy as np
 
+from .free_bodies import add_free_bodies
 from .paths import mj_scene, rm
 from .variations import Variation
 
@@ -32,6 +33,7 @@ TIMESTEP = 1.0 / (FPS * SUBSTEPS)
 # Geom categories used by the contact bookkeeping.
 CAT_OTHER, CAT_TABLE, CAT_OBJECT, CAT_BIN_FLOOR, CAT_BIN_WALL = 0, 1, 2, 3, 4
 CAT_FIXED_JAW, CAT_MOVING_JAW, CAT_ROBOT = 5, 6, 7
+CAT_EXTRA = 8  # extra free bodies (distractors), see free_bodies.py
 FIXED_JAW = re.compile(r"fixed_jaw_.*")
 MOVING_JAW = re.compile(r"moving_jaw_.*")
 
@@ -53,6 +55,7 @@ class EpisodeScene:
   joint_lo: np.ndarray  # (6,) arm + gripper
   joint_hi: np.ndarray
   effort: np.ndarray  # (6,)
+  extra_bodies: tuple = ()  # body ids of v.extras["free_bodies"], in that order
 
 
 def _cam_xyaxes(pos: np.ndarray, lookat: np.ndarray) -> list[float]:
@@ -116,6 +119,9 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
   for g in b.geoms:
     g.rgba = (*v.bin_rgb, 1.0)
   spec.attach(b, prefix="", frame=spec.worldbody.add_frame(pos=(v.bin_xy[0], v.bin_xy[1], 0.0)))
+  extra = list((v.extras or {}).get("free_bodies") or [])
+  if extra:  # distractors: free joint + plain contacts, added after everything else
+    add_free_bodies(spec, extra)
 
   model = spec.compile()
   data = mujoco.MjData(model)
@@ -142,12 +148,15 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
 
   # Geom categories + finger friction DR.
   cat = np.zeros(model.ngeom, dtype=np.int8)
+  extra_geoms = {b["name"] + "_geom" for b in extra}
   for g in range(model.ngeom):
     name = model.geom(g).name
     if name == "table":
       cat[g] = CAT_TABLE
     elif name == "object_geom":
       cat[g] = CAT_OBJECT
+    elif name in extra_geoms:
+      cat[g] = CAT_EXTRA
     elif name == "bin_floor":
       cat[g] = CAT_BIN_FLOOR
     elif name.startswith("bin_wall"):
@@ -173,4 +182,5 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
     geom_cat=cat,
     joint_lo=model.jnt_range[all_j, 0].copy(), joint_hi=model.jnt_range[all_j, 1].copy(),
     effort=effort,
+    extra_bodies=tuple(mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, b["name"]) for b in extra),
   )

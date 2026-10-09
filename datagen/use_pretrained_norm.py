@@ -48,9 +48,10 @@ def main() -> None:
                    "dataset_q99": [round(x, 1) for x in json.loads(backup.read_text())[key]["q99"]],
                    "pretrained_q01": [round(x, 1) for x in pre["q01"]],
                    "pretrained_q99": [round(x, 1) for x in pre["q99"]]}
-  stats["_note"] = {"normalization": f"{a.checkpoint} norm_stats.json tag {a.tag}",
-                    "original": "meta/stats_dataset.json"}
-  p.write_text(json.dumps(stats, indent=2))
+  p.write_text(json.dumps(stats, indent=2))  # numbers only: lerobot tensorises every entry
+  (root / "meta" / "stats_source.json").write_text(json.dumps(
+    {"normalization": f"{a.checkpoint} norm_stats.json tag {a.tag}",
+     "original": "meta/stats_dataset.json", "comparison": report}, indent=2))
   print(json.dumps(report, indent=1))
 
 

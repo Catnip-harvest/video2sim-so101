@@ -38,6 +38,7 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
 - Checkpoint 023400 is kept only on local disk (outputs_large/final_models/...) and on Drive.
 - The 20:51-20:54 Drive copy of the final model: nobody on this box started it. Its source and destination are not in its log. Probably the laptop session.
 - 11:37-11:44 GPU stall (about 9 s/step for 7 min): two policy replicas plus training plus V-JEPA. Rule since then: one replica, under 170 GB.
+- 21:35-21:40 UTC, box finding: with two trainings (ACT and SmolVLA) on the GPU, the queued eval (01_molmo_s4000_none) hung at 0 episodes (0% GPU occupancy, about 160% CPU spin). Both trainings slowed sharply (ACT 12 to 1.7 step/s, SmolVLA 2 to 0.3 step/s). Work-22 killed the eval at 21:39 and both trainings recovered at once. Rule from now on: at most 2 GPU processes at any time. The brief's "2 trainings plus the queue" plan cannot run on this box. Every queue job now starts with `gpu_slot.sh 1`, which waits until at most one other GPU process is running. Job 01 is re-queued and waits for ACT training to end (about 22:14 UTC). The killed attempt is logged as EXIT=143 in logs/eval_molmo_s4000_none.log; the rerun appends to the same log.
 
 ## Where things are (Drive paths, or 'local only: <path>')
 - Final model, Drive: gdrive:so101-sprint/models/molmoact2_sim_v1_023400/pretrained_model (verified).

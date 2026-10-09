@@ -1,8 +1,8 @@
 Money: alive 12.5 h = $24.79 now (21:24 UTC). If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
 # SO-101 overnight report - updated 21:25 UTC (Sat 04:25 Hanoi)
 Status: RUNNING
-Now running: P1.1 200-trial eval of the final checkpoint, seed 3000 (work-22; 192/200 at 21:23). P2.0 smoke jobs (work-22): SmolVLA 50-step smoke finished EXIT=0; ACT 50-step smoke running; p20_validate_small CRASHED (EXIT=1), under work-22's investigation.
-Next: P1.2 OOD ladder and P2.1/P2.2 full trainings, once the 200-trial eval exits and work-22 releases the GPU. Not yet started. ETA for everything: not estimated yet.
+Now running (work-22): policy queue job 01 (MolmoAct2 seed 4000 baseline, ~12 min), then ACT and SmolVLA 3-episode smoke evals; training ACT (30k steps) and SmolVLA (20k steps, ~3.3 h) outside the queue. OOD ladder code in progress.
+Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 evals. ETA for everything: not estimated yet.
 
 ## Headline numbers (sim only; k/n, 95% Wilson)
 - MolmoAct2 sim-only, final checkpoint 023400, 20-trial smoke, seed 1000 (videos 4):
@@ -10,7 +10,10 @@ Next: P1.2 OOD ladder and P2.1/P2.2 full trainings, once the 200-trial eval exit
   - L_task 17/20 = 85% (64-95%)
   - Failures: 3 never grasped, 1 arm-table collision, 1 dropped or slipped, 1 self-collision.
 - Same 20 seeds, checkpoint 001400: L_full 10/20. Final vs 001400: 6 episodes improved, 1 worsened, exact McNemar p = 0.125. Not significant at n=20.
-- Seed 3000, 200 trials: in progress, 192/200 at 21:23. Numbers come when it finishes.
+- HEADLINE (in-range, seed 3000, 200 held-out scenes, never used in training):
+  - L_full 137/200 = 68.5% (Wilson 95%: 61.8-74.5%)
+  - L_task 158/200 = 79.0% (72.8-84.1%)
+  - Gate gates/gate_p1_eval200.md, PASS (a result, no pass mark). Finished 21:29 UTC, EXIT=0.
 - Speed: about 210 episodes/h with one replica on a free GPU.
 - Not yet measured: the OOD ladder, SmolVLA, ACT, the laptop caps, any P3 task.
 

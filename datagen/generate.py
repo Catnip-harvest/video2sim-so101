@@ -73,11 +73,9 @@ def _init_worker(cfg: dict) -> None:
 
 def _attempt(i: int) -> dict:
   from r2s.rollout import run_episode
-  from r2s.variations import sample_variation
-
   cfg, spec = _W["cfg"], _W["spec"]
   try:
-    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
+    v = variation_for(spec, cfg, i)
     res = run_episode(spec, v, pinch_width=cfg["pinch_width"],
                       render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
@@ -111,6 +109,44 @@ def _attempt(i: int) -> dict:
       row["render_seconds"] = round(time.perf_counter() - t0, 3)
     (Path(str(stem) + ".json")).write_text(json.dumps(row))
   return row
+
+
+def variation_for(spec, cfg: dict, i: int):
+  """Attempt i's Variation: the single-cube one, or (--multitask) the three-cube one."""
+  from r2s.variations import sample_multitask_variation, sample_variation
+  if cfg.get("multitask"):
+    return sample_multitask_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False),
+                                      layout=cfg.get("mt_layout", "default"))
+  return sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
+
+
+def episode_task(row: dict, default: str) -> str:
+  """Per-episode task string: the multitask instruction if there is one, else --task."""
+  mt = (row.get("variation") or {}).get("extras", {}).get("multitask")
+  return mt["instruction"] if mt else default
+
+
+def target_of(row: dict) -> str | None:
+  mt = (row.get("variation") or {}).get("extras", {}).get("multitask")
+  return mt["target_colour"] if mt else None
+
+
+def select_accepted(rows: dict[int, dict], n: int, quota: int | None = None) -> list[int]:
+  """The episodes that go into the dataset: accepted attempt ids in id order (so the result
+  does not depend on --workers), the first ``n``; with ``quota`` (multitask), the first
+  ``quota`` per target colour, capped at ``n`` in total."""
+  acc = sorted(i for i, r in rows.items() if r["accepted"])
+  if quota is None:
+    return acc[:n]
+  out, cnt = [], Counter()
+  for i in acc:
+    t = target_of(rows[i])
+    if cnt[t] < quota:
+      cnt[t] += 1
+      out.append(i)
+      if len(out) >= n:
+        break
+  return out
 
 
 def load_log(out: Path) -> dict[int, dict]:
@@ -209,12 +245,21 @@ def _phase_starts(phases) -> dict:
 def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers: int) -> None:
   from r2s.lerobot_io import EpisodeData, write_dataset
 
-  acc_ids = sorted(i for i, r in rows.items() if r["accepted"])[: cfg["n"]]
-  last = acc_ids[-1] if acc_ids else -1
+  acc_ids = select_accepted(rows, cfg["n"], cfg.get("per_target"))
+  last = max(acc_ids) if acc_ids else -1
   # Report over the deterministic prefix of attempts (ids <= last selected one).
   considered = [rows[i] for i in sorted(rows) if i <= last] if acc_ids else list(rows.values())
   rep = acceptance_report(considered, wall_s, workers, cfg)
   rep["attempts_logged_total"] = len(rows)
+  if cfg.get("multitask"):
+    rep["episodes_per_target"] = dict(Counter(target_of(rows[i]) for i in acc_ids))
+    rep["episodes_per_task_string"] = dict(Counter(episode_task(rows[i], "") for i in acc_ids))
+    mt_att = Counter(target_of(r) for r in considered)
+    mt_acc = Counter(target_of(r) for r in considered if r["accepted"])
+    rep["acceptance_by_target"] = {t: {"attempts": mt_att[t], "accepted": mt_acc[t],
+                                       "rate": round(mt_acc[t] / max(mt_att[t], 1), 4)}
+                                   for t in sorted(mt_att)}
+    (out / "acceptance.json").write_text(json.dumps(rep, indent=2))
   (out / "acceptance.json").write_text(json.dumps(rep, indent=2))
   write_report_md(rep, out / "acceptance.md")
   print(json.dumps({k: rep[k] for k in ("attempts", "accepted", "acceptance_rate",
@@ -250,7 +295,8 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
     if convert is not None:
       z["state"], z["action"] = convert(z["state"]), convert(z["action"])
     eps.append(EpisodeData(
-      state=z["state"], action=z["action"], env_state=z["env_state"], task=cfg["task"],
+      state=z["state"], action=z["action"], env_state=z["env_state"],
+      task=episode_task(meta, cfg["task"]),
       videos=videos, image_stats=meta.get("image_stats", {}) or {},
       meta={"attempt": i, "seed": meta["variation"]["seed"], "variation": meta["variation"],
             "verification": meta["stats"], "plan": meta["plan"],
@@ -305,6 +351,11 @@ def main() -> None:
   ap.add_argument("--no-wrist", action="store_true", help="front camera only")
   ap.add_argument("--codec", default="h264", choices=["h264", "av1"])
   ap.add_argument("--task", default=DEFAULT_TASK)
+  ap.add_argument("--multitask", action="store_true",
+                  help="P3-A: three cubes, the instruction names one (per-episode task string)")
+  ap.add_argument("--mt-layout", default="default", choices=["default", "narrow"])
+  ap.add_argument("--per-target", type=int, default=None,
+                  help="multitask: accepted episodes per target colour (default n/3)")
   ap.add_argument("--servo-hold", default="foh", choices=["foh", "zoh"],
                   help="foh: servo goal ramps over each 33 ms frame (default); "
                        "zoh: goal jumps once per frame (ablation)")
@@ -328,13 +379,16 @@ def main() -> None:
     "pinch_width": pinch_width_from_spec(Path(spec_path)), "no_dataset": args.no_dataset,
     "servo_hold": args.servo_hold, "render_quality": args.render_quality,
     "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
+    "multitask": args.multitask, "mt_layout": args.mt_layout,
+    "per_target": (args.per_target or -(-args.n // 3)) if args.multitask else None,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
-    defaults = {"render_quality": "full", "variety": False, "record_hz": 30}
+    defaults = {"render_quality": "full", "variety": False, "record_hz": 30, "multitask": False,
+                "mt_layout": "default"}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality", "variety", "record_hz"):
+              "render_quality", "variety", "record_hz", "multitask", "mt_layout"):
       if old.get(k, defaults.get(k)) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:
@@ -364,11 +418,14 @@ def main() -> None:
     def accepted_ids():
       return sorted(i for i, r in rows.items() if r["accepted"])
 
+    def selected():
+      return select_accepted(rows, args.n, cfg.get("per_target"))
+
     def need_more() -> bool:
-      acc = accepted_ids()
-      if len(acc) < args.n:
+      sel = selected()
+      if len(sel) < args.n:
         return len(rows) < max_attempts
-      cutoff = acc[args.n - 1]  # every id below the N-th accepted one must be done
+      cutoff = max(sel)  # every id below the last selected one must be done
       return any(i not in rows for i in range(cutoff))
 
     def todo():
@@ -393,8 +450,8 @@ def main() -> None:
           i = next(gen)
           if i in pending:
             continue
-          acc = accepted_ids()
-          if len(acc) >= args.n and i > acc[args.n - 1]:
+          sel = selected()
+          if len(sel) >= args.n and i > max(sel):
             break
           pending[i] = pool.apply_async(_attempt, (i,))
         ready = [i for i, r in pending.items() if r.ready()]

@@ -212,3 +212,165 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
     cam_pos=[float(v) for v in cam_pos], cam_lookat=[float(v) for v in lookat],
     cam_fovy=cam_fovy, cam_dz=dz, cam_dpitch_deg=dpitch, extras=extras,
   )
+
+
+# ---------------------------------------------------------------------------------------
+# P3-A-lite: named cube among three (language-conditioned multi-task scene).
+#
+# Three cubes of the same size band; the instruction names one by colour. The planner's
+# "object" body is always the NAMED cube in expert data; the other two are extra free
+# bodies (free_bodies.py, shape "box"). The three positions are drawn as one exchangeable
+# set and the named cube takes a uniformly random slot, so position says nothing about
+# which cube is named: only the colour (i.e. the instruction) does.
+# ---------------------------------------------------------------------------------------
+
+NAMED_COLOURS = {  # base RGB; each episode scales brightness by 0.85-1.0
+  "red": (0.85, 0.12, 0.10),
+  "green": (0.12, 0.70, 0.18),
+  "blue": (0.12, 0.25, 0.90),
+  "yellow": (0.92, 0.82, 0.10),
+}
+TRAIN_TARGETS = ("red", "green", "blue")  # yellow is NEVER the target in training
+TRAIN_TEMPLATES = ("put the {c} cube in the tray", "place the {c} block into the tray")
+HELDOUT_TEMPLATES = ("move the {c} one to the tray", "{c} cube goes in the tray, please")
+MT_LAYOUTS = {
+  # name: (reach band from the pan axis (m), min centre-to-centre gap, min centre to bin outer wall)
+  "default": ((0.12, 0.26), 0.06, 0.06),
+  "narrow": ((0.16, 0.22), 0.09, 0.06),  # Gate A kill fallback
+}
+
+
+def multitask_info(v: "Variation") -> dict | None:
+  return (v.extras or {}).get("multitask")
+
+
+def instruction_for(colour: str, template: str) -> str:
+  return template.format(c=colour)
+
+
+def sample_multitask_variation(spec: TaskSpec, base_seed: int, attempt: int,
+                               variety: bool = True, target_colour: str | None = None,
+                               template: str | None = None, layout: str = "default",
+                               allow_yellow_target: bool = False,
+                               distractor_colours: tuple | None = None) -> Variation:
+  """A normal (variety) Variation, then re-laid-out as a three-cube scene from a separate
+  stream ([seed, 11]): the bin, servos, look, camera and expert-style draws are the
+  single-cube ones. Target colour: ``target_colour`` or TRAIN_TARGETS[attempt % 3]
+  (balanced). Distractor colours: two of the remaining named colours, at random.
+  Instruction: ``template`` or a random TRAIN_TEMPLATES entry. The random stream is consumed
+  identically whatever ``target_colour`` / ``template`` / ``distractor_colours`` are, so the
+  same (seed, attempt) always gives the same positions, slot, sizes and shades (eval rows
+  that change only the instruction see the same physical scene)."""
+  from .free_bodies import _dist_to_square
+  v = sample_variation(spec, base_seed, attempt, variety=variety)
+  r3 = np.random.default_rng([v.seed, 11])
+  reach, min_gap, min_bin = MT_LAYOUTS[layout]
+  binc = np.asarray(v.bin_xy, float)
+  bin_half = rm_bin_outer_half()
+  pts: list[np.ndarray] = []
+  for _ in range(20000):
+    if len(pts) == 3:
+      break
+    r = r3.uniform(*reach)
+    a = math.radians(r3.uniform(-80.0, 80.0))
+    p = PAN_AXIS + r * np.array([math.cos(a), math.sin(a)])
+    if _dist_to_square(p, binc, bin_half) < min_bin:
+      continue
+    if not _in_view(v, np.array([p[0], p[1], 0.011])):
+      continue
+    if any(np.linalg.norm(p - q) < min_gap for q in pts):
+      continue
+    pts.append(p)
+  if len(pts) < 3:
+    raise RuntimeError("could not place three cubes with this layout")
+  if target_colour is None:
+    target_colour = TRAIN_TARGETS[attempt % len(TRAIN_TARGETS)]
+  if target_colour not in NAMED_COLOURS:
+    raise ValueError(f"unknown colour {target_colour!r}")
+  if target_colour == "yellow" and not allow_yellow_target:
+    raise ValueError("yellow is never a training target (eval only: allow_yellow_target=True)")
+  others = [c for c in NAMED_COLOURS if c != target_colour]
+  distr = [others[i] for i in r3.permutation(len(others))[:2]]
+  if distractor_colours is not None:
+    distr = list(distractor_colours)
+    if len(distr) != 2 or len(set(distr) | {target_colour}) != 3 or not set(distr) <= set(NAMED_COLOURS):
+      raise ValueError(f"bad distractor colours {distractor_colours!r} for target {target_colour!r}")
+  slot = int(r3.integers(3))  # which of the three positions is the named cube
+  order = [slot] + [i for i in range(3) if i != slot]
+  tpl_draw = TRAIN_TEMPLATES[int(r3.integers(len(TRAIN_TEMPLATES)))]
+  if template is None:
+    template = tpl_draw
+  shade = r3.uniform(0.85, 1.0, 3)
+
+  def rgb(c, k):
+    return [float(x * shade[k]) for x in NAMED_COLOURS[c]]
+
+  bodies = []
+  for k, (c, pi) in enumerate(zip(distr, order[1:])):
+    size = float(np.clip(spec.object.size + r3.uniform(-0.003, 0.003), 0.020, 0.050))
+    bodies.append({"name": f"extra_{k}", "shape": "box", "size": size, "height": size,
+                   "mass": float(spec.object.mass * r3.uniform(0.61, 1.65)),
+                   "friction": float(r3.uniform(0.4, 1.0)), "rgb": rgb(c, k + 1),
+                   "xy": [float(x) for x in pts[pi]],
+                   "yaw": float(r3.uniform(-math.pi, math.pi))})
+  v.obj_xy = [float(x) for x in pts[order[0]]]
+  v.object_rgb = rgb(target_colour, 0)
+  # Tray: low saturation (greys / browns), so no tray reads as a named colour. Drawn last,
+  # so every draw above is unchanged by it (render only, no physics).
+  v.bin_rgb = _hsv(float(r3.uniform()), float(r3.uniform(0.0, 0.25)), float(r3.uniform(0.3, 0.85)))
+  v.extras = {**v.extras, "free_bodies": bodies, "multitask": {
+    "target_colour": target_colour,
+    "colours": {"object": target_colour, **{b["name"]: c for b, c in zip(bodies, distr)}},
+    "instruction": instruction_for(target_colour, template), "template": template,
+    "target_slot": slot, "layout": layout}}
+  return v
+
+
+def retarget(v: "Variation", colour: str, template: str) -> "Variation":
+  """Same physical scene, another instruction (instruction-swap eval): the named colour must
+  be one of the scene's cubes. The planner's "object" body is unchanged, so for a colour on
+  an extra body the expert verifier would (correctly) call the expert's motion wrong."""
+  import copy
+  w = copy.deepcopy(v)
+  mt = w.extras["multitask"]
+  if colour not in mt["colours"].values():
+    raise ValueError(f"{colour!r} is not in this scene ({mt['colours']})")
+  mt.update({"target_colour": colour, "template": template,
+             "instruction": instruction_for(colour, template)})
+  return w
+
+
+CAM_VIEW_MARGIN = 0.85  # cube centre within the central 85 % of the front image (both axes)
+
+
+def _in_view(v: "Variation", p: np.ndarray, margin: float = CAM_VIEW_MARGIN) -> bool:
+  """Pinhole projection into this episode's front camera (cam_head; square image, vertical
+  FOV v.cam_fovy): True if p lands inside the central ``margin`` of the image."""
+  pos = np.asarray(v.cam_pos, float)
+  f = np.asarray(v.cam_lookat, float) - pos
+  f /= np.linalg.norm(f)
+  x = np.cross(f, np.array([0.0, 0.0, 1.0]))
+  x /= np.linalg.norm(x)
+  y = np.cross(x, f)
+  r = p - pos
+  zc = float(r @ f)
+  if zc <= 0:
+    return False
+  t = math.tan(math.radians(v.cam_fovy) / 2)
+  return abs(float(r @ x) / zc / t) <= margin and abs(float(r @ y) / zc / t) <= margin
+
+
+def rm_bin_outer_half() -> float:
+  from .paths import mj_scene
+  return mj_scene.BIN_INNER_HALF + mj_scene.BIN_WALL_THICKNESS
+
+
+def named_body(v: "Variation") -> str:
+  """Body name ("object" or "extra_k") that carries the instruction's colour."""
+  mt = multitask_info(v)
+  if mt is None:
+    return "object"
+  for name, c in mt["colours"].items():
+    if c == mt["target_colour"]:
+      return name
+  raise ValueError("no body has the target colour")

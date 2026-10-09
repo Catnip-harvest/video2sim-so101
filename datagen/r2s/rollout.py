@@ -34,6 +34,12 @@ Verification (all must hold to KEEP; every failure reason is logged):
                                       spec's success margin, or not resting on the floor
   not_resting                         object still moving at the end
   not_released                        a jaw still touches the object in the last 0.5 s
+  P3-A multi-cube scenes (v.extras["free_bodies"] / v.extras["multitask"]):
+  distractor_disturbed                an extra body moved > 1 mm (3-D, from its settled pose)
+                                      at any time (stats also give the max during the pick)
+  wrong_object_in_tray                an extra body ends inside the bin walls
+  wrong_object_moved                  the cube the expert moved (body "object") is not the
+                                      one the instruction names (negative control)
   unstable                            non-finite state or absurd speeds
 """
 
@@ -51,18 +57,21 @@ from . import scene as S
 from .paths import TaskSpec, mj_scene
 from .planner import (ARM_VMAX, JAW_VMAX, Expert, Plan, PlanConfig, PlanError, plan_config_for,
                       rate_limit, smooth_targets)
-from .variations import HOME_Q, Variation
+from .variations import HOME_Q, Variation, named_body
 
 REJECTION_ORDER = [
   "ik_unreachable", "joint_limit_plan", "unstable", "object_disturbed_before_grasp",
   "grasp_failed", "dropped_or_slipped", "foreign_contact_while_carried",
   "arm_body_touched_object", "arm_table_collision", "arm_bin_collision", "self_collision",
   "joint_limit", "torque_saturation", "tracking_error", "speed_cap", "not_lifted", "not_in_place_region",
-  "not_resting", "not_released",
+  "not_resting", "not_released", "wrong_object_moved", "distractor_disturbed", "wrong_object_in_tray",
 ]
+DISTRACTOR_MAX_MOVE = 0.001  # m: a distractor may move less than this for expert acceptance
+
 ROBOT_CATS = (S.CAT_FIXED_JAW, S.CAT_MOVING_JAW, S.CAT_ROBOT)
 CARRY_PHASES = ("lift", "carry", "lower", "pre_release")
 PRE_GRASP_PHASES = ("start", "approach_transit", "approach_line", "descend", "pre_close")
+PICK_PHASES = PRE_GRASP_PHASES + ("close", "squeeze", "lift")
 SETTLE_S = 0.3
 
 
@@ -101,7 +110,12 @@ class Monitor:
     self.c = {k: 0 for k in (
       "carry_steps", "carry_both_jaws", "carry_lost_grip", "carry_foreign",
       "arm_body_object", "arm_table", "arm_bin", "self", "joint_limit", "unstable",
-      "end_jaw")}
+      "end_jaw", "arm_distractor", "object_distractor")}
+    ex = list(sc.extra_bodies)
+    self.extra_ids = np.array(ex, int)
+    self.extra_rest = sc.data.xpos[self.extra_ids].copy() if ex else np.zeros((0, 3))
+    self.extra_max_disp = np.zeros(len(ex))
+    self.extra_max_disp_pick = np.zeros(len(ex))
     self.lifted_off = False
     self.rest_z = float(sc.data.xpos[sc.obj_body, 2])
     self.sat_run = np.zeros(5, int)
@@ -144,6 +158,17 @@ class Monitor:
         self._mark("arm_bin", d.time)
       if np.any(r1 & r2):
         self._mark("self", d.time)
+      if len(self.extra_ids):
+        ex = S.CAT_EXTRA
+        if np.any((r1 & (c2 == ex)) | (r2 & (c1 == ex))):
+          self._mark("arm_distractor", d.time)
+        if np.any((is_obj1 & (c2 == ex)) | (is_obj2 & (c1 == ex))):
+          self._mark("object_distractor", d.time)
+    if len(self.extra_ids):
+      disp = np.linalg.norm(d.xpos[self.extra_ids] - self.extra_rest, axis=1)
+      self.extra_max_disp = np.maximum(self.extra_max_disp, disp)
+      if phase in PICK_PHASES:
+        self.extra_max_disp_pick = np.maximum(self.extra_max_disp_pick, disp)
     if obj_robot:
       self._mark("arm_body_object", d.time)
     oz = float(d.xpos[sc.obj_body, 2])
@@ -159,11 +184,14 @@ class Monitor:
         else:
           self._mark("carry_lost_grip", d.time)
         floor_ok = phase in ("lower", "pre_release")
-        foreign = obj_table or obj_wall or obj_robot or (obj_floor and not floor_ok)
+        obj_extra = False
+        if n and len(self.extra_ids):
+          obj_extra = bool(np.any(oo == S.CAT_EXTRA)) if len(oo) else False
+        foreign = obj_table or obj_wall or obj_robot or obj_extra or (obj_floor and not floor_ok)
         if foreign:
           self._mark("carry_foreign", d.time)
           for k, flag in (("table", obj_table), ("bin_wall", obj_wall), ("arm", obj_robot),
-                          ("bin_floor", obj_floor and not floor_ok)):
+                          ("distractor", obj_extra), ("bin_floor", obj_floor and not floor_ok)):
             if flag:
               self.carry_foreign_kinds[k] = self.carry_foreign_kinds.get(k, 0) + 1
     if phase == "rest" and (obj_fixed or obj_moving):
@@ -302,6 +330,23 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
       flag("tracking_error")
     if not speed_ok:
       flag("speed_cap")
+    multitask_reasons()
+
+  def multitask_reasons() -> None:
+    """P3-A: distractors stay put, none ends in the tray, and the moved cube is the named one."""
+    if len(mon.extra_ids):
+      if float(mon.extra_max_disp.max()) >= DISTRACTOR_MAX_MOVE:
+        flag("distractor_disturbed")
+      lim = mj_scene.BIN_INNER_HALF
+      for k, b in enumerate(mon.extra_ids):
+        p = d.xpos[b]
+        if abs(p[0] - v.bin_xy[0]) <= lim and abs(p[1] - v.bin_xy[1]) <= lim:
+          flag("wrong_object_in_tray")
+    if named_body(v) != "object":
+      moved = (np.linalg.norm(d.xpos[sc.obj_body][:2] - obj_rest[:2]) > 0.02
+               or mon.max_obj_z - obj_rest[2] > 0.01)
+      if moved:
+        flag("wrong_object_moved")
 
   plan_info: dict = {}
   stats: dict = {}
@@ -324,6 +369,11 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
       "max_target_speed_arm_rad_s": round(speed_max[0], 4),
       "max_target_speed_jaw_rad_s": round(speed_max[1], 4),
     })
+    if len(mon.extra_ids):
+      stats["distractor_max_move_mm"] = np.round(mon.extra_max_disp * 1e3, 3).tolist()
+      stats["distractor_max_move_pick_mm"] = np.round(mon.extra_max_disp_pick * 1e3, 3).tolist()
+      stats["distractor_contacts"] = {"arm": mon.c["arm_distractor"],
+                                      "object": mon.c["object_distractor"]}
     contact_reasons()
     # Primary reason = the one that happened first in sim time (ties: REJECTION_ORDER),
     # so a drop that later makes the re-planner fail is reported as the drop.

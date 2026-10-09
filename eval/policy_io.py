@@ -63,7 +63,15 @@ class PolicyRunner:
     self.chunk_ms: list[float] = []  # wall time of each call that generated a new chunk
     self.call_ms: list[float] = []
 
+  def set_task(self, task: str) -> None:
+    """Instruction for the following episodes (P3-A: one per episode / per swap run).
+    Drops the cached tokenised batch so the next call re-tokenises the new string; call
+    reset() before the next episode as usual."""
+    self.task = str(task)
+    self._last_batch = None
+
   def reset(self) -> None:
+    self._last_batch = None  # never reuse a batch tokenised for the previous episode/task
     self.policy.reset()
     # Processor steps can carry state between calls (relative/absolute action steps).
     for p in (self.pre, self.post):

@@ -153,6 +153,37 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
     start += L
   c.check(bad_ep == 0, f"per-episode index/frame/timestamp/task consistency ({bad_ep} bad)")
 
+  # Per-episode task strings (P3-A multi-task): every frame's task_index points at the
+  # episode's own task string (episodes table), and, where the datagen sidecar has a
+  # multitask instruction, that string is the instruction and names the target colour.
+  start, bad_task, bad_instr, n_mt = 0, 0, 0, 0
+  side = {}
+  sp = root / "meta" / "datagen_episodes.jsonl"
+  if sp.exists():
+    for line in sp.read_text(encoding="utf-8").splitlines():
+      if line.strip():
+        r = json.loads(line)
+        side[int(r["episode_index"])] = r
+  for e in range(n_ep):
+    L = lengths[e]
+    ti = np.unique(data["task_index"][start:start + L])
+    ep_tasks = list(eps["tasks"][e]) if eps["tasks"][e] is not None else []
+    if len(ti) != 1 or not ep_tasks or tasks[int(ti[0])] != ep_tasks[0]:
+      bad_task += 1
+    mt = ((side.get(int(eps["episode_index"][e])) or {}).get("variation") or {}).get(
+      "extras", {}).get("multitask")
+    if mt is not None:
+      n_mt += 1
+      if not (len(ti) == 1 and tasks[int(ti[0])] == mt["instruction"]
+              and mt["target_colour"] in mt["instruction"]
+              and mt["colours"].get("object") == mt["target_colour"]):
+        bad_instr += 1
+    start += L
+  c.check(bad_task == 0, f"task_index -> task string == episode's tasks entry ({bad_task} bad)")
+  if n_mt:
+    c.check(bad_instr == 0, f"multitask: task string == sidecar instruction naming the target "
+            f"colour, target = planner's object ({n_mt} episodes, {bad_instr} bad)")
+
   # physical sanity of actions
   act = data["action"].astype(float)
   dg = root / "meta" / "datagen.json"

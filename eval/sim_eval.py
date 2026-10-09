@@ -41,6 +41,14 @@ One episode (all modes):
   Policy mode stops early once the task has been done for 1 s (cube resting in the bin,
   no jaw contact) or the cube fell off the table; otherwise at --max-sim-s.
 
+P3-A-lite (named cube among three; demos from a SCRIPTED EXPERT, not a human video):
+  --multitask train|paraphrase|swap|yellow builds three-cube scenes (eval/multitask.py) and
+  gives the policy each episode's own instruction (PolicyRunner.set_task); --instruction-swap
+  = --multitask swap (each scene id run once per named colour red/green/blue). Every row gets
+  "named_cube" (named / other / none / multiple; moved = > 20 mm in xy or > 10 mm lifted) and
+  summary.json gets "named_cube". pass / L_task / L_full stay the verifier's verdict on the
+  planner's cube (body "object"); for swap runs naming another cube use named_cube instead.
+
 Writes OUT/episodes.jsonl (one row per episode), OUT/actions/*.npz (the 10 Hz actions and
 observed states, so any episode can be replayed/re-judged on CPU), OUT/summary.json (success rate with a 95 %
 Wilson CI, throughput, clipping, inference latency) and OUT/videos/*.mp4 for --videos N.
@@ -79,6 +87,7 @@ from r2s.verify_policy import PhaseFreeMonitor, run_expert_judged  # noqa: E402
 from so101_units import (ArmCalib, lerobot_to_molmoact2, lerobot_to_sim,  # noqa: E402
                          molmoact2_to_lerobot, sim_to_lerobot)
 from ood import RUNGS as OOD_RUNGS, apply_exposure, apply_ood, exposure_of  # noqa: E402
+import multitask as MT  # noqa: E402
 
 SPEC = ROOT / "demo" / "outputs" / "pexels_7488188_sugar_cube" / "so101_task_spec.json"
 DATASET = Path("/work/outputs_large/datagen/sugar_v10_n1000_molmoact2")
@@ -295,6 +304,10 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
   sc = setup_scene(spec, v, size, init_obj_z)
   m, d = sc.model, sc.data
   mon = PhaseFreeMonitor(sc)
+  mt = (v.extras or {}).get("multitask")
+  tracker = MT.CubeTracker(sc, v) if mt else None
+  # early stop watches the NAMED cube (multitask) or the planner's cube
+  done_body = tracker.ids[mt["target_colour"]] if mt else sc.obj_body
   rend = ObsRenderer(spec, v, size, quality, obs_codec) if (source.needs_images or video or keep_obs is not None) else None
   enc = _Encoder(video, (2 * size[0], size[1]), "h264", fps=10) if video else None
   lo, hi = sc.joint_lo, sc.joint_hi
@@ -369,17 +382,20 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
         mon.step(v)
       last_frame = tgt
     tm["physics"] += time.perf_counter() - t0
+    if tracker is not None:
+      tracker.update()
     if mon.base.c["unstable"]:
       stop_reason = "unstable"
       break
     if early_stop:
-      op = d.xpos[sc.obj_body]
+      op = d.xpos[done_body]
       if op[2] < -0.02:
         stop_reason = "object_fell_off_table"
         break
       bx, by = v.bin_xy
       lim_xy = 0.055 - spec.place.success_xy_margin
-      sp = float(np.linalg.norm(d.qvel[sc.obj_dadr:sc.obj_dadr + 3]))
+      dadr = int(m.body_dofadr[done_body])  # free joint: first 3 dofs = linear velocity
+      sp = float(np.linalg.norm(d.qvel[dadr:dadr + 3]))
       ok = (abs(op[0] - bx) <= lim_xy and abs(op[1] - by) <= lim_xy and sp < 0.02
             and d.time - mon.last_jaw_contact_t > 0.5 and not mon.carrying)
       done_run = done_run + 1 if ok else 0
@@ -399,7 +415,8 @@ def run_harness_episode(spec, v: Variation, source, *, max_sim_s: float = 40.0,
   if rend:
     rend.close()
   verdict = mon.verdict(spec, v)
-  return {"verdict": verdict, "actions_mm2": np.array(log_a, np.float32).reshape(-1, 6),
+  named = MT.score_named(tracker, v, spec) if tracker is not None else None
+  return {"verdict": verdict, "named_cube": named, "actions_mm2": np.array(log_a, np.float32).reshape(-1, 6),
           "states_mm2": np.array(log_s, np.float32).reshape(-1, 6),
           "goals_mm2": np.array(log_g, np.float32).reshape(-1, 6),
           "env_state": np.array(log_env, np.float32).reshape(-1, 7),
@@ -436,6 +453,8 @@ def _init(cfg: dict, worker: bool = False) -> None:
     from policy_io import PolicyRunner
     t0 = time.perf_counter()
     _G["runner"] = PolicyRunner(cfg["checkpoint"], device=cfg["device"], task=TASK)
+    if cfg.get("multitask", "none") != "none":
+      _G["runner"].set_task("")  # set per episode from the scene's instruction
     _G["load_s"] = round(time.perf_counter() - t0, 1)
 
 
@@ -514,20 +533,38 @@ def _dataset_episode(e: int) -> tuple[Variation, np.ndarray, np.ndarray]:
   return Variation.from_dict(meta["variation"]), act, st
 
 
+def _scene(spec, cfg, idx: int, colour: str | None) -> Variation:
+  mtrow = cfg.get("multitask", "none")
+  if mtrow != "none":
+    return MT.eval_variation(spec, cfg["seed"], idx, mtrow, colour)
+  return apply_ood(sample_variation(spec, cfg["seed"], idx, variety=True), cfg.get("ood", "none"))
+
+
+def _run_key(item) -> str:
+  idx, colour = item if isinstance(item, (tuple, list)) else (item, None)
+  return f"{int(idx)}" if colour is None else f"{int(idx)}:{colour}"
+
+
 def _episode(item) -> dict:
   cfg, spec = _G["cfg"], _G["spec"]
-  mode, idx = cfg["mode"], int(item)
+  idx, colour = item if isinstance(item, (tuple, list)) else (item, None)
+  mode, idx = cfg["mode"], int(idx)
+  tag = f"{idx:05d}" if colour is None else f"{idx:05d}_{colour}"
   vid = None
-  if idx in cfg.get("video_ids", []):
+  if _run_key(item) in cfg.get("video_ids", []):
     vdir = Path(cfg["out"]) / "videos"
     vdir.mkdir(parents=True, exist_ok=True)
-    vid = vdir / f"{mode}_{idx:05d}.mp4"
-  row: dict = {"mode": mode, "ood": cfg.get("ood", "none")}
+    vid = vdir / f"{mode}_{tag}.mp4"
+  row: dict = {"mode": mode, "ood": cfg.get("ood", "none"), "run_key": _run_key(item),
+               "multitask": cfg.get("multitask", "none")}
   kw = dict(max_sim_s=cfg["max_sim_s"], interp=cfg["interp"], video=vid, quality=cfg["quality"],
             obs_codec=cfg["obs_codec"])
   if mode == "policy":
-    v = apply_ood(sample_variation(spec, cfg["seed"], idx, variety=True), cfg.get("ood", "none"))
+    v = _scene(spec, cfg, idx, colour)
     run = _G["runner"]
+    if (v.extras or {}).get("multitask"):
+      run.set_task(v.extras["multitask"]["instruction"])  # drops the cached tokenised batch
+      row["instruction"] = run.task
     r = run_harness_episode(spec, v, _smoothed(PolicySource(run), run, cfg), early_stop=True, **kw)
     r["inference_ms"] = {"chunks": len(run.chunk_ms),
                          "chunk_median": round(float(np.median(run.chunk_ms)), 1) if run.chunk_ms else None,
@@ -536,7 +573,7 @@ def _episode(item) -> dict:
     run.call_ms.clear()
     row.update({"seed": cfg["seed"], "attempt": idx, "episode_seed": v.seed})
   elif mode == "expert":
-    v = apply_ood(sample_variation(spec, cfg["seed"], idx, variety=True), cfg.get("ood", "none"))
+    v = _scene(spec, cfg, idx, colour)
     t0 = time.perf_counter()
     res, pf = run_expert_judged(spec, v, pinch_width=cfg["pinch_width"])
     exp_s = time.perf_counter() - t0
@@ -569,10 +606,15 @@ def _episode(item) -> dict:
   # the episode (same scene and physics; the source's actions are fixed once chosen), and (b)
   # write a training dataset like datagen's (eval/rollouts_to_dataset.py): per 10 Hz step the
   # observed state, the commanded goal, the object pose and the full qpos for re-rendering.
-  np.savez_compressed(rdir / f"{mode}_{idx:05d}.npz", action_raw_mm2=r.pop("actions_mm2"),
+  named = r.pop("named_cube", None)
+  if named is not None:
+    row["named_cube"] = named
+    row["L_task_named"] = named["named_in_tray"]
+    row["instruction"] = v.extras["multitask"]["instruction"]
+  np.savez_compressed(rdir / f"{mode}_{tag}.npz", action_raw_mm2=r.pop("actions_mm2"),
                       state_mm2=r.pop("states_mm2"), action_mm2=r.pop("goals_mm2"),
                       env_state=r.pop("env_state"), qpos_full=r.pop("qpos_full"))
-  row["rollout_file"] = str(rdir / f"{mode}_{idx:05d}.npz")
+  row["rollout_file"] = str(rdir / f"{mode}_{tag}.npz")
   if mode != "dataset-replay":
     row["variation"] = v.to_dict()
   row.update({"pass": vd["passed"], "L_task": vd["L_task"], "L_full": vd["L_full"],
@@ -686,6 +728,9 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
     s["expert_native_phase_free_pass"] = sum(e["phase_free_pass"] for e in en)
     s["harness_vs_native_expert_verifier_agree"] = sum(
       e["expert_verifier_pass"] == r["L_full"] for e, r in zip(en, rows))
+  if cfg.get("multitask", "none") != "none":
+    s["multitask"] = cfg["multitask"]
+    s["named_cube"] = MT.summarize_named(rows)
   return s
 
 
@@ -734,24 +779,35 @@ def main() -> None:
   ap.add_argument("--ood", default="none", choices=list(OOD_RUNGS),
                   help="out-of-distribution rung (docs/OOD_LADDER.md); edits each Variation "
                        "after sample_variation. none = in-range scenes, unchanged")
+  ap.add_argument("--multitask", default="none", choices=("none",) + MT.MT_ROWS,
+                  help="P3-A three-cube eval row (eval/multitask.py); use --seed 5000")
+  ap.add_argument("--instruction-swap", action="store_true",
+                  help="= --multitask swap: each scene id once per named colour (red/green/blue)")
   ap.add_argument("--fresh", action="store_true", help="ignore an existing episodes.jsonl in --out")
   ap.add_argument("--out", required=True)
   a = ap.parse_args()
   if a.policy_source == "dataset-replay":
     a.mode = "dataset-replay"
+  if a.instruction_swap:
+    a.multitask = "swap"
+  if a.multitask != "none" and a.ood != "none":
+    ap.error("--multitask and --ood are separate evals")
   if a.mode == "policy" and not a.checkpoint:
     ap.error("--checkpoint is required in policy mode")
   out = Path(a.out)
   out.mkdir(parents=True, exist_ok=True)
   from generate import pinch_width_from_spec
   ids = _parse_ids(a.episodes) if a.mode == "dataset-replay" else list(range(a.start, a.start + a.n))
+  if a.multitask != "none":
+    ids = MT.eval_items(a.multitask, ids)  # (id, colour) pairs; swap = 3 per id
   cfg = {"mode": a.mode, "checkpoint": a.checkpoint, "seed": a.seed, "dataset": a.dataset,
          "spec": a.spec, "max_sim_s": a.max_sim_s, "interp": a.interp, "quality": a.quality,
-         "tail_s": a.tail_s, "video_ids": ids[: a.videos], "out": str(out),
+         "tail_s": a.tail_s, "video_ids": [_run_key(i) for i in ids[: a.videos]], "out": str(out),
          "pinch_width": pinch_width_from_spec(Path(a.spec)), "device": a.device,
          "workers": a.workers, "check_images": a.check_images, "ids": ids,
          "obs_codec": a.obs_codec == "h264", "smooth": a.smooth, "ema_alpha": a.ema_alpha,
-         "replan_every": a.replan_every, "render_obs_every": a.render_obs_every, "ood": a.ood}
+         "replan_every": a.replan_every, "render_obs_every": a.render_obs_every, "ood": a.ood,
+         "multitask": a.multitask}
   # Resumable: rows already in OUT/episodes.jsonl are kept and their ids skipped, provided
   # the run-defining settings are the same.
   rows = []
@@ -759,15 +815,15 @@ def main() -> None:
   if ep_log.exists() and not a.fresh:
     old = json.loads((out / "config.json").read_text()) if (out / "config.json").exists() else {}
     for k in ("mode", "checkpoint", "seed", "spec", "max_sim_s", "interp", "quality", "tail_s",
-              "obs_codec", "smooth", "ema_alpha", "replan_every", "ood"):
+              "obs_codec", "smooth", "ema_alpha", "replan_every", "ood", "multitask"):
       if k in old and old[k] != cfg[k]:
         sys.exit(f"{out} holds a run with {k}={old[k]!r}, now {cfg[k]!r}: use another --out or --fresh")
     for line in ep_log.read_text().splitlines():
       if line.strip():
         rows.append(json.loads(line))
-    done = {r.get("attempt", r.get("episode_index")) for r in rows}
-    ids = [i for i in ids if i not in done]
-    cfg["ids"] = sorted(done | set(ids))
+    done = {r.get("run_key", str(r.get("attempt", r.get("episode_index")))) for r in rows}
+    ids = [i for i in ids if _run_key(i) not in done]
+    cfg["ids"] = sorted(done | {_run_key(i) for i in ids})
     print(f"[eval] resume: {len(rows)} episodes already in {ep_log}, {len(ids)} to run", flush=True)
   (out / "config.json").write_text(json.dumps(cfg, indent=1))
   t0 = time.perf_counter()
@@ -778,7 +834,8 @@ def main() -> None:
     rows.append(r)
     log.write(json.dumps(r) + "\n")
     log.flush()
-    print(f"[eval {a.mode}] {len(rows)}/{n_total} id={r.get('attempt', r.get('episode_index'))} "
+    print(f"[eval {a.mode}] {len(rows)}/{n_total} id={r.get('run_key')} "
+          f"named={(r.get('named_cube') or {}).get('outcome', '-')} "
           f"pass={r['pass']} L_task={r['L_task']} reasons={r['reasons']} sim={r['sim_s']}s "
           f"wall={r['wall_s']}s stop={r['stop_reason']}", flush=True)
 

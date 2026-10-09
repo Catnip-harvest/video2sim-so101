@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 import mujoco
 import numpy as np
 
+from .free_bodies import half_height
 from .paths import TaskSpec, ik, mj_scene, rm
 from .scene import FPS, EpisodeScene
 from .variations import PAN_AXIS, Variation
@@ -45,6 +46,10 @@ DT = 1.0 / FPS
 # the carried object's path, with a margin.
 REACH_R = np.array([0.05, 0.10, 0.15, 0.175, 0.25, 0.30])
 REACH_Z = np.array([0.051, 0.102, 0.126, 0.133, 0.114, 0.072])
+# P3-A distractor clearance for the carried object (see mapped_human_path.floor_z).
+DISTRACTOR_ZONE = 0.04  # m from a distractor's centre: full clearance height
+DISTRACTOR_RAMP = 0.02
+DISTRACTOR_CLEARANCE = 0.012
 RETILT_CANDIDATES = tuple(math.radians(t) for t in (0, 10, -10, 20, -20, 30, -30))
 
 
@@ -233,6 +238,9 @@ class Expert:
     robot = (5, 6, 7)
     r1, r2 = np.isin(c1, robot), np.isin(c2, robot)
     bad = (r1 & r2) | (r1 & (c2 == 1)) | (r2 & (c1 == 1))
+    # Extra free bodies (P3-A distractor cubes) sit at their rest pose in this check:
+    # the arm may never touch them (category 8 = scene.CAT_EXTRA).
+    bad |= (r1 & (c2 == 8)) | (r2 & (c1 == 8))
     if self.check_object:  # approach: nothing may touch the object yet (object at rest pose)
       bad |= (r1 & (c2 == 2)) | (r2 & (c1 == 2))
     return bool(np.any(bad))
@@ -559,11 +567,24 @@ class Expert:
     half = self.half
     zone = mj_scene.BIN_INNER_HALF + mj_scene.BIN_WALL_THICKNESS + half + 0.015
 
+    extras = [(np.asarray(b["xy"], float), 2 * half_height(b))
+              for b in (self.v.extras or {}).get("free_bodies") or []]
+
     def floor_z(xy: np.ndarray) -> np.ndarray:
       d = np.max(np.abs(xy - B[:2]), axis=1)  # Chebyshev distance to the bin centre
       w = np.clip((zone + 0.04 - d) / 0.04, 0.0, 1.0)
       w = w * w * (3 - 2 * w)  # smoothstep
-      return A[2] + (B[2] - A[2]) * w
+      f = A[2] + (B[2] - A[2]) * w
+      # Distractors: within DISTRACTOR_ZONE of one, the carried object's centre stays high
+      # enough that the jaw tips (and the object's bottom) pass DISTRACTOR_CLEARANCE above
+      # its top; smooth ramp over DISTRACTOR_RAMP outside that.
+      for c, h in extras:
+        dd = np.linalg.norm(xy - c, axis=1)
+        wd = np.clip((DISTRACTOR_ZONE + DISTRACTOR_RAMP - dd) / DISTRACTOR_RAMP, 0.0, 1.0)
+        wd = wd * wd * (3 - 2 * wd)
+        zd = h + max(half, rm.JAW_TIP_BELOW_SITE) + DISTRACTOR_CLEARANCE
+        f = np.maximum(f, A[2] + (zd - A[2]) * wd)
+      return f
 
     if traj is None or len(traj.waypoints) < 3:
       n = 30

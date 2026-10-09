@@ -25,6 +25,8 @@ clause. ``passed`` is L_full.
           not_resting              final object speed > 0.02 m/s
           not_released             a jaw touches the object in the last 0.5 s
           unstable                 non-finite state or absurd speeds
+          wrong_object_in_bin      an extra free body (distractor, scene.extra_bodies) ends
+                                   with its centre inside the bin's inner walls
   L_full  dropped_or_slipped       a carry ended without the gripper opening
           release_too_high         object's lowest point > 10 mm above the surface under
                                    it when a carry ended (bin floor inside the bin, table
@@ -74,8 +76,10 @@ from .planner import ARM_VMAX, JAW_VMAX
 from .rollout import ROBOT_CATS, Monitor
 from .variations import Variation
 
+CAT_EXTRA = getattr(S, "CAT_EXTRA", 8)
+
 TASK_CLAUSES = ("unstable", "never_carried", "not_carried_into_bin", "not_in_place_region",
-                "not_resting", "not_released")
+                "not_resting", "not_released", "wrong_object_in_bin")
 FULL_CLAUSES = ("dropped_or_slipped", "release_too_high", "object_fling",
                 "foreign_contact_while_carried", "arm_body_touched_object",
                 "object_disturbed_before_grasp", "arm_table_collision", "arm_bin_collision",
@@ -135,6 +139,8 @@ class PhaseFreeMonitor:
     self.max_goal_speed = [0.0, 0.0]  # arm, jaw (rad/s, frame to frame)
     self.prev_target: np.ndarray | None = None
     self.n_frames = 0
+    self.extra_rest = {int(b): d.xpos[b].copy() for b in getattr(sc, "extra_bodies", ())}
+    self.extra_robot_steps = 0  # physics steps with a robot geom touching an extra body
 
   # ---- per 30 Hz frame, called BEFORE the frame's substeps -----------------------------
   def frame_start(self, target: np.ndarray) -> None:
@@ -210,6 +216,8 @@ class PhaseFreeMonitor:
         robot = bool(np.any(oo == S.CAT_ROBOT))
       dist = d.contact.dist[:n]
       rob = np.isin(c1, ROBOT_CATS) | np.isin(c2, ROBOT_CATS)
+      if self.extra_rest and np.any(rob & ((c1 == CAT_EXTRA) | (c2 == CAT_EXTRA))):
+        self.extra_robot_steps += 1
       worst = 0.0
       if np.any(rob):
         i = int(np.flatnonzero(rob)[np.argmin(dist[rob])])
@@ -317,6 +325,15 @@ class PhaseFreeMonitor:
       self._mark("not_resting", t_end)
     if self.last_jaw_contact_t >= t_end - END_WINDOW_S:
       self._mark("not_released", t_end)
+    extra = []
+    for bid, p0 in self.extra_rest.items():
+      p = d.xpos[bid]
+      inside = (abs(p[0] - bx) <= mj_scene.BIN_INNER_HALF and abs(p[1] - by) <= mj_scene.BIN_INNER_HALF)
+      if inside:
+        self._mark("wrong_object_in_bin", t_end)
+      extra.append({"name": m.body(bid).name, "in_bin": bool(inside),
+                    "moved_mm": round(float(np.linalg.norm(p - p0)) * 1e3, 2),
+                    "final_xyz": [round(float(x), 4) for x in p]})
     reasons = sorted(self.first, key=lambda r: (self.first[r], ALL_CLAUSES.index(r)))
     task_fail = [r for r in reasons if r in TASK_CLAUSES]
     style = [r for r in reasons if r in STYLE_CLAUSES]
@@ -346,6 +363,8 @@ class PhaseFreeMonitor:
         "final_obj_offset_from_bin_mm": [round((op[0] - bx) * 1e3, 2), round((op[1] - by) * 1e3, 2)],
         "final_obj_z_err_mm": round((op[2] - rest_z) * 1e3, 2),
         "final_obj_speed_m_s": round(speed, 4),
+        **({"extra_bodies": extra, "extra_robot_contact_steps": self.extra_robot_steps}
+           if extra else {}),
       },
     }
 

@@ -76,6 +76,7 @@ from r2s.variations import Variation, sample_variation  # noqa: E402
 from r2s.verify_policy import PhaseFreeMonitor, run_expert_judged  # noqa: E402
 from so101_units import (ArmCalib, lerobot_to_molmoact2, lerobot_to_sim,  # noqa: E402
                          molmoact2_to_lerobot, sim_to_lerobot)
+from ood import RUNGS as OOD_RUNGS, apply_exposure, apply_ood, exposure_of  # noqa: E402
 
 SPEC = ROOT / "demo" / "outputs" / "pexels_7488188_sugar_cube" / "so101_task_spec.json"
 DATASET = Path("/work/outputs_large/datagen/sugar_v10_n1000_molmoact2")
@@ -158,6 +159,7 @@ class ObsRenderer:
   def __init__(self, spec, v: Variation, size=(256, 256), quality: str = "fast",
                codec: bool = False):
     self.codec = codec
+    self.exposure = exposure_of(v)  # --ood exposure: image transform "in the sensor"
     sc = S.build_episode_scene(v, object_kind=spec.object.kind, render_size=size)
     self.m = sc.model
     self.flags = _apply_quality(self.m, quality)
@@ -174,6 +176,8 @@ class ObsRenderer:
       for f, val in self.flags.items():
         self.r.scene.flags[f] = val
       img = self.r.render().copy()
+      if self.exposure:
+        img = apply_exposure(img, **self.exposure)
       out[key] = h264_roundtrip(img) if self.codec else img
     return out
 
@@ -516,11 +520,11 @@ def _episode(item) -> dict:
     vdir = Path(cfg["out"]) / "videos"
     vdir.mkdir(parents=True, exist_ok=True)
     vid = vdir / f"{mode}_{idx:05d}.mp4"
-  row: dict = {"mode": mode}
+  row: dict = {"mode": mode, "ood": cfg.get("ood", "none")}
   kw = dict(max_sim_s=cfg["max_sim_s"], interp=cfg["interp"], video=vid, quality=cfg["quality"],
             obs_codec=cfg["obs_codec"])
   if mode == "policy":
-    v = sample_variation(spec, cfg["seed"], idx, variety=True)
+    v = apply_ood(sample_variation(spec, cfg["seed"], idx, variety=True), cfg.get("ood", "none"))
     run = _G["runner"]
     r = run_harness_episode(spec, v, _smoothed(PolicySource(run), run, cfg), early_stop=True, **kw)
     r["inference_ms"] = {"chunks": len(run.chunk_ms),
@@ -530,7 +534,7 @@ def _episode(item) -> dict:
     run.call_ms.clear()
     row.update({"seed": cfg["seed"], "attempt": idx, "episode_seed": v.seed})
   elif mode == "expert":
-    v = sample_variation(spec, cfg["seed"], idx, variety=True)
+    v = apply_ood(sample_variation(spec, cfg["seed"], idx, variety=True), cfg.get("ood", "none"))
     t0 = time.perf_counter()
     res, pf = run_expert_judged(spec, v, pinch_width=cfg["pinch_width"])
     exp_s = time.perf_counter() - t0
@@ -648,7 +652,8 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
     "interp": cfg["interp"], "max_sim_s": cfg["max_sim_s"], "workers": cfg["workers"],
     "obs_codec": "h264" if cfg.get("obs_codec") else "none",
     "smooth": cfg.get("smooth", "none"), "ema_alpha": cfg.get("ema_alpha"),
-    "replan_every": cfg.get("replan_every"),
+    "replan_every": cfg.get("replan_every"), "ood": cfg.get("ood", "none"),
+    "wrong_object_in_bin": sum("wrong_object_in_bin" in r["reasons"] for r in rows),
     "success_L_full": k_full, "success_rate_L_full": round(k_full / max(n, 1), 4),
     "wilson95_L_full": [round(x, 4) for x in wilson(k_full, n)],
     "success_L_task": k_task, "success_rate_L_task": round(k_task / max(n, 1), 4),
@@ -724,6 +729,9 @@ def main() -> None:
   ap.add_argument("--render-obs-every", type=int, default=0,
                   help="expert mode: render+codec the observation every N steps like a policy "
                        "would (CPU-cost measurement); 0 = off")
+  ap.add_argument("--ood", default="none", choices=list(OOD_RUNGS),
+                  help="out-of-distribution rung (docs/OOD_LADDER.md); edits each Variation "
+                       "after sample_variation. none = in-range scenes, unchanged")
   ap.add_argument("--fresh", action="store_true", help="ignore an existing episodes.jsonl in --out")
   ap.add_argument("--out", required=True)
   a = ap.parse_args()
@@ -741,7 +749,7 @@ def main() -> None:
          "pinch_width": pinch_width_from_spec(Path(a.spec)), "device": a.device,
          "workers": a.workers, "check_images": a.check_images, "ids": ids,
          "obs_codec": a.obs_codec == "h264", "smooth": a.smooth, "ema_alpha": a.ema_alpha,
-         "replan_every": a.replan_every, "render_obs_every": a.render_obs_every}
+         "replan_every": a.replan_every, "render_obs_every": a.render_obs_every, "ood": a.ood}
   # Resumable: rows already in OUT/episodes.jsonl are kept and their ids skipped, provided
   # the run-defining settings are the same.
   rows = []
@@ -749,7 +757,7 @@ def main() -> None:
   if ep_log.exists() and not a.fresh:
     old = json.loads((out / "config.json").read_text()) if (out / "config.json").exists() else {}
     for k in ("mode", "checkpoint", "seed", "spec", "max_sim_s", "interp", "quality", "tail_s",
-              "obs_codec", "smooth", "ema_alpha", "replan_every"):
+              "obs_codec", "smooth", "ema_alpha", "replan_every", "ood"):
       if k in old and old[k] != cfg[k]:
         sys.exit(f"{out} holds a run with {k}={old[k]!r}, now {cfg[k]!r}: use another --out or --fresh")
     for line in ep_log.read_text().splitlines():

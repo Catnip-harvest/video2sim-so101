@@ -22,6 +22,8 @@ Ranges, and where they come from:
   cameras (render)  front 3/4 camera: height +-8 cm, pitch +-8 deg, x/y +-3 cm, FOV +-3 deg
                     around a nominal pose; the wrist camera is the Menagerie model's own
                     ``wrist_cam`` (fixed to the gripper, not randomised)
+  --wide            wider front camera (height/pitch/yaw/distance/FOV) and image exposure,
+                    from separate streams; see r2s/wide.py
 """
 
 from __future__ import annotations
@@ -126,7 +128,8 @@ def _pitch_rotate(pos: np.ndarray, lookat: np.ndarray, dpitch: float) -> np.ndar
 
 def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
                      xy_jitter: float = 0.03, bin_jitter: float = 0.02,
-                     variety: bool = False) -> Variation:
+                     variety: bool = False, wide: bool = False,
+                     wide_scale: float = 1.0) -> Variation:
   seed = episode_seed(base_seed, attempt)
   rng = np.random.default_rng(seed)
   o, p = spec.object, spec.place
@@ -197,7 +200,7 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
     extras["plan"] = plan
     q_start = (HOME_Q + r2.uniform(-0.15, 0.15, 5)).tolist()
 
-  return Variation(
+  v = Variation(
     attempt=int(attempt), seed=int(seed),
     obj_xy=[float(v) for v in obj_xy], obj_yaw=obj_yaw, obj_size=obj_size,
     obj_mass=obj_mass, obj_friction=obj_friction, finger_friction=finger_friction,
@@ -212,3 +215,7 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
     cam_pos=[float(v) for v in cam_pos], cam_lookat=[float(v) for v in lookat],
     cam_fovy=cam_fovy, cam_dz=dz, cam_dpitch_deg=dpitch, extras=extras,
   )
+  if wide:  # own streams (r2s/wide.py): every draw above is unchanged
+    from .wide import make_wide
+    v = make_wide(v, wide_scale)
+  return v

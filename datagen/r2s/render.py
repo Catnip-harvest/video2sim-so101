@@ -89,9 +89,11 @@ class _Encoder:
 def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
                    out_paths: dict, size: tuple[int, int] = (256, 256), codec: str = "h264",
                    object_kind: str = "box", stats_every: int = 5,
-                   quality: str = "full", fps: int = FPS) -> dict:
+                   quality: str = "full", fps: int = FPS, exposure: dict | None = None) -> dict:
   """Write one mp4 per key in ``video_keys``; return per-key image stats in [0, 1]
-  (sum, sumsq, min, max per channel, pixel count) from every ``stats_every``-th frame."""
+  (sum, sumsq, min, max per channel, pixel count) from every ``stats_every``-th frame.
+  ``exposure`` (--wide, r2s/wide.py) is applied to every rendered frame of every camera
+  before encoding; the stats describe the stored (exposed) images."""
   sc = build_episode_scene(v, object_kind=object_kind, render_size=size)
   m = sc.model
   flags = _apply_quality(m, quality)
@@ -101,6 +103,9 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
   encs = {k: _Encoder(Path(out_paths[k]), size, codec, fps=fps) for k in video_keys}
   stats = {k: {"sum": np.zeros(3), "sumsq": np.zeros(3), "min": np.ones(3),
                "max": np.zeros(3), "n": 0} for k in video_keys}
+  if exposure:
+    from .wide import apply_exposure, noise_rng
+    nrng = {k: noise_rng(v.seed, j) for j, k in enumerate(video_keys)}
   try:
     for i, q in enumerate(qpos_full):
       d.qpos[:] = q
@@ -110,6 +115,8 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
         for f, val in flags.items():
           r.scene.flags[f] = val
         img = r.render()
+        if exposure:
+          img = apply_exposure(img, rng=nrng[k], **exposure)
         encs[k].add(img)
         if i % stats_every == 0:
           x = img.reshape(-1, 3).astype(np.float64) / 255.0

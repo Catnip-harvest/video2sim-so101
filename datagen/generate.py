@@ -77,7 +77,8 @@ def _attempt(i: int) -> dict:
 
   cfg, spec = _W["cfg"], _W["spec"]
   try:
-    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
+    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False),
+                         wide=cfg.get("wide", False), wide_scale=cfg.get("wide_scale", 1.0))
     res = run_episode(spec, v, pinch_width=cfg["pinch_width"],
                       render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
@@ -101,13 +102,23 @@ def _attempt(i: int) -> dict:
     if cfg["render"]:
       from r2s.render import render_episode
       t0 = time.perf_counter()
+      exposure = None
+      if cfg.get("wide"):
+        # Visibility check on the first recorded frame's segmentation; redraws only the
+        # front camera (the verdict above is final and the physics already ran).
+        from r2s.wide import choose_camera
+        v, row["wide_camera"] = choose_camera(v, res.qpos_full[0], tuple(cfg["size"]),
+                                              spec.object.kind,
+                                              log=lambda msg: print(msg, flush=True))
+        row["variation"] = v.to_dict()
+        exposure = v.extras["wide"]["exposure"]
       paths = {k: f"{stem}.{k.split('.')[-1]}.mp4" for k in cfg["video_keys"]}
       step = record_step(cfg)
       row["image_stats"] = render_episode(v, res.qpos_full[::step], cfg["video_keys"], paths,
                                           size=tuple(cfg["size"]), codec=cfg["codec"],
                                           object_kind=spec.object.kind,
                                           quality=cfg.get("render_quality", "full"),
-                                          fps=cfg.get("record_hz", 30))
+                                          fps=cfg.get("record_hz", 30), exposure=exposure)
       row["render_seconds"] = round(time.perf_counter() - t0, 3)
     (Path(str(stem) + ".json")).write_text(json.dumps(row))
   return row
@@ -167,7 +178,24 @@ def acceptance_report(rows: list[dict], wall_s: float, workers: int, cfg: dict) 
     "accepted_mean_frames": round(float(np.mean([r["n_frames"] for r in acc])), 1) if acc else 0,
     "accepted_in_hand_slip_mm": _q(slip), "accepted_final_offset_from_bin_centre_mm": _q(place),
     "accepted_object_tilt_in_hand_before_lowering_deg": _q(tilt),
+    **({"wide_camera_draws": wide_camera_report(acc)} if cfg.get("wide") else {}),
   }
+
+
+def wide_camera_report(acc: list[dict]) -> dict:
+  """--wide visibility check over the accepted (rendered) episodes: a draw is rejected when
+  the cube or the gripper covers < min_px pixels in the first front-camera frame."""
+  w = [r["wide_camera"] for r in acc if "wide_camera" in r]
+  draws = sum(x["draws"] for x in w)
+  redraws = sum(x["redraws"] for x in w)
+  cube_fail = sum(1 for x in w for t in x["tries"] if t["cube_px"] < x["min_px"])
+  grip_fail = sum(1 for x in w for t in x["tries"] if t["gripper_px"] < x["min_px"])
+  return {"episodes_checked": len(w), "camera_draws": draws, "rejected_draws": redraws,
+          "draw_rejection_rate": round(redraws / max(draws, 1), 4),
+          "episodes_with_any_redraw": sum(1 for x in w if x["redraws"] > 0),
+          "episodes_fallback_narrow_camera": sum(1 for x in w if x["fallback_narrow"]),
+          "rejected_draws_cube_hidden": cube_fail, "rejected_draws_gripper_hidden": grip_fail,
+          "min_px": w[0]["min_px"] if w else None}
 
 
 def _q(x):
@@ -189,7 +217,15 @@ def write_report_md(rep: dict, path: Path) -> None:
            f"in-hand slip {rep['accepted_in_hand_slip_mm']} mm; object tilt in hand before "
            f"lowering {rep['accepted_object_tilt_in_hand_before_lowering_deg']} deg; final offset "
            f"from bin centre {rep['accepted_final_offset_from_bin_centre_mm']} mm",
-           f"- by servo: {rep['acceptance_by_servo_variant']}", "",
+           f"- by servo: {rep['acceptance_by_servo_variant']}", ""]
+  if "wide_camera_draws" in rep:
+    wc = rep["wide_camera_draws"]
+    lines += [f"- --wide camera visibility check (first frame, cube and gripper >= {wc['min_px']} px "
+              f"each): {wc['rejected_draws']} of {wc['camera_draws']} draws rejected "
+              f"(**{100 * wc['draw_rejection_rate']:.1f} %**); {wc['episodes_with_any_redraw']} of "
+              f"{wc['episodes_checked']} episodes needed a redraw; "
+              f"{wc['episodes_fallback_narrow_camera']} fell back to the normal camera", ""]
+  lines += [
            "| primary rejection reason | count | % of attempts |", "|---|---:|---:|"]
   for k, c in rep["rejections_by_primary_reason"].items():
     lines.append(f"| {k} | {c} | {100 * c / max(rep['attempts'], 1):.1f} |")
@@ -291,6 +327,11 @@ def main() -> None:
                        "no reflection/MSAA; fast: none of them")
   ap.add_argument("--variety", action="store_true",
                   help="randomise the expert's tempo, heights, tilt, pauses and start pose")
+  ap.add_argument("--wide", action="store_true",
+                  help="wider per-episode front camera (height/pitch/yaw/distance/FOV) and image "
+                       "exposure on both cameras, from separate streams (r2s/wide.py)")
+  ap.add_argument("--wide-scale", type=float, default=1.0,
+                  help="shrink every --wide range by this factor (e.g. 0.7)")
   ap.add_argument("--record-hz", type=int, default=30, choices=[30, 15, 10],
                   help="dataset frame rate; the sim always runs at 30 Hz")
   ap.add_argument("--keep-rejects", action="store_true",
@@ -329,14 +370,17 @@ def main() -> None:
     "servo_hold": args.servo_hold, "render_quality": args.render_quality,
     "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
   }
+  if args.wide:  # only present with --wide, so a normal run's config is unchanged
+    cfg["wide"], cfg["wide_scale"] = True, args.wide_scale
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
-    defaults = {"render_quality": "full", "variety": False, "record_hz": 30}
+    defaults = {"render_quality": "full", "variety": False, "record_hz": 30, "wide": False,
+                "wide_scale": 1.0}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality", "variety", "record_hz"):
-      if old.get(k, defaults.get(k)) != cfg[k]:
-        sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
+              "render_quality", "variety", "record_hz", "wide", "wide_scale"):
+      if old.get(k, defaults.get(k)) != cfg.get(k, defaults.get(k)):
+        sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg.get(k)!r}; use a new --out")
     if old.get("render") and not cfg["render"]:
       sys.exit(f"{out} was started with --render; keep --render to resume")
   run_json.write_text(json.dumps(cfg, indent=2))

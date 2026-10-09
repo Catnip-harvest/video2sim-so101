@@ -72,13 +72,25 @@ def _init_worker(cfg: dict) -> None:
 
 
 def _attempt(i: int) -> dict:
+  from r2s.planner import plan_config_for
   from r2s.rollout import run_episode
   from r2s.variations import sample_variation
 
   cfg, spec = _W["cfg"], _W["spec"]
   try:
-    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
-    res = run_episode(spec, v, pinch_width=cfg["pinch_width"],
+    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False),
+                         widen=cfg.get("widen", False))
+    pcfg = plan_config_for(v)
+    inj = cfg.get("inject", "none")
+    # INJECTIONS (JEPA-judge negatives): they change only the expert's commands. The label
+    # still comes from the verifier: an injected episode that passes is a positive.
+    if inj == "no_close":
+      pcfg.close_jaw = False
+    elif inj == "early_release":
+      pcfg.early_release_frac = float(np.random.default_rng([v.seed, 13]).uniform(0.2, 0.8))
+    if inj != "none":
+      v.extras["inject"] = inj
+    res = run_episode(spec, v, cfg=pcfg, pinch_width=cfg["pinch_width"],
                       render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
     import traceback
@@ -308,6 +320,11 @@ def main() -> None:
   ap.add_argument("--servo-hold", default="foh", choices=["foh", "zoh"],
                   help="foh: servo goal ramps over each 33 ms frame (default); "
                        "zoh: goal jumps once per frame (ablation)")
+  ap.add_argument("--widen", action="store_true",
+                  help="JEPA-judge negatives: widen the physics randomisation (variations.py)")
+  ap.add_argument("--inject", default="none", choices=["none", "no_close", "early_release"],
+                  help="JEPA-judge negatives: change the EXPERT's commands only (jaw never "
+                       "closes / opens mid-carry); the verifier still labels the episode")
   ap.add_argument("--max-attempts", type=int, default=None,
                   help="stop after this many attempts (default 4*n + 50)")
   ap.add_argument("--finalize-only", action="store_true")
@@ -328,13 +345,15 @@ def main() -> None:
     "pinch_width": pinch_width_from_spec(Path(spec_path)), "no_dataset": args.no_dataset,
     "servo_hold": args.servo_hold, "render_quality": args.render_quality,
     "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
+    "widen": args.widen, "inject": args.inject,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
-    defaults = {"render_quality": "full", "variety": False, "record_hz": 30}
+    defaults = {"render_quality": "full", "variety": False, "record_hz": 30, "widen": False,
+                "inject": "none"}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality", "variety", "record_hz"):
+              "render_quality", "variety", "record_hz", "widen", "inject"):
       if old.get(k, defaults.get(k)) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:

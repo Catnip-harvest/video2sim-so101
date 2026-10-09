@@ -75,6 +75,9 @@ class PlanConfig:
   carry_app_tol_deg: float = 25.0
   smooth_window: int = 5
   close_jaw: bool = True  # False = negative control (tests): the jaw never closes
+  # INJECTION (JEPA-judge negatives only; changes the expert's commands, never physics):
+  # open the jaw this fraction of the way through the carry. None = off.
+  early_release_frac: float | None = None
   # Pauses (s). Defaults are the original fixed values; --variety randomises them.
   hover_pause_s: float = 0.0  # extra stop at the hover point before descending
   pre_close_s: float = 0.25

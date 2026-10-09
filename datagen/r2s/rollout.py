@@ -405,12 +405,30 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
     if not (fixed and moving) or lifted < 0.01:
       flag("grasp_failed")
       return finish(False)
-    plan_info["carry"] = run_stage(lambda p: expert.plan_carry(p, np.array(v.bin_xy)))
+    def carry_fn(p: Plan) -> dict:
+      info = expert.plan_carry(p, np.array(v.bin_xy))
+      if cfg.early_release_frac is not None:
+        # INJECTION (judge negatives): the expert commands "open" part-way through the
+        # carry. Only the jaw target changes; rate_limit ramps it at the servo cap. The
+        # verifier below decides whether the episode failed.
+        t, ph = p.arrays()
+        k0 = 1 + int(cfg.early_release_frac * (len(t) - 1))  # row 0 is the anchor
+        t[k0:, 5] = expert.g_open
+        p.arm, p.jaw, p.phase = [t[:, :5]], [t[:, 5]], ph
+        info["injected_early_release_frame"] = int(k0 - 1)
+      return info
+
+    held_off = expert.off_local.copy()
+    plan_info["carry"] = run_stage(carry_fn)
     if mon.c["unstable"]:
       flag("unstable")
       return finish(False)
     o, st, R = grip_state()
     R_obj = d.xmat[sc.obj_body].reshape(3, 3).copy()
+    if cfg.early_release_frac is not None:
+      # The expert keeps going as if it still held the object (where the object would be
+      # had it not been let go); it never looks at where the object really fell.
+      o, R_obj = st + R @ held_off, None
     plan_info["release"] = run_stage(
       lambda p: expert.plan_release(p, o, st, R, np.array(v.bin_xy), HOME_Q, R_obj=R_obj))
   except PlanError as e:

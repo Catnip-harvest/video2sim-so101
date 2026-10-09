@@ -22,6 +22,9 @@ Ranges, and where they come from:
   cameras (render)  front 3/4 camera: height +-8 cm, pitch +-8 deg, x/y +-3 cm, FOV +-3 deg
                     around a nominal pose; the wrist camera is the Menagerie model's own
                     ``wrist_cam`` (fixed to the gripper, not randomised)
+  widened (--widen, JEPA-judge negatives only) object mass x0.61-4.0, object friction
+                    0.15-1.0, finger friction 0.15-1.4, jaw kp 150-2000, arm torque x0.6-1.0;
+                    separate stream, so layout/look/camera match the unwidened scene
 """
 
 from __future__ import annotations
@@ -126,7 +129,7 @@ def _pitch_rotate(pos: np.ndarray, lookat: np.ndarray, dpitch: float) -> np.ndar
 
 def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
                      xy_jitter: float = 0.03, bin_jitter: float = 0.02,
-                     variety: bool = False) -> Variation:
+                     variety: bool = False, widen: bool = False) -> Variation:
   seed = episode_seed(base_seed, attempt)
   rng = np.random.default_rng(seed)
   o, p = spec.object, spec.place
@@ -196,6 +199,20 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
       plan["hover_pause_s"] = 0.0
     extras["plan"] = plan
     q_start = (HOME_Q + r2.uniform(-0.15, 0.15, 5)).tolist()
+
+  if widen:
+    # JEPA-judge negatives: physics ranges widened past the dataset's DR, drawn from a
+    # separate stream so the layout, look and camera stay identical to the unwidened
+    # scene with the same seed (same scene, harder physics). Nothing is welded or moved:
+    # these are ordinary parameter draws, judged by the same verifier.
+    r3 = np.random.default_rng([seed, 11])
+    obj_mass = float(o.mass * r3.uniform(0.61, 4.0))
+    obj_friction = float(r3.uniform(0.15, 1.0))
+    finger_friction = float(r3.uniform(0.15, 1.4))
+    jaw_kp = float(r3.uniform(150.0, 2000.0))
+    arm_effort = float(arm_effort * r3.uniform(0.6, 1.0))
+    gripper_effort = arm_effort * rm.GRIPPER_TORQUE_FRACTION
+    extras["widen"] = True
 
   return Variation(
     attempt=int(attempt), seed=int(seed),

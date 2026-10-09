@@ -56,6 +56,15 @@ def pinch_width_from_spec(spec_path: Path) -> float | None:
   return None
 
 
+def record_step(cfg: dict) -> int:
+  """Keep every k-th 30 Hz sim frame (state, action and video alike): 30 Hz -> k=1, 10 Hz -> 3.
+  Same rule as calib/so101_units.subsample, which is applied to the real episodes."""
+  hz = int(cfg.get("record_hz", 30))
+  if 30 % hz:
+    raise ValueError(f"--record-hz must divide 30, got {hz}")
+  return 30 // hz
+
+
 def _init_worker(cfg: dict) -> None:
   os.environ.setdefault("OMP_NUM_THREADS", "1")
   _W["cfg"] = cfg
@@ -68,7 +77,7 @@ def _attempt(i: int) -> dict:
 
   cfg, spec = _W["cfg"], _W["spec"]
   try:
-    v = sample_variation(spec, cfg["seed"], i)
+    v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
     res = run_episode(spec, v, pinch_width=cfg["pinch_width"],
                       render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
@@ -79,7 +88,9 @@ def _attempt(i: int) -> dict:
             "sim_seconds": 0.0, "wall_seconds": 0.0}
   row = res.summary()
   row["n_frames"] = 0 if res.state is None else int(len(res.state))
-  if res.accepted:
+  # Rejected attempts are staged and rendered too with --keep-rejects (negatives for the
+  # JEPA judge); finalize() only ever reads accepted ones into the dataset.
+  if res.accepted or (cfg.get("keep_rejects") and res.qpos_full is not None):
     stage = Path(cfg["out"]) / "staging"
     stage.mkdir(parents=True, exist_ok=True)
     stem = stage / f"attempt_{i:06d}"
@@ -91,10 +102,12 @@ def _attempt(i: int) -> dict:
       from r2s.render import render_episode
       t0 = time.perf_counter()
       paths = {k: f"{stem}.{k.split('.')[-1]}.mp4" for k in cfg["video_keys"]}
-      row["image_stats"] = render_episode(v, res.qpos_full, cfg["video_keys"], paths,
+      step = record_step(cfg)
+      row["image_stats"] = render_episode(v, res.qpos_full[::step], cfg["video_keys"], paths,
                                           size=tuple(cfg["size"]), codec=cfg["codec"],
                                           object_kind=spec.object.kind,
-                                          quality=cfg.get("render_quality", "full"))
+                                          quality=cfg.get("render_quality", "full"),
+                                          fps=cfg.get("record_hz", 30))
       row["render_seconds"] = round(time.perf_counter() - t0, 3)
     (Path(str(stem) + ".json")).write_text(json.dumps(row))
   return row
@@ -214,7 +227,10 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
   eps = []
   for i in acc_ids:
     stem = out / "staging" / f"attempt_{i:06d}"
-    z = np.load(str(stem) + ".npz")
+    z = dict(np.load(str(stem) + ".npz"))
+    k = record_step(cfg)
+    for key in ("state", "action", "env_state", "phases"):
+      z[key] = z[key][::k]
     meta = json.loads(Path(str(stem) + ".json").read_text())
     videos = {k: Path(f"{stem}.{k.split('.')[-1]}.mp4") for k in cfg["video_keys"]} \
       if cfg["render"] else {}
@@ -230,8 +246,9 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
   extra = {"generator": "manip/datagen/generate.py", "config": cfg, "acceptance": rep,
            "units": "joint angles in radians (MuJoCo), object pose in metres / wxyz quaternion, "
                     "robot base frame",
-           "action_semantics": "absolute joint position targets held for 1/30 s"}
-  info = write_dataset(root, eps, fps=30, video_keys=cfg["video_keys"] if cfg["render"] else [],
+           "action_semantics": f"absolute joint position target sent at this frame (sim runs "
+                               f"30 Hz; recorded every {record_step(cfg)} sim frame(s))"}
+  info = write_dataset(root, eps, fps=int(cfg.get("record_hz", 30)), video_keys=cfg["video_keys"] if cfg["render"] else [],
                        video_size=tuple(cfg["size"]), video_codec=cfg["codec"],
                        robot_type=ROBOT_TYPE, extra_meta=extra, move_videos=False)
   print(f"wrote {root}: {info['total_episodes']} episodes, {info['total_frames']} frames")
@@ -251,6 +268,12 @@ def main() -> None:
   ap.add_argument("--render-quality", default="full", choices=["full", "shadow", "fast"],
                   help="full: shadows+reflection+MSAA (slow on OSMesa); shadow: 1024 shadow map, "
                        "no reflection/MSAA; fast: none of them")
+  ap.add_argument("--variety", action="store_true",
+                  help="randomise the expert's tempo, heights, tilt, pauses and start pose")
+  ap.add_argument("--record-hz", type=int, default=30, choices=[30, 15, 10],
+                  help="dataset frame rate; the sim always runs at 30 Hz")
+  ap.add_argument("--keep-rejects", action="store_true",
+                  help="also stage and render rejected attempts (judge negatives)")
   ap.add_argument("--no-wrist", action="store_true", help="front camera only")
   ap.add_argument("--codec", default="h264", choices=["h264", "av1"])
   ap.add_argument("--task", default=DEFAULT_TASK)
@@ -276,13 +299,15 @@ def main() -> None:
                                                   ["observation.images.wrist"]),
     "pinch_width": pinch_width_from_spec(Path(spec_path)), "no_dataset": args.no_dataset,
     "servo_hold": args.servo_hold, "render_quality": args.render_quality,
+    "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
+    defaults = {"render_quality": "full", "variety": False, "record_hz": 30}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality"):
-      if old.get(k, "full" if k == "render_quality" else None) != cfg[k]:
+              "render_quality", "variety", "record_hz"):
+      if old.get(k, defaults.get(k)) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:
       sys.exit(f"{out} was started with --render; keep --render to resume")

@@ -13,6 +13,12 @@ Ranges, and where they come from:
                     SO-101 BOM part), half the 12 V one (2.94 N*m x0.85-1.0); jaw = 50 % of arm
   look (render)     table colour/texture, cube and bin colour, key-light direction and
                     strength, ambient, headlight (Squint: colour jitter mattered most)
+  expert (--variety) operator tempo x0.7-1.3 on all Cartesian speeds, pre-approach height
+                    5-10 cm, hover 3-6 cm, side offset 2-6 cm, approach tilt cap 4-16 deg,
+                    pauses before close 0.15-0.6 s / before release 0.1-0.6 s / after
+                    release 0.3-0.7 s, a 0.2-0.8 s hesitation at the hover point in 35 % of
+                    episodes, start pose home +-0.15 rad (instead of +-0.05). Drawn from a
+                    separate stream, so every other draw is identical with or without it.
   cameras (render)  front 3/4 camera: height +-8 cm, pitch +-8 deg, x/y +-3 cm, FOV +-3 deg
                     around a nominal pose; the wrist camera is the Menagerie model's own
                     ``wrist_cam`` (fixed to the gripper, not randomised)
@@ -119,7 +125,8 @@ def _pitch_rotate(pos: np.ndarray, lookat: np.ndarray, dpitch: float) -> np.ndar
 
 
 def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
-                     xy_jitter: float = 0.03, bin_jitter: float = 0.02) -> Variation:
+                     xy_jitter: float = 0.03, bin_jitter: float = 0.02,
+                     variety: bool = False) -> Variation:
   seed = episode_seed(base_seed, attempt)
   rng = np.random.default_rng(seed)
   o, p = spec.object, spec.place
@@ -180,6 +187,16 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
   lookat = _pitch_rotate(cam_pos, lookat, math.radians(dpitch))
   cam_fovy = float(FRONT_CAM_FOVY + rng.uniform(-3.0, 3.0))
 
+  extras: dict = {}
+  if variety:
+    from .planner import HOVER_PAUSE_P, VARIETY_RANGES
+    r2 = np.random.default_rng([seed, 7])  # separate stream: the draws above are unchanged
+    plan = {k: float(r2.uniform(lo, hi)) for k, (lo, hi) in VARIETY_RANGES.items()}
+    if r2.uniform() >= HOVER_PAUSE_P:
+      plan["hover_pause_s"] = 0.0
+    extras["plan"] = plan
+    q_start = (HOME_Q + r2.uniform(-0.15, 0.15, 5)).tolist()
+
   return Variation(
     attempt=int(attempt), seed=int(seed),
     obj_xy=[float(v) for v in obj_xy], obj_yaw=obj_yaw, obj_size=obj_size,
@@ -193,5 +210,5 @@ def sample_variation(spec: TaskSpec, base_seed: int, attempt: int,
     object_rgb=object_rgb, bin_rgb=bin_rgb, light_dir=[float(v) for v in light_dir],
     light_diffuse=light_diffuse, ambient=ambient, headlight=headlight,
     cam_pos=[float(v) for v in cam_pos], cam_lookat=[float(v) for v in lookat],
-    cam_fovy=cam_fovy, cam_dz=dz, cam_dpitch_deg=dpitch,
+    cam_fovy=cam_fovy, cam_dz=dz, cam_dpitch_deg=dpitch, extras=extras,
   )

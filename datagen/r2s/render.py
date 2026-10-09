@@ -89,7 +89,7 @@ class _Encoder:
 def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
                    out_paths: dict, size: tuple[int, int] = (256, 256), codec: str = "h264",
                    object_kind: str = "box", stats_every: int = 5,
-                   quality: str = "full") -> dict:
+                   quality: str = "full", fps: int = FPS) -> dict:
   """Write one mp4 per key in ``video_keys``; return per-key image stats in [0, 1]
   (sum, sumsq, min, max per channel, pixel count) from every ``stats_every``-th frame."""
   sc = build_episode_scene(v, object_kind=object_kind, render_size=size)
@@ -98,7 +98,7 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
   d = mujoco.MjData(m)
   w, h = size
   r = mujoco.Renderer(m, h, w)
-  encs = {k: _Encoder(Path(out_paths[k]), size, codec) for k in video_keys}
+  encs = {k: _Encoder(Path(out_paths[k]), size, codec, fps=fps) for k in video_keys}
   stats = {k: {"sum": np.zeros(3), "sumsq": np.zeros(3), "min": np.ones(3),
                "max": np.zeros(3), "n": 0} for k in video_keys}
   try:

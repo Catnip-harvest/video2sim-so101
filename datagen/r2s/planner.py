@@ -75,6 +75,37 @@ class PlanConfig:
   carry_app_tol_deg: float = 25.0
   smooth_window: int = 5
   close_jaw: bool = True  # False = negative control (tests): the jaw never closes
+  # Pauses (s). Defaults are the original fixed values; --variety randomises them.
+  hover_pause_s: float = 0.0  # extra stop at the hover point before descending
+  pre_close_s: float = 0.25
+  pre_release_s: float = 0.2
+  post_release_s: float = 0.4
+
+
+# Ranges drawn per episode by variations.sample_variation(..., variety=True). Speeds are
+# scaled together (one "operator tempo") and stay under the servo caps (rate_limit).
+VARIETY_RANGES = {
+  "speed_scale": (0.7, 1.3), "preapproach_height": (0.05, 0.10), "hover_height": (0.03, 0.06),
+  "side_offset": (0.02, 0.06), "approach_tilt_max_deg": (4.0, 16.0),
+  "pre_close_s": (0.15, 0.6), "pre_release_s": (0.1, 0.6), "post_release_s": (0.3, 0.7),
+  "hover_pause_s": (0.2, 0.8),  # applied with probability HOVER_PAUSE_P, else 0
+}
+HOVER_PAUSE_P = 0.35
+
+
+def plan_config_for(v: Variation) -> PlanConfig:
+  """PlanConfig for one episode: defaults, overridden by the variation's drawn plan params."""
+  cfg = PlanConfig()
+  p = (v.extras or {}).get("plan")
+  if not p:
+    return cfg
+  k = p["speed_scale"]
+  for name in ("descend_speed", "line_speed", "lift_speed", "lower_speed"):
+    setattr(cfg, name, getattr(cfg, name) * k)
+  for name in ("preapproach_height", "hover_height", "side_offset", "approach_tilt_max_deg",
+               "pre_close_s", "pre_release_s", "post_release_s", "hover_pause_s"):
+    setattr(cfg, name, float(p[name]))
+  return cfg
 
 
 class PlanError(RuntimeError):
@@ -399,11 +430,13 @@ class Expert:
     try:
       self.cart_path(plan, _line(pre, hover, 0.005), frames, "approach_line",
                      speed=cfg.line_speed)
+      if cfg.hover_pause_s > 0:  # a hesitation at the hover point (same phase label)
+        self.hold(plan, cfg.hover_pause_s, "approach_line")
       self.cart_path(plan, _line(hover, grasp, 0.004), frames, "descend",
                      speed=cfg.descend_speed)
     finally:
       self.check_object = False
-    self.hold(plan, 0.25, "pre_close")
+    self.hold(plan, cfg.pre_close_s, "pre_close")
     self.jaw_move(plan, self.g_close, "close")
     self.hold(plan, 0.35, "squeeze")
     info = {"closing": closing.tolist(), "approach": self.approach_at(grasp, pick_az).tolist(),
@@ -489,11 +522,11 @@ class Expert:
     pts = np.concatenate([_line(obj_pos, top, 0.004), _line(top, R_pt, 0.004)])
     self.cart_path(plan, pts, self.frames, "lower", speed=cfg.lower_speed,
                    to_site=self.site_for, retilt=True)
-    self.hold(plan, 0.2, "pre_release")
+    self.hold(plan, cfg.pre_release_s, "pre_release")
     # Open just enough to let go (mouth = object + release_mouth_margin): the moving
     # jaw swings outwards as it opens and would otherwise hit the bin wall.
     self.jaw_move(plan, self.g_release, "release")
-    self.hold(plan, 0.4, "post_release")
+    self.hold(plan, cfg.post_release_s, "post_release")
     s_rel = self.site_for(R_pt)
     up = s_rel + np.array([0, 0, cfg.retreat_height])
     self.cart_path(plan, _line(s_rel, up, 0.005), self.frames, "retreat",

@@ -21,7 +21,7 @@ if str(DATAGEN) not in sys.path:
 from r2s import scene as S  # noqa: E402
 from r2s.lerobot_io import EpisodeData, write_dataset  # noqa: E402
 from r2s.paths import load_task_spec  # noqa: E402
-from r2s.planner import PlanConfig  # noqa: E402
+from r2s.planner import VARIETY_RANGES, PlanConfig, plan_config_for  # noqa: E402
 from r2s.render import _Encoder  # noqa: E402
 from r2s.rollout import run_episode  # noqa: E402
 from r2s.variations import sample_variation  # noqa: E402
@@ -40,6 +40,30 @@ def test_variations_are_deterministic_and_in_range():
     assert 0.020 <= v.obj_size <= 0.050
     assert np.linalg.norm(np.array(v.obj_xy) - np.array(v.bin_xy)) >= 0.11
     assert abs(v.cam_dz) <= 0.08 and abs(v.cam_dpitch_deg) <= 8.0
+
+
+def test_variety_only_adds_plan_params_and_start_pose():
+  spec = load_task_spec(SUGAR)
+  for i in range(20):
+    plain, var = sample_variation(spec, 0, i).to_dict(), sample_variation(spec, 0, i, variety=True).to_dict()
+    changed = {k for k in plain if plain[k] != var[k]}
+    assert changed == {"q_start", "extras"}, changed  # layout, physics, look, camera unchanged
+    p = var["extras"]["plan"]
+    for k, (lo, hi) in VARIETY_RANGES.items():
+      assert p[k] == 0.0 if k == "hover_pause_s" and p[k] == 0.0 else lo <= p[k] <= hi, (k, p[k])
+    assert np.abs(np.array(var["q_start"]) - np.array(plain["q_start"])).max() < 0.15 + 0.05 + 1e-9
+  v = sample_variation(spec, 0, 1, variety=True)
+  cfg, base = plan_config_for(v), PlanConfig()
+  k = v.extras["plan"]["speed_scale"]
+  assert abs(cfg.line_speed - base.line_speed * k) < 1e-12
+  assert cfg.pre_close_s == v.extras["plan"]["pre_close_s"]
+  assert plan_config_for(sample_variation(spec, 0, 1)) == base  # no variety -> defaults
+
+
+def test_varied_episode_is_physical():
+  spec = load_task_spec(SUGAR)
+  acc = [run_episode(spec, sample_variation(spec, 0, i, variety=True)).accepted for i in range(4)]
+  assert sum(acc) >= 3, acc
 
 
 def test_episode_model_has_no_weld_latch_or_mocap():

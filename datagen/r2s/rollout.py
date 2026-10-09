@@ -49,7 +49,7 @@ import numpy as np
 
 from . import scene as S
 from .paths import TaskSpec, mj_scene
-from .planner import (ARM_VMAX, JAW_VMAX, Expert, Plan, PlanConfig, PlanError,
+from .planner import (ARM_VMAX, JAW_VMAX, Expert, Plan, PlanConfig, PlanError, plan_config_for,
                       rate_limit, smooth_targets)
 from .variations import HOME_Q, Variation
 
@@ -260,7 +260,7 @@ def run_episode(spec: TaskSpec, v: Variation, cfg: PlanConfig | None = None,
                 pinch_width: float | None = None, render_size=(256, 256),
                 keep_arrays: bool = True, servo_foh: bool = True) -> EpisodeResult:
   wall0 = time.perf_counter()
-  cfg = cfg or PlanConfig()
+  cfg = cfg or plan_config_for(v)
   sc = S.build_episode_scene(v, object_kind=spec.object.kind, render_size=render_size)
   m, d = sc.model, sc.data
   assert m.neq == 0 and m.nmocap == 0, "model must have no equality constraints or mocap"

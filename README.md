@@ -32,6 +32,7 @@ Full reasoning: [docs/DESIGN.md](docs/DESIGN.md).
 |---|---|
 | `demo/` | Video → task spec. MediaPipe hand ONNX, SAM 2.1 object track, Depth Anything V2 Small, A4-sheet calibration. Run `python demo/tools/fetch_models.py` to download the model weights. |
 | `datagen/` | Task spec → N physics-verified SO-101 episodes → LeRobot v3 dataset (`run_droplet.sh`). |
+| `object3d/` | Any mesh → simulable MuJoCo object (repair, convex pieces, mass), plus settle / grasp-parity / scale tests on YCB scans. Physics half of object-from-video v2; see its README. |
 | `task/` | mjlab RL task `SO101-PickPlace-State`, and `tests/test_grasp_physics.py`: the gate that rejects fake grasps. |
 | `third_party/menagerie_so101/` | Vendored Menagerie model, Apache-2.0, LICENSE inside. |
 | `env/` | Everything needed to set up the AMD MI300X droplet. |

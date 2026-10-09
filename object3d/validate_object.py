@@ -175,6 +175,8 @@ def settle_test(src: ObjectSource, seconds: float = 2.0, drop: float = 0.005, ya
     "speed_mm_s": round(float(lin[last_half].max()) * 1e3, 3),
     "spin_deg_s": round(float(math.degrees(ang[last_half].max())), 3),
     "drift_mm": round(float(np.linalg.norm(pos[-1] - pos[-last_1s])) * 1e3, 3),
+    # context, not a pass mark: how far the body actually moves while it "jitters"
+    "jitter_peak_to_peak_um": round(float(np.ptp(pos[last_half], axis=0).max()) * 1e6, 2),
     "tilt_deg": round(float(math.degrees(math.acos(np.clip(zax[-1, 2], -1, 1)))), 3),
     "settled_after_s": None if settled_at is None else round(settled_at, 3),
     "n_contacts_at_rest": int(data.ncon),
@@ -217,6 +219,19 @@ def _init(cfg: dict) -> None:
 
 
 def _one(job: tuple[str, float, int]) -> dict:
+  import gc
+
+  try:
+    return _one_inner(job)
+  finally:
+    # An episode leaves its MjModel/MjData copies in reference cycles (the planner's
+    # closures). With mesh objects that is ~250 MB per episode until the cyclic GC runs;
+    # six workers then exhausted the commit limit and qhull's malloc failed inside MuJoCo's
+    # compile (measured 9 Oct 2026). Collect after every episode.
+    gc.collect()
+
+
+def _one_inner(job: tuple[str, float, int]) -> dict:
   text, scale, attempt = job
   _datagen_path()
   from r2s.planner import PlanConfig
@@ -273,8 +288,17 @@ def run_batch(jobs: list[tuple[str, float, int]], spec_path: str, seed: int, wor
     return [_one(j) for j in jobs]
   import multiprocessing as mp
 
-  with mp.get_context("spawn").Pool(workers, initializer=_init, initargs=(cfg,)) as pool:
-    return list(pool.imap(_one, jobs, chunksize=1))
+  out = []
+  t0 = time.perf_counter()
+  # maxtasksperchild: fresh workers every 10 episodes, so memory stays bounded
+  with mp.get_context("spawn").Pool(workers, initializer=_init, initargs=(cfg,),
+                                    maxtasksperchild=10) as pool:
+    for r in pool.imap(_one, jobs, chunksize=1):
+      out.append(r)
+      if len(out) % 10 == 0 or len(out) == len(jobs):
+        print(f"[batch] {len(out)}/{len(jobs)} episodes, {time.perf_counter() - t0:.0f} s",
+              file=sys.stderr, flush=True)
+  return out
 
 
 def summarise(rows: list[dict]) -> dict:
@@ -361,9 +385,9 @@ def markdown(rep: dict) -> str:
   if "settle" in rep:
     s = rep["settle"]
     lines += [f"### Settle: {'PASS' if s['passed'] else 'FAIL ' + ', '.join(s['failed'])}", "",
-              "| height err mm | penetration mm | speed mm/s (last 0.5 s) | spin deg/s | drift mm (last 1 s) | tilt deg | settled after s |",
-              "|---:|---:|---:|---:|---:|---:|---:|",
-              f"| {s['height_err_mm']} | {s['penetration_mm']} | {s['speed_mm_s']} | {s['spin_deg_s']} | {s['drift_mm']} | {s['tilt_deg']} | {s['settled_after_s']} |", ""]
+              "| height err mm | penetration mm | speed mm/s (last 0.5 s) | spin deg/s | drift mm (last 1 s) | tilt deg | jitter p-p um | settled after s |",
+              "|---:|---:|---:|---:|---:|---:|---:|---:|",
+              f"| {s['height_err_mm']} | {s['penetration_mm']} | {s['speed_mm_s']} | {s['spin_deg_s']} | {s['drift_mm']} | {s['tilt_deg']} | {s['jitter_peak_to_peak_um']} | {s['settled_after_s']} |", ""]
   if "parity" in rep:
     p = rep["parity"]
     lines += [f"### Parity: A = {p['a']}, B = {p['b']} (seed {p['seed']}, same draws)", "",
@@ -399,7 +423,7 @@ def main(argv=None) -> None:
     if batch:
       p.add_argument("--n", type=int, default=30, help="seeds (episodes) per object/scale")
       p.add_argument("--seed", type=int, default=0)
-      p.add_argument("--workers", type=int, default=6)
+      p.add_argument("--workers", type=int, default=4)
       p.add_argument("--spec", default=str(DEFAULT_SPEC))
       p.add_argument("--plan", default="{}", help='PlanConfig overrides as JSON, e.g. '
                      '\'{"open_max_rad": 1.6, "grasp_height_max": 0.03}\'')

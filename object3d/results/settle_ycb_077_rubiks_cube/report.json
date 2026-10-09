@@ -1,0 +1,39 @@
+{
+ "cmd": "settle",
+ "argv": [
+  "settle",
+  "object3d/out/ycb_077_rubiks_cube",
+  "--out",
+  "object3d/results/settle_ycb_077_rubiks_cube"
+ ],
+ "settle": {
+  "object": "ycb_077_rubiks_cube",
+  "half_height_mm": 28.5,
+  "height_err_mm": -0.187,
+  "penetration_mm": 0.207,
+  "max_penetration_mm": 2.196,
+  "speed_mm_s": 1.935,
+  "spin_deg_s": 3.843,
+  "drift_mm": 0.002,
+  "jitter_peak_to_peak_um": 17.98,
+  "tilt_deg": 0.128,
+  "settled_after_s": 0.133,
+  "n_contacts_at_rest": 5,
+  "seconds": 2.0,
+  "drop_mm": 5.0,
+  "wall_s": 0.014,
+  "sim_speed_x_realtime": 147.9,
+  "pass_marks": {
+   "height_err_mm": 2.0,
+   "penetration_mm": 1.0,
+   "speed_mm_s": 5.0,
+   "spin_deg_s": 3.0,
+   "drift_mm": 1.0,
+   "tilt_deg": 3.0
+  },
+  "failed": [
+   "spin_deg_s"
+  ],
+  "passed": false
+ }
+}

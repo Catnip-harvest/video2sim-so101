@@ -1,0 +1,40 @@
+{
+ "cmd": "settle",
+ "argv": [
+  "settle",
+  "object3d/out/ycb_005_tomato_soup_can",
+  "--out",
+  "object3d/results/settle_ycb_005_tomato_soup_can"
+ ],
+ "settle": {
+  "object": "ycb_005_tomato_soup_can",
+  "half_height_mm": 50.5,
+  "height_err_mm": -0.192,
+  "penetration_mm": 0.149,
+  "max_penetration_mm": 2.207,
+  "speed_mm_s": 7.656,
+  "spin_deg_s": 8.311,
+  "drift_mm": 0.019,
+  "jitter_peak_to_peak_um": 64.76,
+  "tilt_deg": 0.112,
+  "settled_after_s": 1.995,
+  "n_contacts_at_rest": 4,
+  "seconds": 2.0,
+  "drop_mm": 5.0,
+  "wall_s": 0.009,
+  "sim_speed_x_realtime": 213.7,
+  "pass_marks": {
+   "height_err_mm": 2.0,
+   "penetration_mm": 1.0,
+   "speed_mm_s": 5.0,
+   "spin_deg_s": 3.0,
+   "drift_mm": 1.0,
+   "tilt_deg": 3.0
+  },
+  "failed": [
+   "speed_mm_s",
+   "spin_deg_s"
+  ],
+  "passed": false
+ }
+}

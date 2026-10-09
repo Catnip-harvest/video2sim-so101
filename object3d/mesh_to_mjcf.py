@@ -31,9 +31,12 @@ Steps (each is a function below, in this order):
   5. repair          merge duplicate vertices, drop degenerate faces, fix winding, cap holes
                      with a fan; record whether the result is watertight (closed)
   6. decompose       CoACD (MIT) if it loads; otherwise V-HACD 4 via `vhacdx` (MIT bindings,
-                     BSD-3 library); otherwise one convex hull. The backend used is recorded.
-                     (On the Windows laptop, Application Control blocks CoACD's DLL, so V-HACD
-                     is what actually runs there.)
+                     BSD-3 library); otherwise one convex hull. Every result must hold >= 90 %
+                     of the closed mesh's volume or the next backend is tried. The backend
+                     used, and why others were skipped, is recorded. (Laptop, 9 Oct 2026:
+                     Windows Application Control blocked CoACD's DLL on the first import and
+                     allowed it afterwards; vhacdx loads but returns broken pieces, e.g. 18-21 %
+                     of the volume, so the coverage check rejects it.)
   7. mass/inertia    --inertia convex (solid objects) | shell (thin / hollow, mass on the
                      surface) | auto (convex if the repaired mesh is closed, else shell). Uses
                      MuJoCo's own <mesh inertia="..."> modes.
@@ -319,20 +322,32 @@ def available_backends() -> dict[str, str]:
   return out
 
 
-def decompose(m, backend: str = "auto", threshold: float = 0.05, max_hulls: int = 32,
+MIN_COVERAGE = 0.9  # pieces must hold >= 90 % of a closed mesh's volume, else reject them
+
+
+def decompose(m, backend: str = "auto", threshold: float = 0.10, max_hulls: int = -1,
               max_hull_vertices: int = 64, vhacd_resolution: int = 400_000,
               seed: int = 0) -> tuple[list[np.ndarray], dict]:
   """Convex pieces of mesh m (vertex arrays; each piece is re-hulled with qhull so it is
-  convex for sure). Returns (pieces, info)."""
+  convex for sure). Returns (pieces, info).
+
+  Coverage check: when m is closed, the pieces' total volume must be at least
+  MIN_COVERAGE of m's volume (convex pieces over-cover concave spots, so > 1 is normal;
+  well under 1 means pieces are missing). With backend="auto" a backend that fails the
+  check is skipped and the next is tried; the reason is recorded. This is not
+  hypothetical: vhacdx 0.1.0 on Windows returned a tetrahedron for a box and 39 % of a
+  sphere's volume (measured 9 Oct 2026), so its output is never trusted unchecked."""
   avail = available_backends()
   order = ["coacd", "vhacd", "hull"] if backend == "auto" else [backend]
-  info = {"requested": backend, "available": avail}
+  info: dict = {"requested": backend, "available": avail, "rejected": {}}
   v = np.asarray(m.vertices, float)
   f = np.asarray(m.faces, np.int64)
-  raw: list[np.ndarray] | None = None
+  closed_volume = float(m.volume) if m.is_watertight and m.volume > 0 else None
+  result = None
   for b in order:
     if avail.get(b) != "ok":
       continue
+    t0 = time.perf_counter()
     if b == "coacd":
       import coacd
 
@@ -341,36 +356,45 @@ def decompose(m, backend: str = "auto", threshold: float = 0.05, max_hulls: int 
                               max_convex_hull=max_hulls if max_hulls > 0 else -1,
                               max_ch_vertex=max_hull_vertices, seed=seed)
       raw = [np.asarray(p[0], float) for p in parts]
-      info["params"] = {"threshold": threshold, "max_convex_hull": max_hulls,
-                        "max_ch_vertex": max_hull_vertices, "seed": seed}
+      params = {"threshold": threshold, "max_convex_hull": max_hulls,
+                "max_ch_vertex": max_hull_vertices, "seed": seed}
     elif b == "vhacd":
       import vhacdx
 
-      parts = vhacdx.compute_vhacd(v, f.astype(np.uint32), maxConvexHulls=max_hulls,
+      parts = vhacdx.compute_vhacd(v, f.astype(np.uint32),
+                                   maxConvexHulls=max_hulls if max_hulls > 0 else 32,
                                    resolution=vhacd_resolution,
                                    maxNumVerticesPerCH=max_hull_vertices,
                                    minimumVolumePercentErrorAllowed=1.0, asyncACD=False)
       raw = [np.asarray(p[0], float) for p in parts]
-      info["params"] = {"maxConvexHulls": max_hulls, "resolution": vhacd_resolution,
-                        "maxNumVerticesPerCH": max_hull_vertices,
-                        "minimumVolumePercentErrorAllowed": 1.0}
+      params = {"maxConvexHulls": max_hulls if max_hulls > 0 else 32,
+                "resolution": vhacd_resolution, "maxNumVerticesPerCH": max_hull_vertices}
     else:
       raw = [v]
-      info["params"] = {}
-    info["backend"] = b
+      params = {}
+    pieces, vols = [], []
+    for p in raw:
+      hv, vol = _hull(p)
+      if hv is not None:
+        pieces.append(hv)
+        vols.append(vol)
+    total = sum(vols)
+    keep = [i for i, vol in enumerate(vols) if vol >= MIN_PIECE_VOLUME_FRACTION * total]
+    coverage = (sum(vols[i] for i in keep) / closed_volume) if closed_volume else None
+    secs = time.perf_counter() - t0
+    if coverage is not None and coverage < MIN_COVERAGE and backend == "auto" and b != "hull":
+      info["rejected"][b] = (f"pieces hold only {coverage:.0%} of the mesh volume "
+                             f"({len(keep)} pieces, {secs:.1f} s)")
+      continue
+    result = ([pieces[i] for i in keep], b, params, len(pieces) - len(keep), coverage, secs)
     break
-  if raw is None:
-    raise RuntimeError(f"no convex-decomposition backend could run: {avail}")
-  pieces, vols = [], []
-  for p in raw:
-    hv, vol = _hull(p)
-    if hv is not None:
-      pieces.append(hv)
-      vols.append(vol)
-  total = sum(vols)
-  keep = [i for i, vol in enumerate(vols) if vol >= MIN_PIECE_VOLUME_FRACTION * total]
-  info["pieces_dropped_tiny"] = len(pieces) - len(keep)
-  pieces = [pieces[i] for i in keep]
+  if result is None:
+    raise RuntimeError(f"no convex-decomposition backend could run: {avail}, {info['rejected']}")
+  pieces, b, params, dropped, coverage, secs = result
+  info.update(backend=b, params=params, pieces_dropped_tiny=dropped,
+              coverage_of_mesh_volume=coverage, seconds=round(secs, 2))
+  if coverage is not None and coverage < MIN_COVERAGE:
+    info["warning"] = f"pieces hold only {coverage:.0%} of the mesh volume"
   return pieces, info
 
 
@@ -461,7 +485,7 @@ def convert(mesh_path: str | Path, out_dir: str | Path, mass: float,
             target_size: float | None = None, target_dim: str = "max",
             scale: float | None = None, name: str | None = None, up: str = "auto",
             align: bool = True, inertia: str = "auto", backend: str = "auto",
-            threshold: float = 0.05, max_hulls: int = 32, max_hull_vertices: int = 64,
+            threshold: float = 0.10, max_hulls: int = -1, max_hull_vertices: int = 64,
             vhacd_resolution: int = 400_000, friction=DEFAULT_FRICTION, seed: int = 0) -> dict:
   """Run steps 1-8. Returns the report dict (also written to out_dir/report.json)."""
   import mujoco
@@ -602,8 +626,10 @@ def main(argv=None) -> None:
   ap.add_argument("--inertia", default="auto", choices=["auto", "convex", "shell"],
                   help="convex = solid, shell = thin/hollow; auto = convex if closed else shell")
   ap.add_argument("--backend", default="auto", choices=["auto", "coacd", "vhacd", "hull"])
-  ap.add_argument("--threshold", type=float, default=0.05, help="CoACD concavity threshold")
-  ap.add_argument("--max-hulls", type=int, default=32)
+  ap.add_argument("--threshold", type=float, default=0.10,
+                  help="CoACD concavity threshold (0.10: 9-32 pieces, 40-270 s on the YCB scans)")
+  ap.add_argument("--max-hulls", type=int, default=-1,
+                  help="cap on pieces (-1 = none; a cap makes CoACD merge pieces, which is slow)")
   ap.add_argument("--max-hull-vertices", type=int, default=64)
   ap.add_argument("--vhacd-resolution", type=int, default=400_000)
   ap.add_argument("--friction", type=float, nargs=3, default=list(DEFAULT_FRICTION))

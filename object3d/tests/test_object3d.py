@@ -99,21 +99,31 @@ def test_glb_is_turned_z_up(tmp_path):
 
 
 def test_hollow_object_decomposes_into_several_pieces(tmp_path):
-  if M.available_backends()["vhacd"] != "ok" and M.available_backends()["coacd"] != "ok":
-    pytest.skip("no convex-decomposition library loads on this machine")
+  if M.available_backends()["coacd"] != "ok":
+    pytest.skip("CoACD does not load on this machine")
   ring = trimesh.creation.annulus(r_min=0.03, r_max=0.04, height=0.05)
   p = tmp_path / "ring.obj"
   ring.export(p)
-  backend = "vhacd" if M.available_backends()["vhacd"] == "ok" else "coacd"
-  rep = M.convert(p, tmp_path / "out", mass=0.05, scale=1.0, backend=backend, max_hulls=16,
-                  vhacd_resolution=100_000)
+  rep = M.convert(p, tmp_path / "out", mass=0.05, scale=1.0, backend="coacd")
   assert rep["n_hulls"] >= 4
+  assert 0.9 <= rep["decomposition"]["coverage_of_mesh_volume"] <= 1.5
   # the hole stays a hole: the centre is inside no collision piece
   from scipy.spatial import Delaunay
   for f in sorted((tmp_path / "out").glob("collision_*.obj")):
     v = np.array([[float(x) for x in ln.split()[1:4]] for ln in f.read_text().splitlines()
                   if ln.startswith("v ")])
     assert Delaunay(v).find_simplex([[0.0, 0.0, 0.0]])[0] < 0
+
+
+def test_coverage_check_rejects_pieces_that_miss_volume():
+  """A decomposition holding < 90 % of a closed mesh is never accepted silently."""
+  box = trimesh.creation.box(extents=(0.03, 0.03, 0.03))
+  pieces, info = M.decompose(box, backend="hull")
+  assert info["coverage_of_mesh_volume"] == pytest.approx(1.0) and "warning" not in info
+  if M.available_backends()["vhacd"] == "ok":
+    _, info = M.decompose(box, backend="auto")  # coacd if present, else vhacd checked
+    assert info["backend"] in ("coacd", "vhacd", "hull")
+    assert info["coverage_of_mesh_volume"] >= 0.9
 
 
 def test_wilson_interval():

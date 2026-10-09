@@ -1,0 +1,37 @@
+{
+ "cmd": "settle",
+ "argv": [
+  "settle",
+  "object3d/out/ycb_025_mug",
+  "--out",
+  "object3d/results/settle_ycb_025_mug"
+ ],
+ "settle": {
+  "object": "ycb_025_mug",
+  "half_height_mm": 41.0,
+  "height_err_mm": 0.361,
+  "penetration_mm": 0.111,
+  "max_penetration_mm": 1.555,
+  "speed_mm_s": 1.362,
+  "spin_deg_s": 1.887,
+  "drift_mm": 0.005,
+  "jitter_peak_to_peak_um": 16.96,
+  "tilt_deg": 0.128,
+  "settled_after_s": 0.129,
+  "n_contacts_at_rest": 4,
+  "seconds": 2.0,
+  "drop_mm": 5.0,
+  "wall_s": 0.011,
+  "sim_speed_x_realtime": 188.1,
+  "pass_marks": {
+   "height_err_mm": 2.0,
+   "penetration_mm": 1.0,
+   "speed_mm_s": 5.0,
+   "spin_deg_s": 3.0,
+   "drift_mm": 1.0,
+   "tilt_deg": 3.0
+  },
+  "failed": [],
+  "passed": true
+ }
+}

@@ -1,0 +1,330 @@
+{
+ "cmd": "scale",
+ "argv": [
+  "scale",
+  "object3d/out/ycb_025_mug",
+  "--scales",
+  "1.0",
+  "--n",
+  "10",
+  "--workers",
+  "5",
+  "--plan",
+  "{\"preapproach_height\": 0.04, \"hover_height\": 0.02, \"open_max_rad\": 1.6, \"grasp_height_max\": 0.03}",
+  "--out",
+  "object3d/results/probe_lowapproach_ycb_025_mug"
+ ],
+ "scale": {
+  "object": "ycb_025_mug",
+  "seed": 0,
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\video2sim-so101\\demo\\outputs\\pexels_7488188_sugar_cube\\so101_task_spec.json",
+  "plan": {
+   "preapproach_height": 0.04,
+   "hover_height": 0.02,
+   "open_max_rad": 1.6,
+   "grasp_height_max": 0.03
+  },
+  "by_scale": {
+   "1": {
+    "summary": {
+     "n": 10,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 4,
+      "grasp_failed": 3,
+      "arm_body_touched_object": 2,
+      "object_disturbed_before_grasp": 1
+     },
+     "wall_s_per_episode_median": 2.01
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 10,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 10,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 10,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 10,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   }
+  },
+  "wall_s": 5.8,
+  "rows": [
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "arm_body_touched_object",
+    "reasons": [
+     "arm_body_touched_object",
+     "object_disturbed_before_grasp",
+     "dropped_or_slipped",
+     "foreign_contact_while_carried",
+     "grasp_failed",
+     "torque_saturation"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 7.18,
+    "max_obj_lift_mm": 9.15,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.17,
+    "wall_s": 1.92
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.146 -0.023  0.07 ] err 19.4 mm 9.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 1.98
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.36,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.129 -0.077  0.07 ] err 16.8 mm 8.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.08
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 1.19,
+    "max_obj_lift_mm": 1.19,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 93.81,
+    "jaw_after_squeeze_rad": 1.466,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 5.43,
+    "wall_s": 1.52
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.37,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.17  -0.064  0.07 ] err 14.7 mm 7.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.04
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 1.22,
+    "max_obj_lift_mm": 1.22,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 93.81,
+    "jaw_after_squeeze_rad": 1.4817,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 5.43,
+    "wall_s": 1.11
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "arm_body_touched_object",
+    "reasons": [
+     "arm_body_touched_object",
+     "object_disturbed_before_grasp",
+     "grasp_failed",
+     "torque_saturation",
+     "tracking_error"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 8.61,
+    "max_obj_lift_mm": 9.45,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3641,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.13,
+    "wall_s": 2.1
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.35,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.132 -0.052  0.07 ] err 19.7 mm 9.1 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.35
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.4705,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 7.23,
+    "wall_s": 1.65
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "object_disturbed_before_grasp",
+    "reasons": [
+     "object_disturbed_before_grasp",
+     "grasp_failed",
+     "tracking_error"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 12.82,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 12.1,
+    "wall_s": 3.0
+   }
+  ]
+ }
+}

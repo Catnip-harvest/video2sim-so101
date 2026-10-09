@@ -1,0 +1,37 @@
+{
+ "cmd": "settle",
+ "argv": [
+  "settle",
+  "object3d/out/synthetic_box_30mm",
+  "--out",
+  "object3d/results/settle_synthetic_box_30mm"
+ ],
+ "settle": {
+  "object": "synthetic_box_30mm",
+  "half_height_mm": 15.0,
+  "height_err_mm": -0.106,
+  "penetration_mm": 0.108,
+  "max_penetration_mm": 2.196,
+  "speed_mm_s": 0.352,
+  "spin_deg_s": 0.888,
+  "drift_mm": 0.001,
+  "jitter_peak_to_peak_um": 8.32,
+  "tilt_deg": 0.005,
+  "settled_after_s": 0.133,
+  "n_contacts_at_rest": 4,
+  "seconds": 2.0,
+  "drop_mm": 5.0,
+  "wall_s": 0.007,
+  "sim_speed_x_realtime": 293.7,
+  "pass_marks": {
+   "height_err_mm": 2.0,
+   "penetration_mm": 1.0,
+   "speed_mm_s": 5.0,
+   "spin_deg_s": 3.0,
+   "drift_mm": 1.0,
+   "tilt_deg": 3.0
+  },
+  "failed": [],
+  "passed": true
+ }
+}

@@ -63,6 +63,15 @@ def _init_worker(cfg: dict) -> None:
 
 
 def _attempt(i: int) -> dict:
+  import gc
+
+  try:
+    return _attempt_inner(i)
+  finally:
+    gc.collect()  # episode models sit in reference cycles; mesh objects make them large
+
+
+def _attempt_inner(i: int) -> dict:
   from r2s.rollout import run_episode
   from r2s.variations import sample_variation
 

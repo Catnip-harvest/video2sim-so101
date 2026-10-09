@@ -1,0 +1,3672 @@
+{
+ "cmd": "all",
+ "argv": [
+  "all",
+  "object3d/out/ycb_025_mug",
+  "--n",
+  "30",
+  "--workers",
+  "5",
+  "--out",
+  "object3d/results/ycb_025_mug"
+ ],
+ "settle": {
+  "object": "ycb_025_mug",
+  "half_height_mm": 41.0,
+  "height_err_mm": 0.361,
+  "penetration_mm": 0.111,
+  "max_penetration_mm": 1.555,
+  "speed_mm_s": 1.362,
+  "spin_deg_s": 1.887,
+  "drift_mm": 0.005,
+  "jitter_peak_to_peak_um": 16.96,
+  "tilt_deg": 0.128,
+  "settled_after_s": 0.129,
+  "n_contacts_at_rest": 4,
+  "seconds": 2.0,
+  "drop_mm": 5.0,
+  "wall_s": 0.023,
+  "sim_speed_x_realtime": 87.4,
+  "pass_marks": {
+   "height_err_mm": 2.0,
+   "penetration_mm": 1.0,
+   "speed_mm_s": 5.0,
+   "spin_deg_s": 3.0,
+   "drift_mm": 1.0,
+   "tilt_deg": 3.0
+  },
+  "failed": [],
+  "passed": true
+ },
+ "scale": {
+  "object": "ycb_025_mug",
+  "seed": 0,
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\video2sim-so101\\demo\\outputs\\pexels_7488188_sugar_cube\\so101_task_spec.json",
+  "plan": {},
+  "by_scale": {
+   "1": {
+    "summary": {
+     "n": 30,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 19,
+      "grasp_failed": 11
+     },
+     "wall_s_per_episode_median": 4.17
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   },
+   "0.95": {
+    "summary": {
+     "n": 30,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 18,
+      "grasp_failed": 12
+     },
+     "wall_s_per_episode_median": 4.54
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   },
+   "0.97": {
+    "summary": {
+     "n": 30,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 18,
+      "grasp_failed": 12
+     },
+     "wall_s_per_episode_median": 4.27
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   },
+   "1.03": {
+    "summary": {
+     "n": 30,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 20,
+      "grasp_failed": 10
+     },
+     "wall_s_per_episode_median": 4.58
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   },
+   "1.05": {
+    "summary": {
+     "n": 30,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.114
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 21,
+      "grasp_failed": 9
+     },
+     "wall_s_per_episode_median": 2.43
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 30,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 30,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   }
+  },
+  "wall_s": 129.0,
+  "rows": [
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.53,
+    "wall_s": 5.43
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.146 -0.023  0.111] err 62.0 mm 34.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.6
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.73,
+    "wall_s": 5.51
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.181 -0.051  0.111] err 46.8 mm 27.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 5.01
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.93,
+    "wall_s": 5.56
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.56,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.183 -0.047  0.111] err 46.7 mm 27.9 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.3
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.43,
+    "wall_s": 5.01
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.35,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.132 -0.052  0.111] err 63.1 mm 34.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.15
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.216 -0.022  0.111] err 44.7 mm 29.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.18
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.03,
+    "wall_s": 4.87
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 10,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.171 -0.078  0.111] err 47.3 mm 28.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.96
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 11,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.72,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.109 -0.115  0.111] err 50.1 mm 28.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.14
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 12,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.02,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.33,
+    "wall_s": 4.91
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 13,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.76,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.175 -0.02   0.111] err 50.8 mm 29.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.92
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 14,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.4,
+    "wall_s": 4.84
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 15,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.148 -0.079  0.111] err 51.5 mm 29.5 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.85
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 16,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.53,
+    "wall_s": 4.97
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 17,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.222 -0.053  0.111] err 43.9 mm 30.1 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.87
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 18,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.172 -0.054  0.111] err 49.3 mm 28.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.96
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 19,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.43,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.134 -0.038  0.111] err 66.6 mm 36.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.07
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 20,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.131 -0.057  0.111] err 62.7 mm 34.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.97
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 21,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.251 -0.035  0.111] err 42.5 mm 34.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.09
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 22,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.31,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.136 -0.076  0.111] err 55.6 mm 31.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.9
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 23,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.29,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.22  -0.038  0.111] err 44.2 mm 29.8 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.14
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 24,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.02,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.57,
+    "wall_s": 4.73
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 25,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.34,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.189 -0.068  0.111] err 45.3 mm 28.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.02
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 26,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3639,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.97,
+    "wall_s": 4.95
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 27,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 106.16,
+    "jaw_after_squeeze_rad": 1.3638,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 14.1,
+    "wall_s": 4.89
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 28,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.33,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.116 -0.071  0.111] err 64.1 mm 35.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.17
+   },
+   {
+    "object": "ycb_025_mug",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.0,
+    "attempt": 29,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.22,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.178 -0.036  0.111] err 47.9 mm 28.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.14
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.04,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.4,
+    "wall_s": 4.94
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.23,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.149 -0.024  0.109] err 58.7 mm 32.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.02
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.6,
+    "wall_s": 4.91
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.22,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.18  -0.053  0.109] err 45.3 mm 26.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.36
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.8,
+    "wall_s": 4.9
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.47,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.18  -0.048  0.109] err 45.5 mm 26.8 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.39
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.3,
+    "wall_s": 5.03
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.28,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.135 -0.051  0.109] err 60.0 mm 32.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.48
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.29,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.213 -0.023  0.109] err 43.6 mm 28.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.19
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 12.9,
+    "wall_s": 4.88
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 10,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.03,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.87,
+    "wall_s": 4.81
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 11,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1038.7,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.104 -0.076  0.109] err 64.5 mm 35.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.05
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 12,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.2,
+    "wall_s": 4.78
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 13,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.75,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.179 -0.021  0.109] err 48.1 mm 27.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.83
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 14,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.3,
+    "wall_s": 4.72
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 15,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.24,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.151 -0.079  0.109] err 49.2 mm 28.1 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.8
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 16,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.02,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.4,
+    "wall_s": 4.87
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 17,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.24,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.221 -0.055  0.109] err 42.8 mm 29.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.71
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 18,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.24,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.174 -0.055  0.109] err 47.1 mm 27.4 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.98
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 19,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.24,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.137 -0.038  0.109] err 63.0 mm 34.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.23
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 20,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.25,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.134 -0.058  0.109] err 59.3 mm 32.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.52
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 21,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.25,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.249 -0.036  0.109] err 42.0 mm 32.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.72
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 22,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.24,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.138 -0.076  0.109] err 52.9 mm 29.5 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.55
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 23,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.23,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.219 -0.04   0.109] err 43.1 mm 28.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.78
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 24,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.43,
+    "wall_s": 5.3
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 25,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.25,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.187 -0.07   0.109] err 44.0 mm 27.1 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.21
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 26,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.83,
+    "wall_s": 5.01
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 27,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 100.86,
+    "jaw_after_squeeze_rad": 1.1661,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.97,
+    "wall_s": 4.96
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 28,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.27,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.119 -0.072  0.109] err 60.9 mm 33.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.29
+   },
+   {
+    "object": "ycb_025_mug x0.95",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.95,
+    "attempt": 29,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1039.56,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.177 -0.037  0.109] err 46.5 mm 26.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.35
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.47,
+    "wall_s": 4.89
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.148 -0.024  0.11 ] err 60.0 mm 33.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.95
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.02,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.67,
+    "wall_s": 4.75
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.06,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.18  -0.052  0.11 ] err 45.9 mm 27.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.16
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.87,
+    "wall_s": 4.84
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.46,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.18  -0.048  0.11 ] err 46.1 mm 27.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.13
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.37,
+    "wall_s": 5.1
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.11,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.134 -0.051  0.11 ] err 61.2 mm 33.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.38
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.11,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.214 -0.023  0.11 ] err 44.0 mm 28.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.16
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 12.97,
+    "wall_s": 4.9
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 10,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 1.75,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.93,
+    "wall_s": 4.82
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 11,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.92,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.151 -0.049  0.11 ] err 52.5 mm 29.1 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.09
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 12,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.27,
+    "wall_s": 4.97
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 13,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1041.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.177 -0.022  0.11 ] err 49.1 mm 28.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.03
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 14,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.37,
+    "wall_s": 4.72
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 15,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.15  -0.079  0.11 ] err 50.1 mm 28.6 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.78
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 16,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.47,
+    "wall_s": 4.7
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 17,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.222 -0.054  0.11 ] err 43.3 mm 29.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.77
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 18,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.173 -0.055  0.11 ] err 48.0 mm 28.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.82
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 19,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.08,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.136 -0.038  0.11 ] err 64.4 mm 35.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.04
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 20,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.133 -0.058  0.11 ] err 60.7 mm 33.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.15
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 21,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.08,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.25  -0.036  0.11 ] err 42.2 mm 33.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.27
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 22,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.07,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.137 -0.076  0.11 ] err 54.0 mm 30.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.98
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 23,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.09,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.219 -0.039  0.11 ] err 43.5 mm 29.1 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.12
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 24,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.5,
+    "wall_s": 4.89
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 25,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.08,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.188 -0.069  0.11 ] err 44.5 mm 27.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.27
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 26,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.9,
+    "wall_s": 5.07
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 27,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.04,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 102.98,
+    "jaw_after_squeeze_rad": 1.2452,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 14.03,
+    "wall_s": 4.96
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 28,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.09,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.118 -0.072  0.11 ] err 62.2 mm 34.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.1
+   },
+   {
+    "object": "ycb_025_mug x0.97",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 0.97,
+    "attempt": 29,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1040.95,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.177 -0.036  0.11 ] err 47.0 mm 27.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.34
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.04,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.53,
+    "wall_s": 4.77
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.56,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.145 -0.023  0.112] err 64.1 mm 35.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.92
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.73,
+    "wall_s": 4.81
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.182 -0.05   0.112] err 47.6 mm 28.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.27
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 11.93,
+    "wall_s": 4.73
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.22,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.092 -0.087  0.112] err 66.1 mm 36.5 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.83
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.43,
+    "wall_s": 4.82
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.6,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.131 -0.052  0.112] err 64.9 mm 36.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.83
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.6,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.217 -0.022  0.112] err 45.3 mm 30.2 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.87
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.03,
+    "wall_s": 4.9
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 10,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.57,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.169 -0.078  0.112] err 48.5 mm 29.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.44
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 11,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.48,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.163 -0.059  0.112] err 50.1 mm 29.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.71
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 12,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.33,
+    "wall_s": 5.39
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 13,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1053.63,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.216 -0.05   0.112] err 44.7 mm 29.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 5.11
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 14,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.4,
+    "wall_s": 5.41
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 15,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.147 -0.078  0.112] err 53.0 mm 30.4 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.01
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 16,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.53,
+    "wall_s": 5.06
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 17,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.223 -0.052  0.112] err 44.5 mm 30.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 3.75
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 18,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.17  -0.054  0.112] err 50.6 mm 29.5 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.1
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 19,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.132 -0.039  0.112] err 69.0 mm 38.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.01
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 20,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.57,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.13  -0.057  0.112] err 64.7 mm 35.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.01
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 21,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.57,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.253 -0.034  0.112] err 42.8 mm 34.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.03
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 22,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.55,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.134 -0.075  0.112] err 57.2 mm 32.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.79
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 23,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.78,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.221 -0.037  0.112] err 44.8 mm 30.4 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.14
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 24,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.61,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.131 -0.068  0.112] err 60.0 mm 33.5 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 4.34
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 25,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.57,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.19  -0.067  0.112] err 46.1 mm 28.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 5.27
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 26,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.97,
+    "wall_s": 6.15
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 27,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 109.35,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 14.1,
+    "wall_s": 6.12
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 28,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.58,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.115 -0.071  0.112] err 66.1 mm 36.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.98
+   },
+   {
+    "object": "ycb_025_mug x1.03",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.03,
+    "attempt": 29,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1042.29,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.101 -0.065  0.112] err 77.2 mm 43.1 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 5.11
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 13.53,
+    "wall_s": 5.98
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.49,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.144 -0.022  0.113] err 65.4 mm 36.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 5.07
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 2.54,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.77,
+    "wall_s": 5.4
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.38,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.182 -0.049  0.113] err 48.2 mm 29.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 4.91
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.41,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.167 -0.064  0.113] err 50.8 mm 29.9 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 3.93
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.76,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.095 -0.083  0.113] err 68.9 mm 38.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.65
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.43,
+    "wall_s": 3.23
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.43,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.13  -0.052  0.113] err 66.1 mm 36.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.54
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.43,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.218 -0.021  0.113] err 45.7 mm 30.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.51
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.03,
+    "wall_s": 2.98
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 10,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.38,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.168 -0.077  0.113] err 49.2 mm 29.4 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.12
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 11,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1046.61,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.159 -0.06   0.113] err 52.4 mm 30.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.38
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 12,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 14.53,
+    "wall_s": 2.59
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 13,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1046.74,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.206 -0.043  0.113] err 46.1 mm 29.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.34
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 14,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.01,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.4,
+    "wall_s": 2.48
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 15,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.37,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.145 -0.078  0.113] err 54.0 mm 31.0 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.09
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 16,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": -0.0,
+    "max_obj_lift_mm": 0.0,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 12.53,
+    "wall_s": 2.6
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 17,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.39,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.223 -0.051  0.113] err 44.9 mm 31.1 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 1.99
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 18,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.39,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.169 -0.054  0.113] err 51.5 mm 30.1 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.09
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 19,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.97,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.132 -0.039  0.113] err 69.8 mm 38.9 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.24
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 20,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.39,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.128 -0.057  0.113] err 66.0 mm 36.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.15
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 21,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.4,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.254 -0.034  0.113] err 43.0 mm 35.0 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.13
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 22,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.38,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.133 -0.075  0.113] err 58.3 mm 32.9 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.06
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 23,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.84,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.222 -0.037  0.113] err 45.2 mm 30.8 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.22
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 24,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.44,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.13  -0.068  0.113] err 61.2 mm 34.3 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.07
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 25,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.39,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.19  -0.066  0.113] err 46.6 mm 29.3 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.12
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 26,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.0,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "7v4",
+    "sim_s": 13.97,
+    "wall_s": 2.61
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 27,
+    "accepted": false,
+    "primary_reason": "grasp_failed",
+    "reasons": [
+     "grasp_failed"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": 0.01,
+    "max_obj_lift_mm": 0.01,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": 111.47,
+    "jaw_after_squeeze_rad": 1.395,
+    "plan_error": null,
+    "servo": "12v",
+    "sim_s": 14.1,
+    "wall_s": 2.57
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 28,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.43,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.114 -0.071  0.113] err 67.3 mm 37.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 1.99
+   },
+   {
+    "object": "ycb_025_mug x1.05",
+    "text": "object3d/out/ycb_025_mug",
+    "scale": 1.05,
+    "attempt": 29,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1043.1,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.1   -0.068  0.113] err 76.6 mm 42.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.12
+   }
+  ]
+ }
+}

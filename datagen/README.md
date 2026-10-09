@@ -317,6 +317,22 @@ episodes cost no render time.
   with pyarrow the writer uses pyarrow and pandas directly; the DuckDB path is the
   fallback.
 
+## Mesh objects (object3d hook)
+
+A spec can use any mesh converted by `object3d/mesh_to_mjcf.py` instead of the cube:
+`"object": {"kind": "mesh", "mjcf": "<folder or object.xml>", "mass": 0.094}`. The path is
+relative to the spec file. `generate.py` loads it through `r2s/mesh_object.py`.
+
+- **What changes.** Scene, planner and verifier read the mesh's bounding-box half sizes
+  instead of `obj_size`. Each episode logs its object under `variation.extras.mesh`.
+- **Contact settings.** Mesh scenes rest the object on a hidden box table top, keep
+  multiccd on and use libccd instead of native CCD (reasons in `object3d/README.md`).
+- **Cube specs are unchanged.** The 12 existing tests still pass.
+- **Graspable today.** Only box-like objects narrower than ~60 mm can be grasped by this
+  top-down planner. The 57 mm YCB Rubik's cube succeeds 50 % of the time. The YCB can and
+  mug succeed 0 % of the time; they need a side or rim grasp. Numbers are in
+  `object3d/README.md`.
+
 ## Known limits
 
 - **One task family**: a cube into an open tray, top-down pinch. Other shapes need their

@@ -1,0 +1,316 @@
+{
+ "cmd": "scale",
+ "argv": [
+  "scale",
+  "object3d/out/ycb_005_tomato_soup_can",
+  "--scales",
+  "1.0",
+  "--n",
+  "10",
+  "--workers",
+  "5",
+  "--plan",
+  "{\"preapproach_height\": 0.04, \"hover_height\": 0.02, \"open_max_rad\": 1.6, \"grasp_height_max\": 0.03}",
+  "--out",
+  "object3d/results/probe_lowapproach_ycb_005_tomato_soup_can"
+ ],
+ "scale": {
+  "object": "ycb_005_tomato_soup_can",
+  "seed": 0,
+  "spec": "C:\\Users\\vieth\\Documents\\lablab hackathon\\video2sim-so101\\demo\\outputs\\pexels_7488188_sugar_cube\\so101_task_spec.json",
+  "plan": {
+   "preapproach_height": 0.04,
+   "hover_height": 0.02,
+   "open_max_rad": 1.6,
+   "grasp_height_max": 0.03
+  },
+  "by_scale": {
+   "1": {
+    "summary": {
+     "n": 10,
+     "grasp_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "carried_ok": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "accepted": {
+      "k": 0,
+      "rate": 0.0,
+      "wilson95": [
+       0.0,
+       0.278
+      ]
+     },
+     "in_hand_slip_mm": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "max_lift_mm_when_grasped": {
+      "n": 0,
+      "median": null,
+      "p90": null,
+      "max": null
+     },
+     "rejections_primary": {
+      "ik_unreachable": 10
+     },
+     "wall_s_per_episode_median": 2.24
+    },
+    "paired_vs_1": {
+     "grasp_ok": {
+      "n": 10,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 10,
+      "rate_a_minus_b": 0.0
+     },
+     "accepted": {
+      "n": 10,
+      "both": 0,
+      "only_a": 0,
+      "only_b": 0,
+      "neither": 10,
+      "rate_a_minus_b": 0.0
+     }
+    }
+   }
+  },
+  "wall_s": 5.7,
+  "rows": [
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 0,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.172 -0.084  0.07 ] err 15.1 mm 8.2 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.12
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 1,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.26,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.169 -0.034  0.07 ] err 15.1 mm 7.6 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.13
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 2,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.34,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.148 -0.077  0.07 ] err 14.8 mm 7.4 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.16
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 3,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.36,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.174 -0.062  0.07 ] err 14.0 mm 7.4 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.22
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 4,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.34,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.189 -0.064  0.07 ] err 15.8 mm 8.7 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.18
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 5,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.35,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.173 -0.054  0.07 ] err 13.6 mm 7.1 deg",
+    "servo": "12v",
+    "sim_s": 0.0,
+    "wall_s": 2.56
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 6,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.33,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.167 -0.084  0.07 ] err 14.7 mm 7.9 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.39
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 7,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.32,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.151 -0.047  0.07 ] err 16.1 mm 7.8 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.25
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 8,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1050.33,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.197 -0.028  0.07 ] err 15.6 mm 8.7 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.53
+   },
+   {
+    "object": "ycb_005_tomato_soup_can",
+    "text": "object3d/out/ycb_005_tomato_soup_can",
+    "scale": 1.0,
+    "attempt": 9,
+    "accepted": false,
+    "primary_reason": "ik_unreachable",
+    "reasons": [
+     "ik_unreachable"
+    ],
+    "grasp_ok": false,
+    "carried_ok": false,
+    "lift_check_mm": null,
+    "max_obj_lift_mm": -1052.23,
+    "in_hand_slip_mm": null,
+    "squeezed_width_mm": null,
+    "jaw_after_squeeze_rad": null,
+    "plan_error": "ik_unreachable: target [ 0.19  -0.079  0.07 ] err 16.7 mm 9.5 deg",
+    "servo": "7v4",
+    "sim_s": 0.0,
+    "wall_s": 2.29
+   }
+  ]
+ }
+}

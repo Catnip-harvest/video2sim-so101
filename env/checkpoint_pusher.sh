@@ -2,6 +2,8 @@
 # Push every new lerobot checkpoint (pretrained_model/ only) of a training run to a PRIVATE
 # HF model repo, then prune local checkpoints to the newest KEEP. Run inside `sprint`:
 #   RUN=/work/outputs_large/train/<run> REPO=VietHwang/<repo> nohup bash env/checkpoint_pusher.sh &
+# ONLY_NEWEST=1 (default): HF keeps just the newest checkpoint (private storage limit).
+# Older-but-unpushed checkpoints are skipped once a newer one exists.
 # Logs to /work/logs/ckpt_pusher_<run>.log; each success adds a PUSHED line to logs/hf_push.log.
 set -uo pipefail
 RUN="${RUN:?}"; REPO="${REPO:?}"; KEEP="${KEEP:-2}"; HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -13,10 +15,15 @@ while true; do
   for ck in $(ls -d "$RUN"/checkpoints/[0-9]* 2>/dev/null | sort); do
     step=$(basename "$ck")
     [ -f "$ck/.pushed" ] && continue
+    newest=$(ls -d "$RUN"/checkpoints/[0-9]* 2>/dev/null | sort | tail -1)
+    if [ "${ONLY_NEWEST:-1}" = 1 ] && [ "$ck" != "$newest" ]; then
+      echo "$(date -u +%T) skip $step (newer checkpoint exists)"; touch "$ck/.pushed"; continue
+    fi
     [ -f "$ck/pretrained_model/model.safetensors" ] || [ -n "$(ls "$ck"/pretrained_model/*.safetensors 2>/dev/null)" ] || continue
     sleep 60  # let the trainer finish writing
     echo "$(date -u +%T) pushing $step"
-    if bash "$HERE/push_hf.sh" model "$REPO" "$ck/pretrained_model" "checkpoints/$step"; then
+    if REPLACE="$([ "${ONLY_NEWEST:-1}" = 1 ] && echo 'checkpoints/*')" \
+       bash "$HERE/push_hf.sh" model "$REPO" "$ck/pretrained_model" "checkpoints/$step"; then
       touch "$ck/.pushed"
     else
       echo "$(date -u +%T) push of $step FAILED; retry next loop"

@@ -17,6 +17,14 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
 - Speed: about 210 episodes/h with one replica on a free GPU.
 - Not yet measured: the OOD ladder, SmolVLA, ACT, the laptop caps, any P3 task.
 
+## Scoreboard (copied from SCOREBOARD.md, generated 01:44 UTC by eval/scoreboard.py; Holm across 62 tests)
+- In-range seed 3000: MolmoAct2 L_full 137/200 (61.8-74.5%), L_task 158/200 (72.8-84.1%). ACT, ids 0-99 only: L_full 17/100 (10.9-25.5%), L_task 69/100 (59.4-77.2%).
+- Paired on ids 0-99: MolmoAct2 vs ACT L_full 66 vs 17, significant (Holm p 8.5e-09). L_task not distinguishable (Holm p 1.0).
+- Seed 4000 rungs: MolmoAct2 beats ACT on L_full on every rung (all significant after Holm). On L_task, MolmoAct2 beats ACT significantly on colour, combo and distractor. ACT's L_task falls to 18, 19 and 12 of 50 on those rungs, against 31 of 50 at none. The ACT distractor L_task drop is significant (Holm p 0.015).
+- MolmoAct2's own rung drops against its none run are not significant on any rung.
+- SmolVLA, in-range seed 3000: partial, 28 of 100 episodes. Not distinguishable from ACT or MolmoAct2 so far.
+- Expert ceiling on each rung: 17/20 L_full, 19/20 L_task.
+
 ## What finished / failed / skipped (and why)
 - Finished:
   - MolmoAct2 sim-only training: 23,400 steps, EXIT=0, 8 h 52 min.

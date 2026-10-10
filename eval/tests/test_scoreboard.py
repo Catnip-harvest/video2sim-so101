@@ -97,3 +97,103 @@ def test_manifest_is_valid():
   for t in man["tables"]:
     for r in t["rows"]:
       assert {"model", "test"} <= set(r) and isinstance(r.get("runs", []), list)
+
+
+# ----------------------------------------------------------------------------- single-task snapshot
+
+# sha256 of the "## Single-task cube (P1 / P2)" section of /work/SCOREBOARD.md as rendered by the code
+# before the P3 named-cube path was added (2026-10-10). Update only when single-task data changes on purpose.
+SINGLE_TASK_SHA256 = "392992ff52fabdd1c6cebcd4edc91a3029d3a21d8c34dde12ffa522f2389ae5e"
+
+
+def _single_task_section(text: str) -> str:
+  out, on = [], False
+  for line in text.splitlines():
+    if line.startswith("## "):
+      on = line.startswith("## Single-task")
+    if on:
+      out.append(line)
+  return "\n".join(out) + "\n"
+
+
+def test_single_task_table_unchanged():
+  import hashlib
+  man = json.loads((ROOT / "eval" / "scoreboard_manifest.json").read_text())
+  first = man["tables"][0]["rows"][0]["runs"][0]
+  if not (SB.resolve(first) / "episodes.jsonl").is_file():
+    pytest.skip("real eval runs not on this machine")
+  sec = _single_task_section(SB.render(man, "scoreboard_manifest.json"))
+  assert "Holm across all 204 tests in this table" in sec
+  assert hashlib.sha256(sec.encode()).hexdigest() == SINGLE_TASK_SHA256
+
+
+# ----------------------------------------------------------------------------- P3 named cube
+
+def _p3_run(tmp: Path, name: str, rows: list[tuple], multitask: str) -> str:
+  """rows: (attempt, run_key, named colour, outcome, named_in_tray, wrong_in_tray)."""
+  d = tmp / name
+  d.mkdir()
+  (d / "config.json").write_text(json.dumps({"mode": "policy", "ood": "none", "replan_every": 5,
+                                             "multitask": multitask}))
+  with open(d / "episodes.jsonl", "w") as f:
+    for att, key, col, out, intray, wrong in rows:
+      other = "green" if col == "red" else "red"
+      f.write(json.dumps({
+        "seed": 5000, "attempt": att, "run_key": key, "episode_seed": 5000 * 10**6 + att,
+        # pass / L_task / L_full follow the planner's red cube: the P3 path must ignore them
+        "pass": True, "L_task": True, "L_full": True, "L_task_named": intray, "L_full_named": None,
+        "named_cube": {"named": col, "outcome": out, "named_in_tray": intray,
+                       "in_tray": {col: intray, other: wrong}}}) + "\n")
+  return str(d)
+
+
+def _swap_rows(named_for: set) -> list[tuple]:
+  """5 scene ids x 3 colours; outcome 'named' when (idx, colour) is in named_for, else 'none'."""
+  return [(i, f"{i}:{c}", c, "named" if (i, c) in named_for else "none", (i, c) in named_for, False)
+          for i in range(5) for c in ("red", "green", "blue")]
+
+
+def test_swap_join_on_run_key(tmp_path):
+  all_keys = {(i, c) for i in range(5) for c in ("red", "green", "blue")}
+  a = _p3_run(tmp_path, "a_swap", _swap_rows(all_keys), "swap")  # A: named on all 15
+  b = _p3_run(tmp_path, "b_swap", _swap_rows({(i, "red") for i in range(5)}), "swap")  # B: red only
+  # Without the run_key join, (seed, attempt) repeats 3x and 15 runs collapse to 5.
+  assert len(SB.load_run([a])["eps"]) == 5
+  assert len(SB.load_run([a], "run_key")["eps"]) == 15
+  row = dict(params="-", hardware="-", rung="A-swap", multitask="swap", join="run_key",
+             paired_metrics=["named"], expected_n=15)
+  man = {"tables": [{"title": "P3", "kind": "named_cube", "rows": [
+    dict(row, model="A", test="swap", runs=[a]), dict(row, model="B", test="swap", runs=[b])]}]}
+  text = SB.render(man, "m.json")
+  # L_task column = named-in-tray, not the planner's L_task (which is True on every row)
+  assert "| B | - | - | swap | - | 5/15 (" in text
+  assert "5/0/10/0; named 5/15 (" in text
+  # 15 joined runs: b = 10 (A named, B not), c = 0 -> p = 2/1024
+  assert "| A [swap] | B [swap] | named cube moved (outcome = named) | (seed, run_key) | 15 | 15 | 5 | 10 | 0 |" in text
+  assert "Holm across all 1 tests in this table" in text
+  assert "A better (significant)" in text
+
+
+def test_named_holm_is_its_own_family(tmp_path):
+  # single-task table: 1 model pair x 2 metrics = 2 tests; must not leak into the P3 family
+  a_none = _run(tmp_path, "a_none", 4000, "none", [1] * 30, [1] * 30)
+  b_none = _run(tmp_path, "b_none", 4000, "none", [1] * 28 + [0] * 2, [1] * 30)
+  st = {"title": "Single", "rows": [dict(model="A", test="none", rung="none", runs=[a_none]),
+                                     dict(model="B", test="none", rung="none", runs=[b_none])]}
+  # P3 held-out: 12 ids; A named + in tray on all, B on none -> b = 12, c = 0, p = 2/4096 = 0.00049
+  ho_a = [(i, str(i), "red", "named", True, False) for i in range(12)]
+  ho_b = [(i, str(i), "red", "other", False, True) for i in range(12)]
+  pa = _p3_run(tmp_path, "pa", ho_a, "train")
+  pb = _p3_run(tmp_path, "pb", ho_b, "train")
+  row = dict(rung="A-held-out", multitask="train", paired_metrics=["named", "named_in_tray"])
+  p3 = {"title": "P3", "kind": "named_cube", "rows": [
+    dict(row, model="A", test="held-out", runs=[pa]), dict(row, model="B", test="held-out", runs=[pb]),
+    dict(model="A", test="yellow", rung="A-yellow", runs=[str(tmp_path / "missing")])]}
+  text = SB.render({"tables": [st, p3]}, "m.json")
+  assert text.count("Holm across all 2 tests in this table") == 2  # one in each table, each m=2
+  p3_text = text[text.index("## P3"):]
+  assert "| A [held-out] | B [held-out] | named cube in tray | (seed, attempt) | 12 | 12 | 0 | 12 | 0 | 0.00049 | 0.00098 |" in p3_text
+  assert "| B | - | - | held-out | - | 0/12 (" in p3_text  # L_task column ignores row L_task=True
+  assert "| 12/12 (" in p3_text  # wrong-object for B: other cube in the tray every run
+  assert "| A | - | - | yellow | - | - | - | - | - |" in p3_text  # missing run -> '-'
+  assert "- none" in p3_text  # multitask matches config, no data problems

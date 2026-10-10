@@ -1083,114 +1083,130 @@
     },
     {
       "title": "Named cube among three (P3-A-lite)",
-      "note": "Wrong-object and named-cube cells are static until the P3-A episodes.jsonl schema exists.",
+      "note": "Named-cube cell: named/other/none/multiple counts, then named-cube rate k/n (Wilson 95 %). **L_task column = named cube in the tray** (`named_in_tray`), not the harness L_task (which tracks the planner's red cube in swap runs). L_full is \"-\": no named-cube full verdict exists. ACT-multi cannot read the instruction, so among runs where it moves exactly one cube it should hit the named one about 1 time in 3. Rows are separate tests on reused seed-5000 scenes; never pool them.",
       "rows": [
         {
           "model": "SmolVLA-multi",
           "params": "0.45B",
           "hardware": "MI300X",
-          "test": "A held-out",
-          "rung": "A-held-out",
-          "runs": [
-            "/work/outputs_large/eval/smolvla_multi_A_held-out"
-          ],
-          "wrong_object": "-",
-          "named_cube": "-",
           "exec_horizon": "auto",
-          "ms_chunk": "auto"
+          "ms_chunk": "auto",
+          "test": "A held-out ids 0-59 (train templates)",
+          "rung": "A-held-out",
+          "multitask": "train",
+          "runs": [
+            "/work/outputs_large/eval/510_p3a_smolvla_train"
+          ],
+          "expected_n": 60,
+          "paired_metrics": [
+            "named",
+            "named_in_tray"
+          ]
         },
         {
           "model": "SmolVLA-multi",
           "params": "0.45B",
           "hardware": "MI300X",
-          "test": "A paraphrase",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "A paraphrase ids 0-29",
           "rung": "A-paraphrase",
+          "multitask": "paraphrase",
           "runs": [
-            "/work/outputs_large/eval/smolvla_multi_A_paraphrase"
+            "/work/outputs_large/eval/511_p3a_smolvla_paraphrase"
           ],
-          "wrong_object": "-",
-          "named_cube": "-",
-          "exec_horizon": "auto",
-          "ms_chunk": "auto"
+          "expected_n": 30
         },
         {
           "model": "SmolVLA-multi",
           "params": "0.45B",
           "hardware": "MI300X",
-          "test": "A swap",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "A swap ids 0-19 x3 colours",
           "rung": "A-swap",
+          "multitask": "swap",
+          "join": "run_key",
           "runs": [
-            "/work/outputs_large/eval/smolvla_multi_A_swap"
+            "/work/outputs_large/eval/512_p3a_smolvla_swap"
           ],
-          "wrong_object": "-",
-          "named_cube": "-",
-          "exec_horizon": "auto",
-          "ms_chunk": "auto"
+          "expected_n": 60,
+          "paired_metrics": [
+            "named"
+          ]
         },
         {
           "model": "SmolVLA-multi",
           "params": "0.45B",
           "hardware": "MI300X",
-          "test": "A yellow",
-          "rung": "A-yellow",
-          "runs": [
-            "/work/outputs_large/eval/smolvla_multi_A_yellow"
-          ],
-          "wrong_object": "-",
-          "named_cube": "-",
           "exec_horizon": "auto",
-          "ms_chunk": "auto"
+          "ms_chunk": "auto",
+          "test": "A yellow target ids 100-119",
+          "rung": "A-yellow",
+          "multitask": "yellow",
+          "runs": [
+            "/work/outputs_large/eval/513_p3a_smolvla_yellow"
+          ],
+          "expected_n": 20
         },
         {
           "model": "ACT-multi no language",
           "params": "~80M",
           "hardware": "MI300X",
-          "test": "A held-out",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved",
+          "test": "A held-out ids 0-59 (train templates)",
           "rung": "A-held-out",
+          "multitask": "train",
           "runs": [
-            "/work/outputs_large/eval/act_multi_A_held-out"
+            "/work/outputs_large/eval/500_p3a_act_train"
           ],
-          "wrong_object": "-",
-          "named_cube": "- (expect ~33% named)",
-          "exec_horizon": "auto",
-          "ms_chunk": "auto",
-          "train_h": "0.87",
-          "train_vram": "3.7 GB (lerobot mem_gb)",
-          "infer_vram": "0.32 GB reserved"
+          "expected_n": 60,
+          "paired_metrics": [
+            "named",
+            "named_in_tray"
+          ]
         },
         {
           "model": "ACT-multi no language",
           "params": "~80M",
           "hardware": "MI300X",
-          "test": "A swap",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved",
+          "test": "A swap ids 0-19 x3 colours",
           "rung": "A-swap",
+          "multitask": "swap",
+          "join": "run_key",
           "runs": [
-            "/work/outputs_large/eval/act_multi_A_swap"
+            "/work/outputs_large/eval/501_p3a_act_swap"
           ],
-          "wrong_object": "-",
-          "named_cube": "- (expect ~33% named)",
-          "exec_horizon": "auto",
-          "ms_chunk": "auto",
-          "train_h": "0.87",
-          "train_vram": "3.7 GB (lerobot mem_gb)",
-          "infer_vram": "0.32 GB reserved"
+          "expected_n": 60,
+          "paired_metrics": [
+            "named"
+          ]
         },
         {
           "model": "ACT-multi no language",
           "params": "~80M",
           "hardware": "MI300X",
-          "test": "A yellow",
-          "rung": "A-yellow",
-          "runs": [
-            "/work/outputs_large/eval/act_multi_A_yellow"
-          ],
-          "wrong_object": "-",
-          "named_cube": "- (expect ~33% named)",
           "exec_horizon": "auto",
           "ms_chunk": "auto",
           "train_h": "0.87",
           "train_vram": "3.7 GB (lerobot mem_gb)",
-          "infer_vram": "0.32 GB reserved"
+          "infer_vram": "0.32 GB reserved",
+          "test": "A yellow target ids 100-119",
+          "rung": "A-yellow",
+          "multitask": "yellow",
+          "runs": [
+            "/work/outputs_large/eval/502_p3a_act_yellow"
+          ],
+          "expected_n": 20
         },
         {
           "model": "Expert",
@@ -1207,8 +1223,27 @@
           "ms_chunk": "-",
           "infer_vram": "-",
           "compare": false
+        },
+        {
+          "model": "Expert (planner)",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "A swap smoke ids 0-1 x3 (scorer check: planner always takes red)",
+          "rung": "A-swap-smoke",
+          "multitask": "swap",
+          "join": "run_key",
+          "runs": [
+            "/work/outputs_large/eval/p3a_cpu_smoke/expert_swap"
+          ],
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false
         }
-      ]
+      ],
+      "kind": "named_cube"
     }
   ]
 }

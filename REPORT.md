@@ -34,7 +34,10 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
   - B+ filtered-BC round: dropped by the owner at 20:45 UTC. Code and logs kept.
   - Drawer (stage B), C, D, Tower of Hanoi, dexterous tasks: next steps only (brief section 6).
   - P2.1-P2.2 small-model training: SmolVLA (20k steps) and ACT (30k steps) trained and gated (gate_p2_train). ACT-wide (P2.5) trained too.
-  - P2.3 memory check, none OOM. Fits under an emulated 5.0 GiB PyTorch allocator cap (proxy for a 6 GB laptop card; context and driver overhead on CUDA not measured) and 7.0 GiB (proxy for 8 GB). Peak PyTorch reserved memory: ACT bs4 1.21 GB; ACT bs8 1.71 GB; SmolVLA bs4 2.65 GB; SmolVLA bs8 3.80 GB. Timings are MI300X s/step, not laptop speed. Capped and uncapped runs have identical loss curves.
+  - P2.3 memory check (gate_p2_memcap, PASS). Wording: "fits under an emulated 5.0 GiB PyTorch allocator cap (proxy for a 6 GB laptop card; context and driver overhead on CUDA not measured)", and the same for 7.0 GiB (proxy for 8 GB). The cap changes memory only; capped and uncapped loss curves match.
+    - Training, 1000 steps, none OOM, PyTorch reserved GB: SmolVLA bs8 @7.0 3.80; SmolVLA bs4 @5.0 2.65; ACT bs8 @7.0 1.71; ACT bs4 @5.0 1.21.
+    - Largest batch that fits: SmolVLA bs16 @7.0 (6.11 GB) and bs8 @5.0 (3.80 GB); ACT bs32 @5.0 (4.13 GB). The next size up OOMs in each case.
+    - Inference, 10 episodes, dev seed 9000 (success not reported): ACT 0.32 GB reserved, about 11 ms per chunk; SmolVLA 0.99 GB, about 170-200 ms per chunk. Timings are MI300X, not laptop.
   - P3-A-lite training (SmolVLA-multi, ACT-multi-no-language): armed, not yet started. It starts only when the queue is empty and the GPU is free, and is dropped if not started by 07:00 UTC Sat.
 
 ## Deviations from the plan

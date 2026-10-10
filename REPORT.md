@@ -1,7 +1,7 @@
-Money: alive 17.6 h = $34.97 now (02:31 UTC). If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
-# SO-101 overnight report - updated 02:31 UTC (Sat 09:31 Hanoi)
+Money: alive 18.2 h = $36.15 now (03:07 UTC). If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
+# SO-101 overnight report - updated 03:07 UTC (Sat 10:07 Hanoi)
 Status: RUNNING
-Now running (work-22): queue jobs 400-410 (ACT-wide evals, P2.5). Then p3_train.sh starts the P3-A trainings (SmolVLA-multi, ACT-multi-no-language), about 03:20 UTC, if the queue and GPU are free.
+Now running (work-22): P3-A-lite trainings started 03:03 UTC, both together: SmolVLA-multi (ETA about 05:05) and ACT-multi-no-language (ETA about 03:50). Eval jobs 500-502 and 510-513 are queued behind them. Demos come from the SCRIPTED EXPERT, not a human video.
 Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard deadlines: 12:30 UTC no new GPU job; 13:30 DONE target.
 
 ## Headline numbers (sim only; k/n, 95% Wilson)
@@ -20,6 +20,9 @@ Verdict wording is copied from the SCOREBOARD verdict column (Holm across 100 te
 - ACT, distractor rung vs its own none, L_task (31 to 12 of 50): "significant drop" (Holm p 0.032).
 - MolmoAct2 rung drops vs its own none: "not distinguishable at n=50" on every rung. SmolVLA rung drops: "not distinguishable at n=50" on every rung.
 - Expert ceiling on each seed-4000 rung: 17/20 L_full, 19/20 L_task.
+- P2.5 data engine (ACT trained on wide camera/exposure data vs the same ACT on narrow data), same scenes. Wide >= narrow on all 22 paired comparisons (raw). Verdicts in the whole-scoreboard table: "B better (significant)" on colour L_full (2 to 18 of 50, Holm p 0.027) and camera_distance L_full (4 to 20 of 50, Holm p 0.027). Other rows: "not distinguishable at n=50".
+- P2.5 pre-specified family (owner's 22 tests, Holm within family, from gate_p25_eval): camera L_task 30 to 44, colour L_task 18 to 34, camera_pitch L_full 5 to 19, and also colour and camera_distance L_full. Labelled as the family result, not the whole-scoreboard verdict.
+- Caveat: most camera rungs lie inside the wide model's training ranges. Colours were not widened, so the colour gain is the cleaner evidence. Wide data did not fix distractors: ACT-wide still drops 39 to 17 of 50 on L_task, "significant drop" (Holm p 9e-5).
 
 ## What finished / failed / skipped (and why)
 - Finished:

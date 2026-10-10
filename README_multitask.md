@@ -45,7 +45,7 @@ Training commands (lerobot 0.6.1): see `/root/work/queue/bin/p3_train.sh` (SmolV
 | Leakage eval seed 5000 vs training | 0 matches |
 | Dataset | 600 episodes, 145,629 frames at 10 Hz, 200 per target colour |
 
-**Policy results:** not available when this README was written (03:2x UTC Sat 10 Oct). Both trainings started at 03:03 UTC. The SmolVLA-multi and ACT-multi rows in `/root/work/SCOREBOARD.md` were still `-`. Read the final numbers from SCOREBOARD.md, not from here.
+**Policy results:** not available when this README was written (03:15 UTC Sat 10 Oct). Both trainings started at 03:03 UTC. The SmolVLA-multi and ACT-multi rows in `/root/work/SCOREBOARD.md` were still `-`. Read the final numbers from SCOREBOARD.md, not from here.
 
 ## What you may / may not claim (honest-claims list)
 May claim (if the numbers support it):

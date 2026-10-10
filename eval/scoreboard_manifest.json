@@ -1,1106 +1,1214 @@
 {
- "tables": [
-  {
-   "title": "Single-task cube (P1 / P2)",
-   "note": "L_full / L_task cells: k/n (Wilson 95 % lo-hi%). Exec horizon auto = harness `replan_every` from config.json. ms/chunk auto = median / p95 over episodes of each episode's median chunk latency.",
-   "rows": [
+  "tables": [
     {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "in-range s3000",
-     "rung": "in-range",
-     "runs": [
-      "/work/outputs_large/eval/policy_final_n200_seed3000"
-     ],
-     "expected_n": 200
+      "title": "Single-task cube (P1 / P2)",
+      "note": "L_full / L_task cells: k/n (Wilson 95 % lo-hi%). Exec horizon auto = harness `replan_every` from config.json. ms/chunk auto = median / p95 over episodes of each episode's median chunk latency.",
+      "rows": [
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "in-range s3000",
+          "rung": "in-range",
+          "runs": [
+            "/work/outputs_large/eval/policy_final_n200_seed3000"
+          ],
+          "expected_n": 200
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 none",
+          "rung": "none",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_none"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 camera",
+          "rung": "camera",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_camera"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 exposure",
+          "rung": "exposure",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_exposure"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 colour",
+          "rung": "colour",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_colour"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 combo",
+          "rung": "combo",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_combo"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 distractor",
+          "rung": "distractor",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_distractor"
+          ],
+          "expected_n": 50
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 camera_height",
+          "rung": "camera_height",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_camera_height"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 camera_pitch",
+          "rung": "camera_pitch",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_camera_pitch"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 camera_yaw",
+          "rung": "camera_yaw",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_camera_yaw"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true
+        },
+        {
+          "model": "MolmoAct2",
+          "params": "5.4B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "8.9",
+          "train_vram": "146 GB",
+          "infer_vram": "12-14 GB",
+          "test": "s4000 camera_distance",
+          "rung": "camera_distance",
+          "runs": [
+            "/work/outputs_large/eval/molmo_s4000_camera_distance"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "in-range s3000",
+          "rung": "in-range",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s3000"
+          ],
+          "expected_n": 100,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 none",
+          "rung": "none",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_none"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera",
+          "rung": "camera",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_camera"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 exposure",
+          "rung": "exposure",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_exposure"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 colour",
+          "rung": "colour",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_colour"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 combo",
+          "rung": "combo",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_combo"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 distractor",
+          "rung": "distractor",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_distractor"
+          ],
+          "expected_n": 50,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_height",
+          "rung": "camera_height",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_camera_height"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_pitch",
+          "rung": "camera_pitch",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_camera_pitch"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_yaw",
+          "rung": "camera_yaw",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_camera_yaw"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_distance",
+          "rung": "camera_distance",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_s4000_camera_distance"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "0.99 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "in-range s3000",
+          "rung": "in-range",
+          "runs": [
+            "/work/outputs_large/eval/act_s3000"
+          ],
+          "expected_n": 100,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 none",
+          "rung": "none",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_none"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera",
+          "rung": "camera",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_camera"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 exposure",
+          "rung": "exposure",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_exposure"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 colour",
+          "rung": "colour",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_colour"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 combo",
+          "rung": "combo",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_combo"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 distractor",
+          "rung": "distractor",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_distractor"
+          ],
+          "expected_n": 50,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_height",
+          "rung": "camera_height",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_camera_height"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_pitch",
+          "rung": "camera_pitch",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_camera_pitch"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_yaw",
+          "rung": "camera_yaw",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_camera_yaw"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_distance",
+          "rung": "camera_distance",
+          "runs": [
+            "/work/outputs_large/eval/act_s4000_camera_distance"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "in-range s3000",
+          "rung": "in-range",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s3000"
+          ],
+          "expected_n": 100,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 none",
+          "rung": "none",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_none"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera",
+          "rung": "camera",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_camera"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 exposure",
+          "rung": "exposure",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_exposure"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 colour",
+          "rung": "colour",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_colour"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 combo",
+          "rung": "combo",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_combo"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 distractor",
+          "rung": "distractor",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_distractor"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_height",
+          "rung": "camera_height",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_camera_height"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_pitch",
+          "rung": "camera_pitch",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_camera_pitch"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_yaw",
+          "rung": "camera_yaw",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_camera_yaw"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-wide",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "test": "s4000 camera_distance",
+          "rung": "camera_distance",
+          "runs": [
+            "/work/outputs_large/eval/actwide_s4000_camera_distance"
+          ],
+          "expected_n": 50,
+          "hide_if_missing": true,
+          "train_h": "0.62",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 none (ceiling)",
+          "rung": "none",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_none"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 camera (ceiling)",
+          "rung": "camera",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_camera"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 exposure (ceiling)",
+          "rung": "exposure",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_exposure"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 colour (ceiling)",
+          "rung": "colour",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_colour"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 combo (ceiling)",
+          "rung": "combo",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_combo"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 distractor (ceiling)",
+          "rung": "distractor",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_distractor"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": false
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 camera_height (ceiling)",
+          "rung": "camera_height",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_camera_height"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": true
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 camera_pitch (ceiling)",
+          "rung": "camera_pitch",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_camera_pitch"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": true
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 camera_yaw (ceiling)",
+          "rung": "camera_yaw",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_camera_yaw"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": true
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "s4000 camera_distance (ceiling)",
+          "rung": "camera_distance",
+          "runs": [
+            "/work/outputs_large/eval/expert_s4000_camera_distance"
+          ],
+          "expected_n": 20,
+          "wrong_object": "n/a",
+          "named_cube": "n/a",
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false,
+          "hide_if_missing": true
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "cap 7.0 GiB (emulated)",
+          "test": "fits? batch: -",
+          "exec_horizon": "-",
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "ms_chunk": "-",
+          "infer_vram": "0.99 GB reserved",
+          "wrong_object": "-",
+          "named_cube": "-",
+          "runs": [],
+          "compare": false
+        },
+        {
+          "model": "SmolVLA",
+          "params": "0.45B",
+          "hardware": "cap 5.0 GiB (emulated)",
+          "test": "fits? batch: -",
+          "exec_horizon": "-",
+          "train_h": "2.4",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "ms_chunk": "-",
+          "infer_vram": "0.99 GB reserved",
+          "wrong_object": "-",
+          "named_cube": "-",
+          "runs": [],
+          "compare": false
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "cap 7.0 GiB (emulated)",
+          "test": "fits? batch: -",
+          "exec_horizon": "-",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "ms_chunk": "-",
+          "infer_vram": "0.32 GB reserved",
+          "wrong_object": "-",
+          "named_cube": "-",
+          "runs": [],
+          "compare": false
+        },
+        {
+          "model": "ACT",
+          "params": "~80M",
+          "hardware": "cap 5.0 GiB (emulated)",
+          "test": "fits? batch: -",
+          "exec_horizon": "-",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "ms_chunk": "-",
+          "infer_vram": "0.32 GB reserved",
+          "wrong_object": "-",
+          "named_cube": "-",
+          "runs": [],
+          "compare": false
+        }
+      ]
     },
     {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 none",
-     "rung": "none",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_none"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 camera",
-     "rung": "camera",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_camera"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 exposure",
-     "rung": "exposure",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_exposure"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 colour",
-     "rung": "colour",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_colour"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 combo",
-     "rung": "combo",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_combo"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 distractor",
-     "rung": "distractor",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_distractor"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 camera_height",
-     "rung": "camera_height",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_camera_height"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 camera_pitch",
-     "rung": "camera_pitch",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_camera_pitch"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 camera_yaw",
-     "rung": "camera_yaw",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_camera_yaw"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "MolmoAct2",
-     "params": "5.4B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "train_h": "8.9",
-     "train_vram": "146 GB",
-     "infer_vram": "12-14 GB",
-     "test": "s4000 camera_distance",
-     "rung": "camera_distance",
-     "runs": [
-      "/work/outputs_large/eval/molmo_s4000_camera_distance"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "in-range s3000",
-     "rung": "in-range",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s3000"
-     ],
-     "expected_n": 200
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 none",
-     "rung": "none",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_none"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera",
-     "rung": "camera",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_camera"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 exposure",
-     "rung": "exposure",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_exposure"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 colour",
-     "rung": "colour",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_colour"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 combo",
-     "rung": "combo",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_combo"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 distractor",
-     "rung": "distractor",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_distractor"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_height",
-     "rung": "camera_height",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_camera_height"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_pitch",
-     "rung": "camera_pitch",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_camera_pitch"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_yaw",
-     "rung": "camera_yaw",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_camera_yaw"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_distance",
-     "rung": "camera_distance",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_s4000_camera_distance"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "in-range s3000",
-     "rung": "in-range",
-     "runs": [
-      "/work/outputs_large/eval/act_s3000"
-     ],
-     "expected_n": 200
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 none",
-     "rung": "none",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_none"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera",
-     "rung": "camera",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_camera"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 exposure",
-     "rung": "exposure",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_exposure"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 colour",
-     "rung": "colour",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_colour"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 combo",
-     "rung": "combo",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_combo"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 distractor",
-     "rung": "distractor",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_distractor"
-     ],
-     "expected_n": 50
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_height",
-     "rung": "camera_height",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_camera_height"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_pitch",
-     "rung": "camera_pitch",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_camera_pitch"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_yaw",
-     "rung": "camera_yaw",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_camera_yaw"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_distance",
-     "rung": "camera_distance",
-     "runs": [
-      "/work/outputs_large/eval/act_s4000_camera_distance"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "in-range s3000",
-     "rung": "in-range",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s3000"
-     ],
-     "expected_n": 200,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 none",
-     "rung": "none",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_none"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera",
-     "rung": "camera",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_camera"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 exposure",
-     "rung": "exposure",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_exposure"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 colour",
-     "rung": "colour",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_colour"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 combo",
-     "rung": "combo",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_combo"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 distractor",
-     "rung": "distractor",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_distractor"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_height",
-     "rung": "camera_height",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_camera_height"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_pitch",
-     "rung": "camera_pitch",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_camera_pitch"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_yaw",
-     "rung": "camera_yaw",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_camera_yaw"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "ACT-wide",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto",
-     "test": "s4000 camera_distance",
-     "rung": "camera_distance",
-     "runs": [
-      "/work/outputs_large/eval/actwide_s4000_camera_distance"
-     ],
-     "expected_n": 50,
-     "hide_if_missing": true
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 none (ceiling)",
-     "rung": "none",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_none"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 camera (ceiling)",
-     "rung": "camera",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_camera"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 exposure (ceiling)",
-     "rung": "exposure",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_exposure"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 colour (ceiling)",
-     "rung": "colour",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_colour"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 combo (ceiling)",
-     "rung": "combo",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_combo"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 distractor (ceiling)",
-     "rung": "distractor",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_distractor"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": false
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 camera_height (ceiling)",
-     "rung": "camera_height",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_camera_height"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": true
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 camera_pitch (ceiling)",
-     "rung": "camera_pitch",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_camera_pitch"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": true
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 camera_yaw (ceiling)",
-     "rung": "camera_yaw",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_camera_yaw"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": true
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "s4000 camera_distance (ceiling)",
-     "rung": "camera_distance",
-     "runs": [
-      "/work/outputs_large/eval/expert_s4000_camera_distance"
-     ],
-     "expected_n": 20,
-     "wrong_object": "n/a",
-     "named_cube": "n/a",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false,
-     "hide_if_missing": true
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "cap 7.0 GiB (emulated)",
-     "test": "fits? batch: -",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "wrong_object": "-",
-     "named_cube": "-",
-     "runs": [],
-     "compare": false
-    },
-    {
-     "model": "SmolVLA",
-     "params": "0.45B",
-     "hardware": "cap 5.0 GiB (emulated)",
-     "test": "fits? batch: -",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "wrong_object": "-",
-     "named_cube": "-",
-     "runs": [],
-     "compare": false
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "cap 7.0 GiB (emulated)",
-     "test": "fits? batch: -",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "wrong_object": "-",
-     "named_cube": "-",
-     "runs": [],
-     "compare": false
-    },
-    {
-     "model": "ACT",
-     "params": "~80M",
-     "hardware": "cap 5.0 GiB (emulated)",
-     "test": "fits? batch: -",
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "wrong_object": "-",
-     "named_cube": "-",
-     "runs": [],
-     "compare": false
+      "title": "Named cube among three (P3-A-lite)",
+      "note": "Wrong-object and named-cube cells are static until the P3-A episodes.jsonl schema exists.",
+      "rows": [
+        {
+          "model": "SmolVLA-multi",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "test": "A held-out",
+          "rung": "A-held-out",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_multi_A_held-out"
+          ],
+          "wrong_object": "-",
+          "named_cube": "-",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto"
+        },
+        {
+          "model": "SmolVLA-multi",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "test": "A paraphrase",
+          "rung": "A-paraphrase",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_multi_A_paraphrase"
+          ],
+          "wrong_object": "-",
+          "named_cube": "-",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto"
+        },
+        {
+          "model": "SmolVLA-multi",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "test": "A swap",
+          "rung": "A-swap",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_multi_A_swap"
+          ],
+          "wrong_object": "-",
+          "named_cube": "-",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto"
+        },
+        {
+          "model": "SmolVLA-multi",
+          "params": "0.45B",
+          "hardware": "MI300X",
+          "test": "A yellow",
+          "rung": "A-yellow",
+          "runs": [
+            "/work/outputs_large/eval/smolvla_multi_A_yellow"
+          ],
+          "wrong_object": "-",
+          "named_cube": "-",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto"
+        },
+        {
+          "model": "ACT-multi no language",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "test": "A held-out",
+          "rung": "A-held-out",
+          "runs": [
+            "/work/outputs_large/eval/act_multi_A_held-out"
+          ],
+          "wrong_object": "-",
+          "named_cube": "- (expect ~33% named)",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-multi no language",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "test": "A swap",
+          "rung": "A-swap",
+          "runs": [
+            "/work/outputs_large/eval/act_multi_A_swap"
+          ],
+          "wrong_object": "-",
+          "named_cube": "- (expect ~33% named)",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "ACT-multi no language",
+          "params": "~80M",
+          "hardware": "MI300X",
+          "test": "A yellow",
+          "rung": "A-yellow",
+          "runs": [
+            "/work/outputs_large/eval/act_multi_A_yellow"
+          ],
+          "wrong_object": "-",
+          "named_cube": "- (expect ~33% named)",
+          "exec_horizon": "auto",
+          "ms_chunk": "auto",
+          "train_h": "0.87",
+          "train_vram": "3.7 GB (lerobot mem_gb)",
+          "infer_vram": "0.32 GB reserved"
+        },
+        {
+          "model": "Expert",
+          "params": "-",
+          "hardware": "CPU",
+          "test": "A acceptance",
+          "rung": "A-acceptance",
+          "runs": [
+            "/work/outputs_large/eval/expert_A_acceptance"
+          ],
+          "exec_horizon": "-",
+          "train_h": "-",
+          "train_vram": "-",
+          "ms_chunk": "-",
+          "infer_vram": "-",
+          "compare": false
+        }
+      ]
     }
-   ]
-  },
-  {
-   "title": "Named cube among three (P3-A-lite)",
-   "note": "Wrong-object and named-cube cells are static until the P3-A episodes.jsonl schema exists.",
-   "rows": [
-    {
-     "model": "SmolVLA-multi",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "test": "A held-out",
-     "rung": "A-held-out",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_multi_A_held-out"
-     ],
-     "wrong_object": "-",
-     "named_cube": "-",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "SmolVLA-multi",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "test": "A paraphrase",
-     "rung": "A-paraphrase",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_multi_A_paraphrase"
-     ],
-     "wrong_object": "-",
-     "named_cube": "-",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "SmolVLA-multi",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "test": "A swap",
-     "rung": "A-swap",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_multi_A_swap"
-     ],
-     "wrong_object": "-",
-     "named_cube": "-",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "SmolVLA-multi",
-     "params": "0.45B",
-     "hardware": "MI300X",
-     "test": "A yellow",
-     "rung": "A-yellow",
-     "runs": [
-      "/work/outputs_large/eval/smolvla_multi_A_yellow"
-     ],
-     "wrong_object": "-",
-     "named_cube": "-",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "ACT-multi no language",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "test": "A held-out",
-     "rung": "A-held-out",
-     "runs": [
-      "/work/outputs_large/eval/act_multi_A_held-out"
-     ],
-     "wrong_object": "-",
-     "named_cube": "- (expect ~33% named)",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "ACT-multi no language",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "test": "A swap",
-     "rung": "A-swap",
-     "runs": [
-      "/work/outputs_large/eval/act_multi_A_swap"
-     ],
-     "wrong_object": "-",
-     "named_cube": "- (expect ~33% named)",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "ACT-multi no language",
-     "params": "~80M",
-     "hardware": "MI300X",
-     "test": "A yellow",
-     "rung": "A-yellow",
-     "runs": [
-      "/work/outputs_large/eval/act_multi_A_yellow"
-     ],
-     "wrong_object": "-",
-     "named_cube": "- (expect ~33% named)",
-     "exec_horizon": "auto",
-     "ms_chunk": "auto"
-    },
-    {
-     "model": "Expert",
-     "params": "-",
-     "hardware": "CPU",
-     "test": "A acceptance",
-     "rung": "A-acceptance",
-     "runs": [
-      "/work/outputs_large/eval/expert_A_acceptance"
-     ],
-     "exec_horizon": "-",
-     "train_h": "-",
-     "train_vram": "-",
-     "ms_chunk": "-",
-     "infer_vram": "-",
-     "compare": false
-    }
-   ]
-  }
- ]
+  ]
 }

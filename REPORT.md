@@ -23,6 +23,8 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
   - Eval harness gate PASS: expert through the harness 58/60; dataset replay 5/5.
   - Final checkpoint smoke (20 trials).
   - Final model on Drive: 7 files, `rclone check --size-only`: 0 differences.
+  - P2.5 wide dataset (camera and exposure ranges widened): 1000 accepted of 1055 attempts (94.8%). Gate PASS. Both dataset tars on Drive (wide and narrow).
+  - P3-A-lite expert gate PASS: 169/200 accepted (84.5%, 78.8-88.9%); distractors moved 0.000 mm. Dataset: 600 episodes (200 per red, green, blue), 145,629 frames, 625 of 726 accepted, validated. Demos come from the SCRIPTED EXPERT, not a human video. Dataset tar on Drive (copy in progress at 23:10 UTC); sheets to eval/p3a_sheets.
 - Failed or inconclusive:
   - JEPA judge gate FAIL: probe AUC 0.784 vs 0.802 last-frame DINOv2 baseline. Outputs backed up to HF dataset VietHwang/so101-jepa-judge on 11:59 UTC, before the HF stop (per work-22's ledger).
   - G0 overlay gate INCONCLUSIVE: held-out IoU 0.49 vs 0.8 pass mark.
@@ -31,7 +33,8 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
 - Skipped:
   - B+ filtered-BC round: dropped by the owner at 20:45 UTC. Code and logs kept.
   - Drawer (stage B), C, D, Tower of Hanoi, dexterous tasks: next steps only (brief section 6).
-  - P2 (SmolVLA, ACT) and P3-A: not started as of this report.
+  - P2.1-P2.2 small-model training: SmolVLA (20k steps) and ACT (30k steps) trained and gated (gate_p2_train). ACT-wide (P2.5) trained too.
+  - P3-A-lite training (SmolVLA-multi, ACT-multi-no-language): armed, not yet started. It starts only when the queue is empty and the GPU is free, and is dropped if not started by 07:00 UTC Sat.
 
 ## Deviations from the plan
 - HF: no uploads since 12:16 UTC. HF holds only checkpoint 002800 of this run. The HF storage limit blocked the rest. The checkpoint pusher was stopped at 19:45 UTC on the owner's "do not touch HF". The CLAUDE.md 30-minute push rule is therefore not being followed. The brief's stricter rule (no HF at all) applies.
@@ -50,6 +53,10 @@ Next: P1.2 OOD ladder rungs as they pass their tests; P2.1/P2.2 trainings; P2.4 
 - REPORT itself: gdrive:so101-sprint/REPORT.md (uploaded 21:20, verified by size).
 - Text copy: branch report/overnight, commit d41080a, pushed to origin (REPORT, gates, ledger, eval summaries; no binaries).
 - Infrastructure now running: uploader loop (tmux "uploader", copy-only, every 30 min, log logs/uploader.log); policy queue loop (tmux "policyq", empty queue); status.sh extended at 21:23 (uploader stale, silent train or eval, GPU idle before 12:30, queue dead, droplet over 29 h).
+
+- Brief-allowed cut ("if short of time"): the small-model seed-3000 evals (ACT, SmolVLA, ACT-wide) are cut from ids 0-199 to ids 0-99. Purpose: P2.4 and P2.5 evals finish about 06:10 UTC instead of 07:20, so P3-A training can still start before the 07:00 limit. MolmoAct2 keeps n=200 on seed 3000. The scoreboard joins on common ids.
+- P3-A launch rule: 2 GPU processes at most. The launcher starts SmolVLA-multi (15k steps, bs64) and ACT-multi-no-language (30k steps, bs32) together once the queue is empty and the GPU is free. If not started by 07:00 UTC, it logs "P3-A training DROPPED" and exits.
+- Honesty line for P3-A: its demos come from the SCRIPTED EXPERT, not a human video.
 
 ## Left for the owner
 - Hugging Face: storage decision (paid plan; default no) and whether to resume pushes.

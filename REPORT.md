@@ -10,13 +10,15 @@ Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard dea
 - 20-trial smoke, seed 1000: L_full 15/20 = 75% (53-89%), L_task 17/20 = 85%. Checkpoint 001400 on the same seeds: 10/20 L_full; the final-vs-001400 exact McNemar p = 0.125, not significant at n=20.
 
 ## Scoreboard (SCOREBOARD.md, regenerated 02:30 UTC by eval/scoreboard.py, manifest a014c8d; Holm across 100 tests)
-- MolmoAct2 > SmolVLA on in-range L_full: 66 vs 38, Holm p 0.018. L_task not distinguishable.
-- MolmoAct2 > ACT on in-range L_full: 66 vs 17, Holm p 1.6e-8. L_task not distinguishable (p 1.0).
-- Seed 4000: MolmoAct2 > ACT on L_full on 8 of 9 rungs (camera, colour, combo, distractor, camera_height, camera_pitch, camera_yaw, camera_distance). Exposure is not significant (Holm p 0.093). The seed-4000 baseline (none) is also significant.
-- Seed 4000 L_task: MolmoAct2 > ACT significantly only on colour (Holm p 0.009), combo (0.001) and distractor (5e-5).
-- SmolVLA > ACT on L_full on colour and camera_distance (Holm p 0.001 each).
-- ACT's L_task drop on the distractor rung against its own none run is significant (Holm p 0.032). No MolmoAct2 drop against its own none run is significant.
-- All other rows: not distinguishable at n=50 or n=100.
+Verdict wording is copied from the SCOREBOARD verdict column (Holm across 100 tests).
+- In-range seed 3000, MolmoAct2 vs SmolVLA, L_full (66 vs 38): "A better (significant)", Holm p 0.018. L_task: "not distinguishable at n=100".
+- In-range seed 3000, MolmoAct2 vs ACT (ids 0-99), L_full (66 vs 17): "A better (significant)", Holm p 1.6e-8. L_task: "not distinguishable at n=100".
+- Seed 4000 baseline (none), MolmoAct2 vs ACT, L_full: "A better (significant)". L_task: "not distinguishable at n=50".
+- Seed 4000 rungs, MolmoAct2 vs ACT, L_full: "A better (significant)" on camera, colour, combo, distractor, camera_height, camera_pitch, camera_yaw and camera_distance. Exposure: "not distinguishable at n=50" (Holm p 0.093).
+- Seed 4000 rungs, MolmoAct2 vs ACT, L_task: "A better (significant)" on colour, combo and distractor. Other rungs: "not distinguishable at n=50".
+- Seed 4000 rungs, SmolVLA vs ACT, L_full: "A better (significant)" on colour and camera_distance. Other rungs: "not distinguishable at n=50".
+- ACT, distractor rung vs its own none, L_task (31 to 12 of 50): "significant drop" (Holm p 0.032).
+- MolmoAct2 rung drops vs its own none: "not distinguishable at n=50" on every rung. SmolVLA rung drops: "not distinguishable at n=50" on every rung.
 - Expert ceiling on each seed-4000 rung: 17/20 L_full, 19/20 L_task.
 
 ## What finished / failed / skipped (and why)

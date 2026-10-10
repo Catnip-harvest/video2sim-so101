@@ -1,8 +1,9 @@
-Money: alive 18.2 h = $36.15 now (03:07 UTC). If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
-# SO-101 overnight report - updated 03:07 UTC (Sat 10:07 Hanoi)
-Status: RUNNING
-Now running (work-22): P3-A-lite SmolVLA-multi training (about 7,200 of 15,000 steps at 04:00; ETA about 05:05). Its eval runs after it. P3-A eval 501 (swap) is running. Demos come from the SCRIPTED EXPERT, not a human video.
-Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard deadlines: 12:30 UTC no new GPU job; 13:30 DONE target.
+Money: alive 21.5 h = $42.72 at 06:24 UTC. If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
+# SO-101 overnight report - final, updated 06:24 UTC (Sat 13:24 Hanoi)
+Status: DONE - DESTROY THE DROPLET NOW (owner: DigitalOcean > Droplets > Destroy)
+Now running: nothing. GPU idle since 06:12, no GPU process. Uploader loop stopped 06:09; queue loop stopped at the final step.
+Basis: gates/gate_final.md. Every item in outputs_large/FINAL_ARTEFACTS.txt is on Drive. Size-only checks passed on all items. An MD5 spot-check by the main session (06:24 UTC) matched on the 6 models, 3 dataset tars, 10 bundles, gates, SCOREBOARD.md and FINAL_ARTEFACTS.txt.
+Demos come from the SCRIPTED EXPERT, not a human video. All results are in simulation.
 
 ## Headline numbers (sim only; k/n, 95% Wilson)
 - In-range, seed 3000, 200 held-out scenes, MolmoAct2 (final checkpoint 023400): L_full 137/200 = 68.5% (61.8-74.5%); L_task 158/200 = 79.0% (72.8-84.1%). Gate gate_p1_eval200 PASS (a result, no pass mark).
@@ -49,8 +50,13 @@ Verdict wording is copied word for word from the SCOREBOARD verdict column.
   - B+ filtered-BC round: dropped by the owner at 20:45 UTC; code and logs kept.
   - Drawer (stage B), C, D, Tower of Hanoi, dexterous tasks: next steps only (brief section 6).
   - P3-A ACT-multi-no-language (no language input): trained 30k steps, EXIT 0, final loss 0.084, final model on Drive (7 files, size-verified).
-  - P3-A first eval, eval 500: held-out scenes, seed 5000, training templates, n=60, ACT-multi-no-language. Named-cube rate 8/60 = 13.3% (Wilson 95% 6.9-24.2%). Outcomes: named 8, other 7, none 45, multiple 0. Named-in-tray 5/60. L_full 0/60; L_task 5/60 = 8.3% (3.6-18.1%). Mostly it moves no cube at all. Source: outputs_large/eval/500_p3a_act_train/summary.json. The P3-A rows of the SCOREBOARD are not yet filled in.
-  - P3-A SmolVLA-multi training: still running (see Now running).
+  - P3-A-lite SmolVLA-multi trained 15k steps (loss 0.029); ACT-multi-no-language trained 30k steps (loss 0.084). Both started together at 03:03 UTC. Final models on Drive.
+  - P3-A eval, FAIL (negative result, gates/gate_p3A_eval.md). Neither model learned the three-cube task at 600 demos. Named cube moved in 13-15% of held-out scenes, and no cube moved in about 75% of runs. The named-cube rates are not distinguishable between models at n=60 ("not distinguishable at n=60"). "Language beats no-language" is NOT shown.
+    - Held-out ids 0-59 (training templates): SmolVLA-multi named 9/60 (15%, 8.1-26.1%); ACT-multi 8/60 (13%, 6.9-24.2%). Named in tray: 5/60 vs 5/60.
+    - Held-out paraphrases ids 0-29: SmolVLA-multi named 2/30 (7%, 1.8-21.3%). ACT-multi has no paraphrase run.
+    - Swap ids 0-19 x 3 colours: SmolVLA-multi named 5/60; ACT-multi named 4/60.
+    - Yellow target ids 100-119 (never a training target): SmolVLA-multi 1/20; ACT-multi 3/20.
+    - Honesty: demos come from the SCRIPTED EXPERT, not a human video. These are simulation results.
 
 ## Deviations from the plan
 - Brief-allowed cut ("if short of time"): the small-model seed-3000 evals (ACT, SmolVLA, ACT-wide) cut from ids 0-199 to 0-99, so P2.4/P2.5 finish about 06:10 UTC instead of 07:20 and P3-A can start before 07:00. MolmoAct2 keeps n=200. The scoreboard joins on common ids.
@@ -68,7 +74,8 @@ Verdict wording is copied word for word from the SCOREBOARD verdict column.
 - Eval results: eval/ on Drive (uploader; rollouts and test_bplus excluded). Local: outputs_large/eval/. Sheets: eval/ood_sheets, eval/p3a_sheets. P2.3 memory JSON: p23/ (14 files, verified).
 - Gates, ledger and SCOREBOARD.md: copied to Drive by the uploader. Local: /root/work/.
 - Text copy of this report: branch report/overnight, commit d1efe86, pushed to origin.
-- Not yet written: replication/LAPTOP.md (packaging step).
+- replication/LAPTOP.md: written (draft, all figures from the memcap gate). Drive: replication/LAPTOP.md. Nothing in it has been run on an NVIDIA laptop card.
+- Final artefacts: gates/gate_final.md (size-only checks on every item in outputs_large/FINAL_ARTEFACTS.txt, all PASS). Size-only, not content, so a content spot-check is recommended before relying on any single file.
 
 ## Left for the owner
 - Hugging Face: storage decision (paid plan; default no) and whether to resume pushes. Without a decision, the final checkpoint is on Drive and local disk only.

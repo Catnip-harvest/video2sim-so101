@@ -53,7 +53,7 @@ Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard dea
 - Datasets: datasets/sugar_v10_n1000_wide_small.tar.zst, datasets/sugar_v10_n1000_small.tar.zst, datasets/multitask_A_v1_small.tar.zst (size-verified).
 - Eval results: eval/ on Drive (uploader; rollouts and test_bplus excluded). Local: outputs_large/eval/. Sheets: eval/ood_sheets, eval/p3a_sheets. P2.3 memory JSON: p23/ (14 files, verified).
 - Gates, ledger and SCOREBOARD.md: copied to Drive by the uploader. Local: /root/work/.
-- Text copy of this report: branch report/overnight, commit 0cc77d3, pushed to origin.
+- Text copy of this report: branch report/overnight, commit d1efe86, pushed to origin.
 - Not yet written: replication/LAPTOP.md (packaging step).
 
 ## Left for the owner

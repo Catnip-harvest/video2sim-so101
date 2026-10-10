@@ -9,16 +9,23 @@ Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard dea
 - Small models, seed 3000, ids 0-99 only (see Deviations): SmolVLA L_full 38/100 (29.1-47.8%), L_task 75/100 (65.7-82.5%). ACT L_full 17/100 (10.9-25.5%), L_task 69/100 (59.4-77.2%).
 - 20-trial smoke, seed 1000: L_full 15/20 = 75% (53-89%), L_task 17/20 = 85%. Checkpoint 001400 on the same seeds: 10/20 L_full; the final-vs-001400 exact McNemar p = 0.125, not significant at n=20.
 
-## Scoreboard (SCOREBOARD.md, regenerated 02:30 UTC by eval/scoreboard.py, manifest a014c8d; Holm across 100 tests)
-Verdict wording is copied from the SCOREBOARD verdict column (Holm across 100 tests).
-- In-range seed 3000, MolmoAct2 vs SmolVLA, L_full (66 vs 38): "A better (significant)", Holm p 0.018. L_task: "not distinguishable at n=100".
-- In-range seed 3000, MolmoAct2 vs ACT (ids 0-99), L_full (66 vs 17): "A better (significant)", Holm p 1.6e-8. L_task: "not distinguishable at n=100".
-- Seed 4000 baseline (none), MolmoAct2 vs ACT, L_full: "A better (significant)". L_task: "not distinguishable at n=50".
-- Seed 4000 rungs, MolmoAct2 vs ACT, L_full: "A better (significant)" on camera, colour, combo, distractor, camera_height, camera_pitch, camera_yaw and camera_distance. Exposure: "not distinguishable at n=50" (Holm p 0.093).
-- Seed 4000 rungs, MolmoAct2 vs ACT, L_task: "A better (significant)" on colour, combo and distractor. Other rungs: "not distinguishable at n=50".
-- Seed 4000 rungs, SmolVLA vs ACT, L_full: "A better (significant)" on colour and camera_distance. Other rungs: "not distinguishable at n=50".
-- ACT, distractor rung vs its own none, L_task (31 to 12 of 50): "significant drop" (Holm p 0.032).
-- MolmoAct2 rung drops vs its own none: "not distinguishable at n=50" on every rung. SmolVLA rung drops: "not distinguishable at n=50" on every rung.
+## Scoreboard (SCOREBOARD.md, regenerated 03:02 UTC by eval/scoreboard.py; Holm across 204 tests)
+Verdict wording is copied word for word from the SCOREBOARD verdict column.
+- Significant, MolmoAct2 vs others (in-range seed 3000; ACT and ACT-wide on ids 0-99):
+  - vs SmolVLA, L_full: "A better (significant)", Holm 0.032.
+  - vs ACT, L_full: "A better (significant)", Holm 2.8e-08.
+  - vs ACT-wide, L_full: "A better (significant)", Holm 0.00015.
+- Significant, seed 4000:
+  - vs ACT, L_full: "A better (significant)" on the none baseline and on camera, colour, combo, distractor, camera_height, camera_pitch, camera_yaw and camera_distance.
+  - vs ACT, L_task: "A better (significant)" on colour (Holm 0.016), combo (0.0021) and distractor (9.1e-05).
+  - vs ACT-wide, "A better (significant)": distractor L_full (8.3e-05) and L_task (0.0020), camera_height L_full (0.040).
+- Significant, SmolVLA vs ACT: "A better (significant)", L_full, on colour and camera_distance (Holm 0.0021 each).
+- Significant, ACT-wide vs ACT (P2.5 data engine, same scenes): "B better (significant)", L_full, on colour (2 to 18 of 50, Holm 0.027) and camera_distance (4 to 20 of 50, Holm 0.027).
+- Significant drop: ACT-wide, distractor, L_task, 39 to 17 of 50: "significant drop" (Holm 9.3e-05). It is the only row with that verdict.
+- Not significant, quoted from the verdict column:
+  - MolmoAct2 vs ACT, seed 4000 exposure, L_full: "not distinguishable at n=50" (Holm 0.16).
+  - ACT, distractor, L_task, 31 to 12 of 50, vs its own none: "not distinguishable at n=50" (Holm 0.056).
+  - MolmoAct2 and SmolVLA rung drops vs their own none runs: "not distinguishable at n=50".
 - Expert ceiling on each seed-4000 rung: 17/20 L_full, 19/20 L_task.
 - P2.5 data engine (ACT trained on wide camera/exposure data vs the same ACT on narrow data), same scenes. Wide >= narrow on all 22 paired comparisons (raw). Verdicts in the whole-scoreboard table: "B better (significant)" on colour L_full (2 to 18 of 50, Holm p 0.027) and camera_distance L_full (4 to 20 of 50, Holm p 0.027). Other rows: "not distinguishable at n=50".
 - P2.5 pre-specified family (owner's 22 tests, Holm within family, from gate_p25_eval): camera L_task 30 to 44, colour L_task 18 to 34, camera_pitch L_full 5 to 19, and also colour and camera_distance L_full. Labelled as the family result, not the whole-scoreboard verdict.

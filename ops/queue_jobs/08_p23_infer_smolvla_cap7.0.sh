@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+bash /root/work/queue/bin/gpu_slot.sh 1 || exit 1
+# P2.3 capped inference: smolvla under 7.0 GiB allocator cap, 10 eps dev seed 9000 (memory/latency only; success not reported)
+docker exec sprint bash -lc 'cd /work/wt-p24 && export MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa HF_HOME=/work/hf_home HF_HUB_OFFLINE=1 && nice -n 5 env OMP_NUM_THREADS=6 MKL_NUM_THREADS=6 python /work/wt-small/env/capped.py --cap-gb 7.0 --result-json /work/outputs_large/eval/p23_infer_smolvla_cap7.0.json -- eval/sim_eval.py --mode policy --checkpoint /work/outputs_large/final_models/smolvla_single_bs64_020000/pretrained_model --seed 9000 --n 10 --videos 0 --workers 1 --device cuda --out /work/outputs_large/eval/p23_infer_smolvla_cap7.0 > /work/logs/eval_p23_infer_smolvla_cap7.0.log 2>&1; echo EXIT=$? >> /work/logs/eval_p23_infer_smolvla_cap7.0.log'

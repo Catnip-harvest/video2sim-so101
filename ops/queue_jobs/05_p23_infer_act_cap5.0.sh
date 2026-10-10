@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+bash /root/work/queue/bin/gpu_slot.sh 1 || exit 1
+# P2.3 capped inference: act under 5.0 GiB allocator cap, 10 eps dev seed 9000 (memory/latency only; success not reported)
+docker exec sprint bash -lc 'cd /work/wt-p24 && export MUJOCO_GL=osmesa PYOPENGL_PLATFORM=osmesa HF_HOME=/work/hf_home HF_HUB_OFFLINE=1 && nice -n 5 env OMP_NUM_THREADS=6 MKL_NUM_THREADS=6 python /work/wt-small/env/capped.py --cap-gb 5.0 --result-json /work/outputs_large/eval/p23_infer_act_cap5.0.json -- eval/sim_eval.py --mode policy --checkpoint /work/outputs_large/final_models/act_single_bs32_030000/pretrained_model --seed 9000 --n 10 --videos 0 --workers 1 --device cuda --out /work/outputs_large/eval/p23_infer_act_cap5.0 > /work/logs/eval_p23_infer_act_cap5.0.log 2>&1; echo EXIT=$? >> /work/logs/eval_p23_infer_act_cap5.0.log'

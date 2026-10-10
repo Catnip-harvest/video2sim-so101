@@ -1101,7 +1101,10 @@
           "paired_metrics": [
             "named",
             "named_in_tray"
-          ]
+          ],
+          "train_h": "1.7",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "~1 GB (SmolVLA, gate_p2_memcap)"
         },
         {
           "model": "SmolVLA-multi",
@@ -1115,7 +1118,10 @@
           "runs": [
             "/work/outputs_large/eval/511_p3a_smolvla_paraphrase"
           ],
-          "expected_n": 30
+          "expected_n": 30,
+          "train_h": "1.7",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "~1 GB (SmolVLA, gate_p2_memcap)"
         },
         {
           "model": "SmolVLA-multi",
@@ -1133,7 +1139,10 @@
           "expected_n": 60,
           "paired_metrics": [
             "named"
-          ]
+          ],
+          "train_h": "1.7",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "~1 GB (SmolVLA, gate_p2_memcap)"
         },
         {
           "model": "SmolVLA-multi",
@@ -1147,7 +1156,10 @@
           "runs": [
             "/work/outputs_large/eval/513_p3a_smolvla_yellow"
           ],
-          "expected_n": 20
+          "expected_n": 20,
+          "train_h": "1.7",
+          "train_vram": "19.4 GB (lerobot mem_gb)",
+          "infer_vram": "~1 GB (SmolVLA, gate_p2_memcap)"
         },
         {
           "model": "ACT-multi no language",
@@ -1155,7 +1167,7 @@
           "hardware": "MI300X",
           "exec_horizon": "auto",
           "ms_chunk": "auto",
-          "train_h": "0.87",
+          "train_h": "0.75",
           "train_vram": "3.7 GB (lerobot mem_gb)",
           "infer_vram": "0.32 GB reserved",
           "test": "A held-out ids 0-59 (train templates)",
@@ -1176,7 +1188,7 @@
           "hardware": "MI300X",
           "exec_horizon": "auto",
           "ms_chunk": "auto",
-          "train_h": "0.87",
+          "train_h": "0.75",
           "train_vram": "3.7 GB (lerobot mem_gb)",
           "infer_vram": "0.32 GB reserved",
           "test": "A swap ids 0-19 x3 colours",
@@ -1197,7 +1209,7 @@
           "hardware": "MI300X",
           "exec_horizon": "auto",
           "ms_chunk": "auto",
-          "train_h": "0.87",
+          "train_h": "0.75",
           "train_vram": "3.7 GB (lerobot mem_gb)",
           "infer_vram": "0.32 GB reserved",
           "test": "A yellow target ids 100-119",

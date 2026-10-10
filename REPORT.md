@@ -1,7 +1,7 @@
 Money: alive 18.2 h = $36.15 now (03:07 UTC). If destroyed at 14:00 UTC Sat $57.81 | 16:00 $61.79 | 20:00 $69.75 (cap $60)
 # SO-101 overnight report - updated 03:07 UTC (Sat 10:07 Hanoi)
 Status: RUNNING
-Now running (work-22): P3-A-lite trainings started 03:03 UTC, both together: SmolVLA-multi (ETA about 05:05) and ACT-multi-no-language (ETA about 03:50). Eval jobs 500-502 and 510-513 are queued behind them. Demos come from the SCRIPTED EXPERT, not a human video.
+Now running (work-22): P3-A-lite SmolVLA-multi training (about 7,200 of 15,000 steps at 04:00; ETA about 05:05). Its eval runs after it. P3-A eval 501 (swap) is running. Demos come from the SCRIPTED EXPERT, not a human video.
 Next: P3-A evals; P4 packaging (scoreboard, videos, LAPTOP.md, README). Hard deadlines: 12:30 UTC no new GPU job; 13:30 DONE target.
 
 ## Headline numbers (sim only; k/n, 95% Wilson)
@@ -48,7 +48,9 @@ Verdict wording is copied word for word from the SCOREBOARD verdict column.
 - Skipped:
   - B+ filtered-BC round: dropped by the owner at 20:45 UTC; code and logs kept.
   - Drawer (stage B), C, D, Tower of Hanoi, dexterous tasks: next steps only (brief section 6).
-  - P3-A training (SmolVLA-multi, ACT-multi-no-language): not started yet. Dropped if not started by 07:00 UTC Sat.
+  - P3-A ACT-multi-no-language (no language input): trained 30k steps, EXIT 0, final loss 0.084, final model on Drive (7 files, size-verified).
+  - P3-A first eval, eval 500: held-out scenes, seed 5000, training templates, n=60, ACT-multi-no-language. Named-cube rate 8/60 = 13.3% (Wilson 95% 6.9-24.2%). Outcomes: named 8, other 7, none 45, multiple 0. Named-in-tray 5/60. L_full 0/60; L_task 5/60 = 8.3% (3.6-18.1%). Mostly it moves no cube at all. Source: outputs_large/eval/500_p3a_act_train/summary.json. The P3-A rows of the SCOREBOARD are not yet filled in.
+  - P3-A SmolVLA-multi training: still running (see Now running).
 
 ## Deviations from the plan
 - Brief-allowed cut ("if short of time"): the small-model seed-3000 evals (ACT, SmolVLA, ACT-wide) cut from ids 0-199 to 0-99, so P2.4/P2.5 finish about 06:10 UTC instead of 07:20 and P3-A can start before 07:00. MolmoAct2 keeps n=200. The scoreboard joins on common ids.

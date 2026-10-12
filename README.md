@@ -1,11 +1,11 @@
 # video2sim-so101
 
-**One short video of a hand moving a cube becomes 1,000 physics-verified robot demos in simulation, which then train three robot policies on a single AMD MI300X (ROCm).** The robot is the LeRobot SO-101 arm. **Every number and clip on this page is from simulation (MuJoCo), not a real robot.**
+**One short video of a hand moving a cube becomes 1,000 physics-verified robot demos in simulation, which then train three robot policies on a single AMD MI300X (ROCm).** The robot is the LeRobot SO-101 arm. **Every number and robot clip on this page is from simulation (MuJoCo), not a real robot.**
 
 <p align="center">
-  <img src="docs/media/hero_before_after.gif" width="512" alt="Simulation: the same scene twice. Top, an early MolmoAct2 checkpoint fails to grasp the cube. Bottom, the final checkpoint picks the cube and places it in the tray.">
+  <img src="docs/media/pipeline_reel.gif" width="720" alt="Pipeline reel. 1: a 3-second stock clip of a hand moving a sugar cube. 2: the cube's path extracted from that clip. 3: one physics-checked demo of the SO-101 arm in simulation. 4: the fine-tuned MolmoAct2 placing the cube in the tray in a simulated scene it never saw. End card: 68.5% strict success on 200 unseen simulated scenes.">
 </p>
-<p align="center"><sub><b>Simulation (MuJoCo).</b> Same scene, fine-tuned MolmoAct2. Top: early checkpoint (about 6% of training), fails. Bottom: final checkpoint, passes. Left: front camera; right: wrist camera.</sub></p>
+<p align="center"><sub><b>Simulation (MuJoCo).</b> Input clip: Nataliya Vaitkevich / Pexels. Human video → extracted cube path → physics-checked sim demo → trained MolmoAct2 on an unseen scene. <a href="docs/media/pipeline_reel.mp4">MP4, 14 s</a></sub></p>
 
 **Headline (simulation):** the fine-tuned 5.4B MolmoAct2 makes a clean, physics-valid pick-and-place on **137 of 200 unseen scenes (68.5%, 95% interval 61.8–74.5%)** and shows no statistically significant drop on any of 9 out-of-range tests.
 
@@ -35,6 +35,11 @@ Two pass levels: **L_task** = the cube was carried by both jaws and ends release
 - **Laptop-sized memory (emulated).** Under a PyTorch allocator cap: SmolVLA trains at batch 8 under 5.0 GiB and batch 16 under 7.0 GiB; ACT at batch 32 under 5.0 GiB. This emulates a 6 GB / 8 GB card on the MI300X; it is not a real laptop run.
 - **Statistics.** Wilson 95% intervals; paired exact McNemar tests on shared scenes; Holm correction across all 204 tests in the scoreboard. A difference is claimed only when Holm p < 0.05; otherwise "not distinguishable".
 
+<p align="center">
+  <img src="docs/media/hero_before_after.gif" width="512" alt="Simulation: the same scene twice. Top, an early MolmoAct2 checkpoint fails to grasp the cube. Bottom, the final checkpoint picks the cube and places it in the tray.">
+</p>
+<p align="center"><sub><b>Simulation (MuJoCo).</b> Same scene, fine-tuned MolmoAct2. Top: early checkpoint (about 6% of training), fails. Bottom: final checkpoint, passes. Left: front camera; right: wrist camera.</sub></p>
+
 Full tables, failure breakdowns and every verdict: **[docs/RESULTS.md](docs/RESULTS.md)**.
 
 ## What did not work
@@ -59,6 +64,7 @@ This project assembles published work. **The contribution is the physics verific
 | [MolmoAct2](https://huggingface.co/allenai/MolmoAct2-SO100_101) (Ai2) | 5.4B base policy, already tuned on SO-100/101 data. |
 | [SmolVLA](https://huggingface.co/lerobot/smolvla_base) | 0.45B vision-language-action baseline. |
 | ACT (Action Chunking Transformer, via LeRobot) | Small imitation-learning baseline. |
+| [Pexels video 7488188](https://www.pexels.com/video/a-person-putting-a-sugar-cube-on-a-hot-beverage-7488188/) by Nataliya Vaitkevich | The 3-second input clip of a hand moving a sugar cube. The Pexels License allows use and modification without attribution; credited with thanks. Source note: [`demo/third_party/PEXELS_7488188_SOURCE.txt`](demo/third_party/PEXELS_7488188_SOURCE.txt). |
 
 ## Repo map
 
@@ -138,5 +144,5 @@ docker exec sprint bash -lc "cd /work/video2sim-so101 && INSTALL_LEROBOT=0 PY=py
 
 - **This repo's code:** MIT, to be confirmed.
 - **Menagerie model:** Apache-2.0.
-- **Pexels test clip:** Pexels License; source in `demo/third_party/`.
+- **Pexels test clip:** video by Nataliya Vaitkevich from Pexels, Pexels License; source in `demo/third_party/`.
 - **Model weights** are not included. They come from their own repositories under their own licences.

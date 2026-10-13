@@ -67,6 +67,18 @@ def _cam_xyaxes(pos: np.ndarray, lookat: np.ndarray) -> list[float]:
   return [*x.tolist(), *y.tolist()]
 
 
+def _add_spot_mark(spec: mujoco.MjSpec, k: int, mark: dict) -> None:
+  """A flat marker on the table (Hanoi spot): a dark ring around a light disc. Visual only:
+  contype = conaffinity = 0, so nothing ever touches it and the physics is unchanged."""
+  outer, inner = mark["radius"]
+  x, y = mark["xy"]
+  for name, r, z, rgb in ((f"spot_{k}_ring", outer, 0.0003, (0.08, 0.08, 0.08)),
+                          (f"spot_{k}_centre", inner, 0.0006, (0.93, 0.93, 0.90))):
+    spec.worldbody.add_geom(name=name, type=mujoco.mjtGeom.mjGEOM_CYLINDER, size=(r, z, 0.0),
+                            pos=(x, y, 0.0), rgba=(*rgb, 1.0), contype=0, conaffinity=0,
+                            group=2, mass=0.0)
+
+
 def build_episode_scene(v: Variation, object_kind: str = "box",
                         render_size: tuple[int, int] = (256, 256)) -> EpisodeScene:
   spec = mujoco.MjSpec()
@@ -107,19 +119,25 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
                             gripper_effort_limit=v.gripper_effort)
   spec.attach(robot, prefix="", frame=spec.worldbody.add_frame(pos=(0.0, 0.0, 0.0)))
 
+  extras = v.extras or {}
   half = v.obj_size / 2
   obj = mj_scene.object_spec(kind=object_kind, size=v.obj_size, height=v.obj_size,
                              mass=v.obj_mass, friction=(v.obj_friction, 0.005, 0.0001),
                              rgba=(*v.object_rgb, 1.0))
   # Start 0.5 mm above the table; the unrecorded settle phase lets it come to rest.
-  obj.body("object").pos = (v.obj_xy[0], v.obj_xy[1], half + 0.0005)
+  # extras["object_z"] (Hanoi) starts it higher instead, e.g. on top of another cube.
+  obj_z = float(extras.get("object_z", half + 0.0005))
+  obj.body("object").pos = (v.obj_xy[0], v.obj_xy[1], obj_z)
   obj.body("object").quat = (np.cos(v.obj_yaw / 2), 0.0, 0.0, np.sin(v.obj_yaw / 2))
   spec.attach(obj, prefix="", frame=spec.worldbody.add_frame())
-  b = mj_scene.bin_spec()
-  for g in b.geoms:
-    g.rgba = (*v.bin_rgb, 1.0)
-  spec.attach(b, prefix="", frame=spec.worldbody.add_frame(pos=(v.bin_xy[0], v.bin_xy[1], 0.0)))
-  extra = list((v.extras or {}).get("free_bodies") or [])
+  if not extras.get("no_bin"):  # Hanoi has no tray
+    b = mj_scene.bin_spec()
+    for g in b.geoms:
+      g.rgba = (*v.bin_rgb, 1.0)
+    spec.attach(b, prefix="", frame=spec.worldbody.add_frame(pos=(v.bin_xy[0], v.bin_xy[1], 0.0)))
+  for k, mark in enumerate(extras.get("spot_marks") or []):
+    _add_spot_mark(spec, k, mark)
+  extra = list(extras.get("free_bodies") or [])
   if extra:  # distractors: free joint + plain contacts, added after everything else
     add_free_bodies(spec, extra)
 

@@ -7,7 +7,8 @@ multi-task scene (P3-A, extra cubes). A body is a plain dict, stored in the Vari
   {"name": "extra_0", "shape": "box" | "cylinder" | "sphere",
    "size": 0.03,          # edge (box) or diameter (cylinder, sphere), metres
    "height": 0.03,        # cylinder height (box/sphere: = size)
-   "mass": 0.03, "friction": 0.6, "rgb": [r, g, b], "xy": [x, y], "yaw": 0.0}
+   "mass": 0.03, "friction": 0.6, "rgb": [r, g, b], "xy": [x, y], "yaw": 0.0,
+   "z": 0.0625}           # optional start height of the centre (default: on the table)
 
 scene.build_episode_scene adds each one as a body with a FREE JOINT and one primitive geom
 with the world collision bits (same as the cube): it falls, slides, is pushed and can be
@@ -49,8 +50,9 @@ def add_free_bodies(spec: mujoco.MjSpec, bodies: list[dict]) -> None:
     else:
       raise ValueError(f"free body shape {shape!r} not in {SHAPES}")
     yaw = float(b.get("yaw", 0.0))
+    z = float(b.get("z", half_height(b) + 0.0005))  # "z" (Hanoi): start on top of another cube
     body = spec.worldbody.add_body(
-      name=b["name"], pos=(b["xy"][0], b["xy"][1], half_height(b) + 0.0005),
+      name=b["name"], pos=(b["xy"][0], b["xy"][1], z),
       quat=(math.cos(yaw / 2), 0.0, 0.0, math.sin(yaw / 2)))
     body.add_freejoint(name=b["name"] + "_joint")
     body.add_geom(name=b["name"] + "_geom", type=gtype, size=gsize, mass=float(b["mass"]),

@@ -27,16 +27,17 @@ for d in (ROOT / "datagen", ROOT / "task"):
     sys.path.insert(0, str(d))
 
 
-def grasp_window(g: np.ndarray, near: np.ndarray):
-  """g: gripper % per frame; near: bool per frame (jaw within 4 cm of the cube's start).
-  Grasp = first frame after a closing stroke (>= 8 % drop) that ends while near the cube;
-  release = first later frame where the gripper has opened >= 8 % above its holding value."""
+def grasp_window(g: np.ndarray, near: np.ndarray | None = None):
+  """g: gripper % per frame. Grasp = first frame k where the gripper has closed by >= 10 over the
+  previous 30 frames and then holds (within +-2) a value between 8 and 60 for the next 30 frames
+  (a cube is between the jaws). Release = first later frame where it opens >= 6 above that value.
+  `near` (jaw close to the cube's start) is not required: calibration error can exceed 4 cm."""
   n = len(g)
-  for k in range(5, n - 5):
-    if near[k] and g[k - 5] - g[k] >= 8 and abs(g[k + 5] - g[k]) < 2:
-      hold = g[k]
-      for r in range(k + 5, n):
-        if g[r] - hold >= 8:
+  for k in range(30, n - 30):
+    hold = g[k]
+    if 8 <= hold <= 60 and g[k - 30:k].max() - hold >= 10 and np.abs(g[k:k + 30] - hold).max() <= 2:
+      for r in range(k + 30, n):
+        if g[r] - hold >= 6:
           return k, r
       return k, None
   return None, None

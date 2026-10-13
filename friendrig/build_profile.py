@@ -39,7 +39,7 @@ def main():
                      "ortho": str(out / "plates" / pmap[s["id"]]["ortho"])})
   # colours from first frames of detected episodes
   import cv2
-  from friendrig.masks import green_mask, white_mask
+  from friendrig.masks import green_mask, white_mask  # white_mask: bright bowl pixels only, for colour
   from friendrig.realdata import FriendData
   D = FriendData()
   det = [r["episode"] for r in ob["episodes"] if "cube" in r][:40]

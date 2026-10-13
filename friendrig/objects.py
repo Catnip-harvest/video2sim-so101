@@ -44,6 +44,30 @@ def is_table_to_bowl(task: str) -> bool:
   return bool(TARGET.search(task)) and not EXCLUDE.search(task)
 
 
+def bowl_mask(img: np.ndarray) -> np.ndarray:
+  """White bowl. Seed: the largest blob of bright unsaturated pixels (masks.white_mask = lit inner
+  wall). Grow: add pixels within GROW_PX of the seed that are brighter than the table by >= 8
+  (HSV V vs the image median) and unsaturated (the shaded wall and rim). Convex hull filled.
+  (Growing without the distance limit merged the bowl with table glare: tried 13 Oct, rejected.)"""
+  b = blobs(white_mask(img), MIN_WHITE)
+  out = np.zeros(img.shape[:2], np.uint8)
+  if not b:
+    return out.astype(bool)
+  seed = max(b, key=lambda x: x[1])[0].astype(np.uint8)
+  hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+  s, v = hsv[..., 1].astype(int), hsv[..., 2].astype(int)
+  near = cv2.dilate(seed, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * GROW_PX + 1, 2 * GROW_PX + 1))).astype(bool)
+  grow = near & (v >= np.median(v) + 8) & (s <= 45)
+  m = cv2.morphologyEx((grow | seed.astype(bool)).astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+  bb = blobs(m, MIN_WHITE)
+  big = max(bb, key=lambda x: x[1])[0] if bb else seed.astype(bool)
+  cv2.fillConvexPoly(out, cv2.convexHull(cv2.findNonZero(big.astype(np.uint8))), 1)
+  return out.astype(bool)
+
+
+GROW_PX = 40
+
+
 def blobs(m: np.ndarray, min_px: int):
   n, lab, st, cen = cv2.connectedComponentsWithStats(m.astype(np.uint8), 8)
   return [(lab == i, st[i, cv2.CC_STAT_AREA], cen[i]) for i in range(1, n) if st[i, cv2.CC_STAT_AREA] >= min_px]
@@ -129,7 +153,7 @@ def _job(args):
   img = D.frames(ep, "cam_head", [0])[0]
   arm = dark_mask(img)
   keep = ~cv2.dilate(arm.astype(np.uint8), np.ones((7, 7), np.uint8)).astype(bool)
-  gb, wb = blobs(green_mask(img), MIN_GREEN), blobs(white_mask(img), MIN_WHITE)
+  gb, wb = blobs(green_mask(img), MIN_GREEN), blobs(bowl_mask(img), MIN_WHITE)
   rec = {"episode": ep, "n_green_blobs": len(gb), "n_white_blobs": len(wb)}
   if len(gb) != 1:
     rec["skip"] = f"{len(gb)} green blobs"

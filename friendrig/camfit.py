@@ -380,7 +380,7 @@ def cmd_fit_sessions(a):
     res = pool.map(_session_job_off, [(st, re, p0, a.seed + k, a.iters, offsets.tolist())
                                       for k, ((st, re), p0) in enumerate(zip(items, p0s))], chunksize=1)
     cams = [np.asarray(r[0]) for r in res]
-    print(f"session cameras (no offsets): soft IoU {[round(r[1], 3) for r in res]} ({time.time() - t0:.0f} s)", flush=True)
+    print(f"session cameras (offsets fixed at start values): soft IoU {[round(r[1], 3) for r in res]} ({time.time() - t0:.0f} s)", flush=True)
     log = []
     if a.offsets:
       import cma
@@ -463,6 +463,13 @@ def cmd_eval(a):
     g = json.loads((out / "cam_global.json").read_text())
     pg = np.array([g["camera"][k] for k in CAM_NAMES])
     cam_of = {e: pg for e in cam_of}
+  if a.cable_px:  # re-split the dark mask with a different cable width (same frames)
+    import cv2
+    from friendrig.masks import disk
+    for i in range(len(z["episode"])):
+      dm = z["arm"][i] | z["ignore"][i]
+      core = cv2.morphologyEx(dm.astype(np.uint8), cv2.MORPH_OPEN, disk(a.cable_px)).astype(bool)
+      z["arm"][i], z["ignore"][i] = core, dm & ~core
   idx = [i for i in range(len(z["episode"])) if int(z["episode"][i]) in cam_of and
          (z["split"][i] == "held_out" or a.with_train)]
   jobs = [(i, z["state"][i], z["arm"][i], z["ignore"][i], cam_of[int(z["episode"][i])], offs) for i in idx]
@@ -476,7 +483,8 @@ def cmd_eval(a):
                  "split": str(z["split"][i]), "iou": u, "iou_raw_no_ignore": u_raw,
                  "speed_deg_s": float(z["speed"][i])})
     sim_masks[i] = m
-  rec = {"cams": a.cams, "global_cam": bool(a.global_cam), "offsets_deg": offs.tolist(), "frames": rows}
+  rec = {"cams": a.cams, "global_cam": bool(a.global_cam), "offsets_deg": offs.tolist(),
+         "cable_px": a.cable_px or 15, "frames": rows}
   for sp in ("held_out", "train"):
     v = [r["iou"] for r in rows if r["split"] == sp]
     vr = [r["iou_raw_no_ignore"] for r in rows if r["split"] == sp]
@@ -555,6 +563,7 @@ def main():
   e.add_argument("--global-cam", action="store_true")
   e.add_argument("--no-offsets", action="store_true")
   e.add_argument("--overlays", type=int, default=0)
+  e.add_argument("--cable-px", type=int, default=0, help="re-split arm/ignore with this opening (0 = as sampled, 15)")
   a = ap.parse_args()
   {"frames": cmd_frames, "fit-global": cmd_fit_global, "fit-episodes": cmd_fit_episodes, "sessions": cmd_sessions,
    "fit-sessions": cmd_fit_sessions, "eval": cmd_eval}[a.cmd](a)

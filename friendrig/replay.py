@@ -86,7 +86,7 @@ def main():
     def fit(img):
       arm = fo.dark_mask(img)
       keep = ~cv2.dilate(arm.astype(np.uint8), np.ones((7, 7), np.uint8)).astype(bool)
-      gb, wb = fo.blobs(fo.green_mask(img), 150), fo.blobs(fo.white_mask(img), fo.MIN_WHITE)
+      gb, wb = fo.blobs(fo.green_mask(img), 150), fo.blobs(fo.bowl_mask(img), fo.MIN_WHITE)
       res = {}
       if gb:
         g = max(gb, key=lambda b: b[1])

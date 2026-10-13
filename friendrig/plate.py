@@ -99,8 +99,16 @@ def orthophoto(plate: np.ndarray, cam, res=ORTHO_RES, xr=ORTHO_X, yr=ORTHO_Y):
   uv = project(cam, pts).reshape(X.shape + (2,)).astype(np.float32)
   seen = (uv[..., 0] >= 0) & (uv[..., 0] <= 639) & (uv[..., 1] >= 0) & (uv[..., 1] <= 479)
   out = cv2.remap(plate, uv[..., 0], uv[..., 1], cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-  fill = np.median(plate.reshape(-1, 3), 0).astype(np.uint8)
-  out[~seen] = fill
+  # Table the camera never sees: tile the largest fully-seen axis-aligned crop of the orthophoto
+  # (keeps the grain and colour; seams are visible). Real texture only where cam_head saw it.
+  ys, xs = np.nonzero(seen)
+  r0, r1, c0, c1 = ys.min(), ys.max(), xs.min(), xs.max()
+  while r1 - r0 > 20 and c1 - c0 > 20 and not seen[r0:r1, c0:c1].all():
+    r0, r1, c0, c1 = r0 + 4, r1 - 4, c0 + 4, c1 - 4
+  crop = out[r0:r1, c0:c1]
+  reps = (out.shape[0] // crop.shape[0] + 2, out.shape[1] // crop.shape[1] + 2, 1)
+  tiled = np.tile(crop, reps)[: out.shape[0], : out.shape[1]]
+  out[~seen] = tiled[~seen]
   return out, seen
 
 

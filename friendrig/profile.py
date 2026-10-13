@@ -60,8 +60,9 @@ def load_profile(path: str) -> dict:
 
 
 def bowl_floor_radius(prof) -> float:
+  """Radius of the disc inscribed in the square contact floor."""
   b = prof["bowl"]
-  return b["base_radius"] - WALL_T
+  return b["base_radius"] * 0.92
 
 
 def apply_bin_constants(prof) -> None:
@@ -89,8 +90,13 @@ def bowl_spec(prof):
   body = spec.worldbody.add_body(name="bin")
   common = dict(rgba=rgba, contype=rm.WORLD_CONTYPE, conaffinity=rm.WORLD_CONAFFINITY, condim=3,
                 friction=(0.8, 0.005, 0.0001))
-  body.add_geom(name="bin_floor", type=mujoco.mjtGeom.mjGEOM_CYLINDER, size=(rb, FLOOR_T / 2, 0),
+  # Floor: a BOX for contact (box-box contacts are multi-point and settle; a box resting on a
+  # cylinder jittered in the 13 Oct smoke run: 2/20 "not_resting") + a visual-only disc.
+  fh = rb * 0.92 / math.sqrt(2)
+  body.add_geom(name="bin_floor", type=mujoco.mjtGeom.mjGEOM_BOX, size=(fh, fh, FLOOR_T / 2),
                 pos=(0, 0, mj_scene.BIN_CLEARANCE + FLOOR_T / 2), **common)
+  body.add_geom(name="bowl_floor_visual", type=mujoco.mjtGeom.mjGEOM_CYLINDER, size=(rb, FLOOR_T / 2 - 1e-4, 0),
+                pos=(0, 0, mj_scene.BIN_CLEARANCE + FLOOR_T / 2), rgba=rgba, contype=0, conaffinity=0, group=1)
   z0 = mj_scene.BIN_CLEARANCE + FLOOR_T
   slant = math.hypot(rt - rb, h - z0)
   tilt = math.atan2(rt - rb, h - z0)          # wall leans outward by this angle from vertical
@@ -207,13 +213,18 @@ def apply_to_variation(v, profile_path: str):
   rng = np.random.default_rng([v.seed, 11])
   mj_scene, _ = _engine()
   import sys
-  from r2s.variations import _in_reach  # same reach band as the generic sampler
+  from r2s.variations import PAN_AXIS, _in_reach  # same reach band as the generic sampler
   cube = prof["cube"]
   bowl = prof["bowl"]
   sep = bowl["rim_radius"] + cube["size"] * 0.75 + 0.01
+  r_max = float(prof.get("expert_reach_max_m", 0.28))
 
   def xy_ok(c, b):
-    return _in_reach(np.asarray(c)) and _in_reach(np.asarray(b)) and np.linalg.norm(np.asarray(c) - b) >= sep
+    # the generic reach band, tightened to r_max: the scripted expert cannot lift a 40 mm cube over a
+    # 60 mm bowl rim from further out (13 Oct smoke run: 3/20 ik_unreachable, all at r ~0.29 m)
+    rc = np.linalg.norm(np.asarray(c) - PAN_AXIS); rb_ = np.linalg.norm(np.asarray(b) - PAN_AXIS)
+    return (_in_reach(np.asarray(c)) and _in_reach(np.asarray(b)) and rc <= r_max and rb_ <= r_max
+            and np.linalg.norm(np.asarray(c) - b) >= sep)
 
   d = sample_scene(prof, rng, xy_ok)
   dr = bool(prof.get("look_dr", True))

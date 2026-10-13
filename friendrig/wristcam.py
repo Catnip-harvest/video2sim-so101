@@ -33,10 +33,10 @@ from calib.so101_units import ArmCalib, lerobot_to_sim
 from friendrig.masks import dark_mask, iou
 from friendrig.simcam import SO101_XML, PointArm, _rx, _ry, _rz
 
-BAND = 0.45          # bottom 45 % of the image
+BAND = 0.30          # bottom 30 % of the image (the real jaw tips sit in the bottom ~12 %)
 PER_EP = 4
 GRIP_BODIES = ("gripper", "moving_jaw_so101_v1", "camera_mount")
-SIGMA = np.array([0.004, 0.004, 0.004, 0.05, 0.05, 0.05, 4.0])
+SIGMA = np.array([0.01, 0.01, 0.01, 0.10, 0.10, 0.10, 6.0])
 SIGMA_G = np.array([8.0, 8.0])
 _G: dict = {}
 
@@ -60,7 +60,9 @@ def _frames_job(ep):
   imgs = D.frames(ep, "cam_right", ks)
   rows = []
   for k, img in zip(ks, imgs):
-    m = band_mask(dark_mask(img))
+    x = img.astype(np.int16)
+    greenish = x[..., 1] > x[..., 0] + 5  # shaded cube faces are dark but still green-tinted
+    m = band_mask(dark_mask(img, 60) & ~greenish)
     rows.append((k, st[k], np.packbits(m)))
   return ep, rows
 

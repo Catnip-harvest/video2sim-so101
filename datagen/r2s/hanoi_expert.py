@@ -150,19 +150,33 @@ class HanoiExpert(Expert):
   radial direction, so that pair is never more than 10 deg off). Otherwise the squeeze
   turns the cube by the tilt angle and it lands crooked (seen: 14 deg in the jaws).
   """
+  carry_clearance = CARRY_CLEARANCE  # subclasses (stack_expert.py) override these
+  tilts_deg = HANOI_TILTS_DEG
+
   def __init__(self, sc: S.EpisodeScene, spec: TaskSpec, v: Variation, cfg: PlanConfig,
                ctx: MoveContext, pinch_width: float | None = None):
     cfg = copy.copy(cfg)
     cfg.side_offset = 0.0  # straight down: other stacks stand next to this one
+    self._configure(cfg)
     super().__init__(sc, spec, v, cfg, pinch_width=pinch_width)
     self.ctx = ctx
     # Collision checks see every cube where it is NOW (not at the model's initial pose).
     self._coll.qpos[:] = sc.data.qpos
     self.grasp_z = max(float(ctx.obj_pos[2]) + GRASP_ABOVE_CENTRE[ctx.cube],
                        ctx.surface_below + rm.JAW_TIP_BELOW_SITE + cfg.tip_clearance)
-    room = max(reach_ceiling(ctx.obj_pos) - self.grasp_z, 0.015)
+    self._choose_tilts()
+    room = max(self.ceiling(ctx.obj_pos) - self.grasp_z, 0.015)
     self.cfg.preapproach_height = min(cfg.preapproach_height, room)
     self.cfg.hover_height = min(cfg.hover_height, self.cfg.preapproach_height)
+
+  def _configure(self, cfg: PlanConfig) -> None:
+    """Hook for subclasses to adjust the plan config before the base Expert reads it."""
+
+  def _choose_tilts(self) -> None:
+    """Hook: Hanoi tries HANOI_TILTS_DEG in order (stack_expert.py picks per move)."""
+
+  def ceiling(self, xy) -> float:
+    return reach_ceiling(xy)
 
   def plan_pick(self, q_start: np.ndarray, g_start: float, obj_pos: np.ndarray,
                 obj_yaw: float) -> tuple[Plan, dict]:
@@ -177,8 +191,8 @@ class HanoiExpert(Expert):
     # roll first
     normals.sort(key=lambda n: (-round(abs(float(n @ tangential)), 6), -float(n @ c_nat)))
     last_err = None
-    for tilt_deg in HANOI_TILTS_DEG:
-      for closing in normals[:2]:
+    for tilt_deg in self.tilts_deg:
+      for closing in self._closings(normals, tilt_deg):
         self.tilt = math.radians(tilt_deg)
         plan = Plan()
         plan.add(np.asarray(q_start, float)[None], np.array([g_start]), "start")
@@ -196,10 +210,14 @@ class HanoiExpert(Expert):
         return plan, info
     raise last_err
 
+  def _closings(self, normals: list, tilt_deg: float) -> list:
+    """Closing directions to try (normals sorted: face pair closest to tangential first)."""
+    return normals[:2]
+
   def carry_z(self) -> float:
     """Object-centre height while carrying: its bottom CARRY_CLEARANCE above every other
     cube (the cube's own source stack included)."""
-    return max(self.ctx.obstacle_top + CARRY_CLEARANCE + self.half,
+    return max(self.ctx.obstacle_top + self.carry_clearance + self.half,
                float(self.ctx.obj_pos[2]) + MIN_LIFT)
 
   def plan_lift(self, plan: Plan, obj_pos: np.ndarray) -> dict:
@@ -228,6 +246,9 @@ class HanoiExpert(Expert):
     return {"carry_z": z, "arc_deg": round(math.degrees(t1 - t0), 1),
             "tilt_after_carry_deg": round(math.degrees(self.tilt), 1)}
 
+  def move_report(self) -> dict:
+    return {}
+
   def plan_place(self, plan: Plan, obj_pos, site_pos, R_grip, R_obj, home) -> dict:
     """Re-planned from the measured in-hand pose at the end of the carry."""
     cfg, ctx = self.cfg, self.ctx
@@ -247,7 +268,7 @@ class HanoiExpert(Expert):
     self.jaw_move(plan, self.g_release, "release")
     self.hold(plan, cfg.post_release_s, "post_release")
     s_rel = self.site_for(rel)
-    rise = min(cfg.retreat_height, max(reach_ceiling(s_rel) - float(s_rel[2]), 0.02))
+    rise = min(cfg.retreat_height, max(self.ceiling(s_rel) - float(s_rel[2]), 0.02))
     self.cart_path(plan, _line(s_rel, s_rel + np.array([0, 0, rise]), 0.005), self.frames,
                    "retreat", speed=cfg.line_speed, retilt=True)
     home = np.asarray(home, float).copy()
@@ -287,19 +308,44 @@ class _TapRecorder(Recorder):
 
 class MoveSim:
   """One continuous simulated scene in which the expert makes moves. Recording runs
-  through every move; the HanoiMonitor is renewed per move (``new_move``)."""
+  through every move; the monitor is renewed per move (``new_move``).
 
-  def __init__(self, sc: S.EpisodeScene, v: Variation, servo_foh: bool = True):
+  ``noise`` (stacking's noise bucket): {"sigma_rad", "tau_s", "seed"} adds slowly varying
+  Gaussian noise (an Ornstein-Uhlenbeck process, stationary std sigma_rad, correlation
+  time tau_s) to the five arm joint targets of every frame except the final rest / tail,
+  then re-applies the servo speed caps. The noisy targets are what the servos get and what
+  is recorded as the action (MimicGen-style)."""
+
+  def __init__(self, sc: S.EpisodeScene, v: Variation, servo_foh: bool = True,
+               monitor_cls=HanoiMonitor, noise: dict | None = None):
     self.sc, self.v, self.servo_foh = sc, v, servo_foh
+    self.monitor_cls = monitor_cls
     self.ids = cube_body_ids(sc, v)
-    self.mon = HanoiMonitor(sc, v)
+    self.mon = monitor_cls(sc, v)
     self.tap = _MonitorTap(self)
     self.rec = _TapRecorder(sc, self)
     self.speed_ok = True
     self.speed_max = [0.0, 0.0]
+    self.noise = noise
+    if noise:
+      self._rng = np.random.default_rng(int(noise["seed"]))
+      self._n = np.zeros(5)
+      self.noise_abs_max = 0.0
 
   def new_move(self) -> None:
-    self.mon = HanoiMonitor(self.sc, self.v)
+    self.mon = self.monitor_cls(self.sc, self.v)
+
+  def _add_noise(self, targets: np.ndarray, phases: list[str], prev) -> np.ndarray:
+    a = math.exp(-1.0 / (S.FPS * self.noise["tau_s"]))
+    sig = self.noise["sigma_rad"] * math.sqrt(1 - a * a)
+    out = targets.copy()
+    for k, ph in enumerate(phases):
+      self._n = a * self._n + sig * self._rng.standard_normal(5)
+      if ph not in ("rest", "tail"):
+        out[k, :5] += self._n
+        self.noise_abs_max = max(self.noise_abs_max, float(np.abs(self._n).max()))
+    start = out[0] if prev is None else prev
+    return rate_limit(out, start)
 
   def positions(self) -> dict[str, np.ndarray]:
     return {c: self.sc.data.xpos[b].copy() for c, b in self.ids.items()}
@@ -308,6 +354,8 @@ class MoveSim:
     return bool(self.mon.base.c["unstable"])
 
   def run(self, targets: np.ndarray, phases: list[str], prev: np.ndarray | None) -> None:
+    if self.noise:
+      targets = self._add_noise(targets, phases, prev)
     ok, a, j = _speed_ok(targets, prev)
     self.speed_ok &= ok
     self.speed_max = [max(self.speed_max[0], a), max(self.speed_max[1], j)]
@@ -362,17 +410,26 @@ def place_and_settle(sc: S.EpisodeScene, v: Variation, settle_s: float = SETTLE_
 def expert_move(sim: MoveSim, spec: TaskSpec, v: Variation, state: str, move: tuple[str, str],
                 cfg: PlanConfig, pinch_width: float | None = None,
                 start_target: np.ndarray | None = None) -> tuple[dict, list[str]]:
-  """Plan and simulate one move from the current simulated state. Returns (plan info,
+  """Plan and simulate one Hanoi move from the current simulated state. Returns (plan info,
   planner failure reasons); raises nothing (a PlanError becomes a reason).
 
   The plan starts from the last servo target this MoveSim sent; before its first frame,
   from ``start_target`` (6 values: the target the servos currently hold, e.g. when
   planning on a copy of an eval harness's scene) or else the episode's start pose."""
-  sc, d = sim.sc, sim.sc.data
-  ctx = move_context(sc, v, sim.ids, state, move)
-  view = scene_for_cube(sc, sim.ids, ctx.cube)
+  ctx = move_context(sim.sc, v, sim.ids, state, move)
   vm = H.variation_for_move(v, sim.positions(), state, move)
-  ex = HanoiExpert(view, spec, vm, cfg, ctx, pinch_width=pinch_width)
+  return expert_move_ctx(sim, spec, v, ctx, vm, cfg, pinch_width, start_target, HanoiExpert)
+
+
+def expert_move_ctx(sim: MoveSim, spec: TaskSpec, v: Variation, ctx: MoveContext, vm: Variation,
+                    cfg: PlanConfig, pinch_width: float | None = None,
+                    start_target: np.ndarray | None = None,
+                    expert_cls=None) -> tuple[dict, list[str]]:
+  """The move itself, given its MoveContext (shared by Hanoi and scattered stacking)."""
+  sc, d = sim.sc, sim.sc.data
+  move = ctx.move
+  view = scene_for_cube(sc, sim.ids, ctx.cube)
+  ex = (expert_cls or HanoiExpert)(view, spec, vm, cfg, ctx, pinch_width=pinch_width)
   info: dict = {"move": list(move), "cube": ctx.cube, "surface_below": ctx.surface_below,
                 "dest_surface": ctx.dest_surface, "obstacle_top": ctx.obstacle_top,
                 "dest_xy": ctx.dest_xy.tolist()}
@@ -435,6 +492,7 @@ def expert_move(sim: MoveSim, spec: TaskSpec, v: Variation, state: str, move: tu
     return info, sorted(set(fails + [e.reason]))
   info["retilts"] = ex.retilts
   info["ik_worst"] = {k: round(x, 3) for k, x in ex.ik_worst.items()}
+  info.update(ex.move_report())
   if "lift" in info and "place" in info:
     a0 = np.array(info["lift"]["obj_in_gripper_mm"])
     a1 = np.array(info["place"]["obj_in_gripper_before_lower_mm"])

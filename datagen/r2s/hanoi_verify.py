@@ -74,8 +74,11 @@ ALL_CLAUSES = TASK_CLAUSES + FULL_CLAUSES
 
 
 def cube_body_ids(sc: S.EpisodeScene, v) -> dict[str, int]:
+  """cube letter -> body id, for a Hanoi or a scattered-stacking episode."""
+  extras = v.extras or {}
+  info = extras.get("hanoi") or extras.get("stack")
   return {c: mujoco.mj_name2id(sc.model, mujoco.mjtObj.mjOBJ_BODY, name)
-          for c, name in H.body_of_cube(v).items()}
+          for name, c in info["bodies"].items()}
 
 
 def tilt_deg(xmat: np.ndarray) -> float:
@@ -119,6 +122,7 @@ class HanoiMonitor:
   Usage: mon = HanoiMonitor(sc, v); every 30 Hz frame start (before its substeps)
   mon.frame_start(target6); every physics step after mj_step mon.step(); at the end
   mon.verdict(expected_end_state, moved_cube)."""
+  check_legality = True  # Hanoi rule; scattered stacking (stack_verify.py) turns it off
 
   def __init__(self, sc: S.EpisodeScene, v):
     self.sc, self.v = sc, v
@@ -149,6 +153,7 @@ class HanoiMonitor:
     self.foreign: dict[str, int] = {}
     self.first: dict[str, float] = {}
     self.last_jaw_contact_t = -math.inf
+    self.last_motion_t = -math.inf  # last physics step any cube moved faster than REST_SPEED
     self.pen_run = self.max_pen_run = 0
     self.min_contact_dist = 0.0
     self.min_contact_pair = ""
@@ -259,6 +264,8 @@ class HanoiMonitor:
       self.max_tilt[c] = max(self.max_tilt[c], tilt_deg(d.xmat[b]))
       vel = float(np.linalg.norm(d.qvel[self.dofadr[c]:self.dofadr[c] + 3]))
       self.max_speed[c] = max(self.max_speed[c], vel)
+      if vel >= REST_SPEED:
+        self.last_motion_t = t
       if vel > FLING_V:
         self._mark("object_fling", t)
       if robot[i]:
@@ -270,7 +277,7 @@ class HanoiMonitor:
         self.first_both_jaw[c] = {"t": round(t, 3), "xy_shift_mm": round(
           float(np.linalg.norm(p[:2] - self.rest[c][:2])) * 1e3, 2)}
       # legality: this (larger) cube resting on a smaller one it touches
-      if not both:
+      if self.check_legality and not both:
         for j, o in enumerate(self.cube_list):
           if touch[i, j] and H.is_larger(c, o) and self._bottom(c) >= self._top(o) - STACK_TOUCH_SLACK:
             self.illegal_pairs.setdefault(f"{c}_on_{o}", round(t, 3))
@@ -317,8 +324,11 @@ class HanoiMonitor:
     return all(float(np.linalg.norm(d.qvel[self.dofadr[c]:self.dofadr[c] + 3])) < REST_SPEED
                for c in self.cube_list)
 
-  def verdict(self, expected_end: str, mover: str) -> dict:
-    sc, d, m = self.sc, self.sc.data, self.sc.model
+  def physics_clauses(self, mover: str) -> tuple[list, list[str]]:
+    """Mark every L_full clause that does not depend on the task's arrangement (robot
+    collisions and limits, the moved cube's carry, the other cubes). Returns (carries of
+    the moved cube, the other cubes)."""
+    d, m = self.sc.data, self.sc.model
     b = self.base
     t_end = float(d.time)
     for key, reason in (("arm_table", "arm_table_collision"), ("self", "self_collision"),
@@ -345,6 +355,32 @@ class HanoiMonitor:
       self._mark("other_cube_moved", t_end)
     if any(self.max_tilt[c] > TIP_MAX_DEG for c in others):
       self._mark("other_cube_tipped", t_end)
+    return carries, others
+
+  def physics_stats(self) -> dict:
+    b, m = self.base, self.sc.model
+    return {
+      "max_move_mm": {c: round(x * 1e3, 2) for c, x in self.max_disp.items()},
+      "max_tilt_deg": {c: round(x, 2) for c, x in self.max_tilt.items()},
+      "max_lift_mm": {c: round(x * 1e3, 2) for c, x in self.max_lift.items()},
+      "max_speed_m_s": {c: round(x, 4) for c, x in self.max_speed.items()},
+      "first_both_jaw": self.first_both_jaw, "illegal_pairs": self.illegal_pairs,
+      "robot_link_cube_steps": self.robot_link_cube, "jaw_cube_steps": self.jaw_cube_steps,
+      "foreign_contact_kinds": self.foreign,
+      "min_robot_contact_dist_mm": round(self.min_contact_dist * 1e3, 3),
+      "min_robot_contact_pair": self.min_contact_pair,
+      "max_penetration_run_steps": self.max_pen_run,
+      "max_tracking_error_rad": round(self.max_track_err, 4),
+      "max_goal_speed_rad_s": [round(x, 4) for x in self.max_goal_speed],
+      "max_arm_torque_frac": np.round(b.max_torque_frac, 3).tolist(),
+      "max_saturated_sag_s": np.round(b.sat_max_run * m.opt.timestep, 3).tolist(),
+      "arm_table_contacts": int(b.c["arm_table"]), "self_contacts": int(b.c["self"]),
+    }
+
+  def verdict(self, expected_end: str, mover: str) -> dict:
+    d = self.sc.data
+    t_end = float(d.time)
+    carries, others = self.physics_clauses(mover)
     # the final arrangement
     pos = self.positions()
     seen = read_state(self.v, pos)
@@ -377,20 +413,6 @@ class HanoiMonitor:
         "sim_s": round(t_end, 3), "carries": carries,
         "carries_of_other_cubes": {c: len(self.carries[c]) for c in others},
         "end_xy_err_mm": xy_err, "end_z_err_mm": z_err, "read_state": seen,
-        "max_move_mm": {c: round(x * 1e3, 2) for c, x in self.max_disp.items()},
-        "max_tilt_deg": {c: round(x, 2) for c, x in self.max_tilt.items()},
-        "max_lift_mm": {c: round(x * 1e3, 2) for c, x in self.max_lift.items()},
-        "max_speed_m_s": {c: round(x, 4) for c, x in self.max_speed.items()},
-        "first_both_jaw": self.first_both_jaw, "illegal_pairs": self.illegal_pairs,
-        "robot_link_cube_steps": self.robot_link_cube, "jaw_cube_steps": self.jaw_cube_steps,
-        "foreign_contact_kinds": self.foreign,
-        "min_robot_contact_dist_mm": round(self.min_contact_dist * 1e3, 3),
-        "min_robot_contact_pair": self.min_contact_pair,
-        "max_penetration_run_steps": self.max_pen_run,
-        "max_tracking_error_rad": round(self.max_track_err, 4),
-        "max_goal_speed_rad_s": [round(x, 4) for x in self.max_goal_speed],
-        "max_arm_torque_frac": np.round(b.max_torque_frac, 3).tolist(),
-        "max_saturated_sag_s": np.round(b.sat_max_run * m.opt.timestep, 3).tolist(),
-        "arm_table_contacts": int(b.c["arm_table"]), "self_contacts": int(b.c["self"]),
+        **self.physics_stats(),
       },
     }

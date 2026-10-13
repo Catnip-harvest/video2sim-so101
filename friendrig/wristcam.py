@@ -96,7 +96,7 @@ def load(out):
 class WristModel:
   """Gripper points + the wrist camera, with a parametric correction of the camera."""
 
-  def __init__(self, n_points=80000):
+  def __init__(self, n_points=80000, flip=False):
     import mujoco
     self.pa = PointArm(n_points=n_points, bodies=GRIP_BODIES)
     m = self.pa.m
@@ -107,6 +107,12 @@ class WristModel:
     R = np.zeros(9); mujoco.mju_quat2Mat(R, q)
     self.R0 = R.reshape(3, 3)
     self.fovy0 = float(m.cam_fovy[self.cam])
+    if flip:
+      # Camera on the OTHER face of the gripper: rotate its pose 180 deg about the wrist_roll
+      # axis (gripper body z). Evidence (13 Oct overlays): in real cam_right the FIXED jaw tip is
+      # on the image right and the moving one on the left; Menagerie's wrist_cam sees the mirror.
+      Rf = _rz(np.pi)
+      self.pos0, self.R0 = Rf @ self.pos0, Rf @ self.R0
 
   def local_cam(self, c):
     """c = (dx, dy, dz, rx, ry, rz, fovy) -> camera pos/R in the camera_mount body frame."""
@@ -126,9 +132,9 @@ def default_c(wm):
   return np.r_[np.zeros(6), wm.fovy0]
 
 
-def _init():
+def _init(flip=False):
   os.environ.setdefault("OMP_NUM_THREADS", "1")
-  _G["wm"] = WristModel()
+  _G["wm"] = WristModel(flip=flip)
 
 
 def calib_from(gmap):
@@ -169,8 +175,8 @@ def cmd_fit(a):
   reals = [lowres(z["mask"][i]) for i in sub]
   chunks = np.array_split(np.arange(len(sub)), a.workers)
   t0 = time.time()
-  with mp.get_context("fork").Pool(a.workers, initializer=_init) as pool:
-    wm = WristModel(n_points=1000)
+  with mp.get_context("fork").Pool(a.workers, initializer=_init, initargs=(a.flip,)) as pool:
+    wm = WristModel(n_points=1000, flip=a.flip)
     c0 = default_c(wm)
     g0 = np.array([ArmCalib().gripper_deg_at_0, ArmCalib().gripper_deg_at_100])
 
@@ -200,8 +206,8 @@ def cmd_fit(a):
   gm = (g0 + x[7:] * SIGMA_G).tolist() if a.gripper_map else None
   rec = {"default": c0.tolist(), "fitted": c.tolist(), "names": ["dx_m", "dy_m", "dz_m", "rx_rad", "ry_rad", "rz_rad", "fovy_deg"],
          "gripper_map_deg_at_0_100": gm, "train_soft_default": s_default, "train_soft_fitted": best[1],
-         "n_frames": int(len(sub))}
-  tag = "_gmap" if a.gripper_map else ""
+         "n_frames": int(len(sub)), "flip": bool(a.flip)}
+  tag = ("_gmap" if a.gripper_map else "") + ("_flip" if a.flip else "")
   (out / f"wrist_fit{tag}.json").write_text(json.dumps(rec, indent=1))
   print(f"fitted wrist_cam {np.round(c, 4).tolist()} gripper map {gm}: train soft IoU {best[1]:.3f} "
         f"(default {s_default:.3f}) ({time.time() - t0:.0f} s)", flush=True)
@@ -219,12 +225,15 @@ def _eval_init():
   _G["r"] = mujoco.Renderer(m, 480, 640)
   _G["r"].enable_segmentation_rendering()
   _G["wm"] = WristModel(n_points=1000)
+  _G["wmf"] = WristModel(n_points=1000, flip=True)
 
 
 def _eval_job(args):
   import mujoco
-  i, state, real, c, gmap = args
-  m, d, r, wm = _G["m"], _G["d"], _G["r"], _G["wm"]
+  i, state, real, c, gmap = args[:5]
+  flip = args[5] if len(args) > 5 else False
+  m, d, r = _G["m"], _G["d"], _G["r"]
+  wm = _G["wmf"] if flip else _G["wm"]
   cam = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, "wrist_cam")
   pl, Rl, fovy = wm.local_cam(c)
   q = np.zeros(4); mujoco.mju_mat2Quat(q, Rl.flatten())
@@ -245,18 +254,19 @@ def cmd_eval(a):
   z = load(out)
   idx = np.where(z["split"] == "held_out")[0]
   wm = WristModel(n_points=1000)
-  variants = {"default": (default_c(wm), None)}
-  for tag in ("", "_gmap"):
+  variants = {"default": (default_c(wm), None, False), "default_flip": (default_c(wm), None, True)}
+  for tag in ("", "_gmap", "_flip", "_gmap_flip"):
     p = out / f"wrist_fit{tag}.json"
     if p.exists():
       f = json.loads(p.read_text())
-      variants["fitted" + tag] = (np.array(f["fitted"]), f["gripper_map_deg_at_0_100"])
+      variants["fitted" + tag] = (np.array(f["fitted"]), f["gripper_map_deg_at_0_100"], bool(f.get("flip", False)))
   rec = {}
   with mp.get_context("fork").Pool(a.workers, initializer=_eval_init) as pool:
-    for name, (c, gm) in variants.items():
-      res = pool.map(_eval_job, [(i, z["state"][i], z["mask"][i], c, gm) for i in idx], chunksize=4)
+    for name, (c, gm, fl) in variants.items():
+      res = pool.map(_eval_job, [(i, z["state"][i], z["mask"][i], c, gm, fl) for i in idx], chunksize=4)
       v = np.array([u for _, u, _ in res])
-      rec[name] = {"camera": np.asarray(c).tolist(), "gripper_map": gm, "n_frames": int(len(v)),
+      rec[name] = {"camera": np.asarray(c).tolist(), "gripper_map": gm, "flip": fl, "n_frames": int(len(v)),
+                   "frac_iou_ge_0.5": float(np.mean(v >= 0.5)),
                    "mean_iou": float(v.mean()), "median_iou": float(np.median(v))}
       print(f"held-out wrist band IoU [{name}]: mean {v.mean():.3f} median {np.median(v):.3f} n={len(v)}", flush=True)
       if a.overlays:
@@ -293,6 +303,7 @@ def main():
   sub.choices["fit"].add_argument("--n-frames", type=int, default=400)
   sub.choices["fit"].add_argument("--iters", type=int, default=60)
   sub.choices["fit"].add_argument("--gripper-map", action="store_true")
+  sub.choices["fit"].add_argument("--flip", action="store_true", help="start from the camera on the other gripper face")
   sub.choices["eval"].add_argument("--overlays", type=int, default=8)
   a = ap.parse_args()
   {"frames": cmd_frames, "fit": cmd_fit, "eval": cmd_eval}[a.cmd](a)

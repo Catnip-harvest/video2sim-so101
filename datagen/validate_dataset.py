@@ -213,7 +213,7 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
     c.check(len(meta) == n_ep, "datagen_episodes.jsonl has one row per episode")
     env = data["observation.environment_state"].astype(float)
     bad, start = [], 0
-    n_hanoi = 0
+    n_hanoi = n_stack = 0
     for e in range(min(n_ep, len(meta))):
       L = lengths[e]
       p = env[start:start + L, :3]
@@ -230,6 +230,24 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
         if not ok:
           bad.append(e)
         continue
+      k = (v.get("extras") or {}).get("stack")
+      if k:  # stacking: the moved cube starts at its start height, rises, ends on its
+        # destination cube (near that cube's start xy) or on free table space in the zone
+        from r2s import stack as K
+        n_stack += 1
+        cube, target = k["moved_cube"], k["move"][1]
+        z0, z1 = K.centre_height(k["start_state"], cube), K.centre_height(k["end_state"], cube)
+        ok = (abs(p[0, 2] - z0) < 0.004 and p[:, 2].max() - p[0, 2] >= 0.02
+              and abs(p[-1, 2] - z1) <= 0.006)
+        if target == K.TABLE:
+          ok = ok and K.in_zone(p[-1, :2])
+        else:
+          name = next(n for n, c in k["bodies"].items() if c == target)
+          dest = next(b["xy"] for b in v["extras"]["free_bodies"] if b["name"] == name)
+          ok = ok and float(np.linalg.norm(p[-1, :2] - np.asarray(dest, float))) <= 0.02
+        if not ok:
+          bad.append(e)
+        continue
       half = v["obj_size"] / 2
       bx, by = v["bin_xy"]
       lim = mj_scene.BIN_INNER_HALF - 0.005
@@ -239,7 +257,9 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
       if not ok:
         bad.append(e)
     what = ("moved cube: start height -> lift >= 2 cm -> rests on its destination stack"
-            if n_hanoi else "pick -> lift -> rest in its bin")
+            if n_hanoi else
+            "moved cube: start height -> lift >= 2 cm -> rests on its destination cube or on "
+            "free table space in the zone" if n_stack else "pick -> lift -> rest in its bin")
     c.check(not bad, f"every episode's object pose shows {what} ({bad[:5]})")
 
   stats = json.loads((root / "meta" / "stats.json").read_text())

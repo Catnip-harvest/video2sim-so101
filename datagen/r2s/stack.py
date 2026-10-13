@@ -24,8 +24,10 @@ Tests check the rule reaches the goal from all 13 states.
 
 Spawn zone: a polar sector around the shoulder-pan axis, r in ZONE_R, azimuth within
 +-ZONE_AZ_DEG. ZONE_R comes from the reachability sweep in README_stack.md: the arm must
-grasp at table height AND place on a two-cube stack (grasp site ~100-110 mm up) anywhere in
-the zone; below r = 0.14 m it cannot reach that high with any finger tilt we use.
+grasp at table height AND place on a two-cube stack anywhere in the zone, then lift its
+open jaws 20 mm clear of the finished tower (grasp site ~124 mm up). The measured reach
+ceiling at the 20 deg finger tilt is 120 mm at r = 0.14 m and 128 mm at 0.15 m, so the zone
+starts at 0.15 m.
 
 Start buckets (``sample_stack_variation``):
   scatter  50 %  all three on the table; strata: default (gap >= 20 mm between footprint
@@ -61,7 +63,7 @@ ALL_ON_TABLE = "TTT"
 PARTIAL_STATE = "TLT"
 
 # ---- spawn zone (see the reachability sweep in README_stack.md) ----------------------------
-ZONE_R = (0.14, 0.24)  # m from the shoulder-pan axis
+ZONE_R = (0.15, 0.24)  # m from the shoulder-pan axis
 ZONE_AZ_DEG = 60.0
 FOOTPRINT = {c: SIZES[c] * 0.707 for c in CUBES}  # footprint circle radius (m)
 GAP_DEFAULT = 0.020

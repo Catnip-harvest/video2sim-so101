@@ -33,10 +33,11 @@ import numpy as np
 from . import scene as S
 from . import stack as K
 from .hanoi import CUBES, SIZES
-from .hanoi_expert import (TAIL_S, HanoiExpert, MoveContext, MoveSim, cube_top, expert_move_ctx,
+from .hanoi_expert import (RELEASE_GAP, TAIL_S, HanoiExpert, MoveContext, MoveSim, cube_top,
+                           expert_move_ctx,
                            place_and_settle)
 from .paths import TaskSpec
-from .planner import PlanConfig, mouth_to_jaw_angle, plan_config_for
+from .planner import PlanConfig, azimuth, mouth_to_jaw_angle, plan_config_for
 from .rollout import EpisodeResult, _jsonable
 from .stack_verify import StackMonitor, start_state_intact
 from .variations import PAN_AXIS, Variation
@@ -52,9 +53,10 @@ CEILING_MM = {
   15.0: [88, 98, 105, 112, 118, 120, 125, 125, 128, 128, 125, 125, 122, 118, 115, 110, 102, 95],
   20.0: [90, 102, 112, 120, 128, 132, 138, 140, 140, 142, 142, 140, 140, 138, 132, 130, 122, 118],
 }
-TILT_CANDIDATES = (0.0, 5.0, 7.5, 10.0, 12.5, 15.0)
+TILT_CANDIDATES = (0.0, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0)
 REACH_MARGIN = 0.003
 HOVER_MIN = 0.015
+RETREAT_MIN = 0.020  # hanoi_expert.HanoiExpert.plan_place lifts the open jaws at least this much
 
 
 def ceiling_at(xy, tilt_deg: float) -> float:
@@ -75,21 +77,57 @@ class StackExpert(HanoiExpert):
     # 3-10 mm apart, so open only to cube + open_margin
     self.g_open = float(np.clip(mouth_to_jaw_angle(self.v.obj_size + self.open_margin), 0.3, 1.0))
     self.g_release = float(min(self.g_release, self.g_open))
+    self.base_grasp_z = self.grasp_z
+    self.base_heights = (self.cfg.preapproach_height, self.cfg.hover_height)
+    self.grasp_raise = 0.0
+
+  def _dip(self, sin_phi: float, tilt_rad: float) -> float:
+    """With tilted fingers and jaws closing at angle phi to the perpendicular, the jaw
+    line tilts by eps = asin(sin(phi) sin(tilt)) and one jaw tip dips by about
+    (mouth / 2 + 5 mm) sin(eps) (measured: 15 deg tilt, phi 41 deg -> tip on the table)."""
+    eps = float(np.arcsin(min(1.0, sin_phi * np.sin(tilt_rad))))
+    return ((self.v.obj_size + self.open_margin) / 2 + 0.005) * float(np.sin(eps))
+
+  def _plan_pick_with(self, plan, q_start, obj_pos, closing, pick_az):
+    """Raise the grasp by the jaw-tip dip so both tips keep their clearance."""
+    t = np.array([-np.sin(pick_az), np.cos(pick_az), 0.0])
+    sin_phi = float(np.sqrt(max(0.0, 1.0 - float(np.dot(closing, t)) ** 2)))
+    self.grasp_raise = self._dip(sin_phi, self.tilt)
+    self.grasp_z = self.base_grasp_z + self.grasp_raise
+    room = max(self.ceiling(obj_pos) - self.grasp_z, HOVER_MIN)
+    self.cfg.preapproach_height = min(self.base_heights[0], room)
+    self.cfg.hover_height = min(self.base_heights[1], self.cfg.preapproach_height)
+    return super()._plan_pick_with(plan, q_start, obj_pos, closing, pick_az)
 
   def _choose_tilts(self) -> None:
+    """Smallest tilt whose reach ceiling covers the move's highest site points (pick hover,
+    carry at pick, midpoint and destination), counting the grasp raise of the best face
+    pair at that tilt."""
     ctx = self.ctx
     above_centre = self.grasp_z - float(ctx.obj_pos[2])
     carry_site = self.carry_z() + above_centre
-    need_pick = max(self.grasp_z + HOVER_MIN, carry_site) + REACH_MARGIN
-    need_place = carry_site + REACH_MARGIN
+    pick_az = float(azimuth(ctx.obj_pos))
+    d = (ctx.obj_yaw - pick_az - np.pi / 2) % (np.pi / 2)
+    sin_phi = float(np.sin(min(d, np.pi / 2 - d)))  # best face pair vs perpendicular
     mid = (np.asarray(ctx.obj_pos[:2]) + np.asarray(ctx.dest_xy[:2])) / 2
-    ok = [t for t in TILT_CANDIDATES
-          if ceiling_at(ctx.obj_pos, t) >= need_pick and ceiling_at(ctx.dest_xy, t) >= need_place
-          and ceiling_at(mid, t) >= need_place]
-    first = ok[0] if ok else TILT_CANDIDATES[-1]
+    # The retreat after the release lifts the open jaws RETREAT_MIN above the release pose
+    # (reported only: with the cube released the planner re-tilts the fingers freely, and
+    # at r >= 0.15 m the 20 deg tilt reaches it; at r = 0.142 it did not, which set ZONE_R).
+    release_site = ctx.dest_surface + self.half + 0.002 + RELEASE_GAP + above_centre
+    first, need_pick, need_place, need_retreat = TILT_CANDIDATES[-1], 0.0, 0.0, 0.0
+    for t in TILT_CANDIDATES:
+      dip = self._dip(sin_phi, np.radians(t))
+      need_pick = max(self.grasp_z + dip + HOVER_MIN, carry_site + dip) + REACH_MARGIN
+      need_place = carry_site + dip + REACH_MARGIN
+      need_retreat = release_site + dip + RETREAT_MIN
+      if (ceiling_at(ctx.obj_pos, t) >= need_pick and ceiling_at(mid, t) >= need_place
+          and ceiling_at(ctx.dest_xy, t) >= need_place):
+        first = t
+        break
     self.tilt_choice = first
-    self.need_site = {"pick_mm": round(need_pick * 1e3, 1), "place_mm": round(need_place * 1e3, 1)}
-    self.tilts_deg = tuple([first] + [t for t in TILT_CANDIDATES if t > first] + [20.0])
+    self.need_site = {"pick_mm": round(need_pick * 1e3, 1), "place_mm": round(need_place * 1e3, 1),
+                      "retreat_mm": round(need_retreat * 1e3, 1)}
+    self.tilts_deg = tuple([first] + [t for t in TILT_CANDIDATES if t > first])
 
   def ceiling(self, xy) -> float:
     return ceiling_at(xy, self.tilt_choice)
@@ -100,7 +138,7 @@ class StackExpert(HanoiExpert):
 
   def move_report(self) -> dict:
     return {"tilt_choice_deg": self.tilt_choice, "need_site": self.need_site,
-            "carry_z": round(self.carry_z(), 4)}
+            "carry_z": round(self.carry_z(), 4), "grasp_raise_mm": round(self.grasp_raise * 1e3, 2)}
 
 
 # ---- context of a move, read from the simulation --------------------------------------------

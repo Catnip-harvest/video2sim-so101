@@ -17,6 +17,14 @@ legal non-goal start state, the scripted expert makes the solver's optimal next 
 Hanoi verifier (r2s/hanoi_verify.py) judges it and only L_full episodes are kept. Every
 episode has the same instruction (hanoi.INSTRUCTION); its start state, move and expected
 end state are in meta/datagen_episodes.jsonl ("hanoi" and variation.extras.hanoi).
+
+--stack switches the task to scattered-cube stacking, one move per episode (r2s/stack.py): a
+start drawn from the start buckets (all scattered / partial tower / stable wrong stack /
+noise-injected expert), the scripted expert makes the rule's next move
+(r2s/stack_expert.py), the stacking verifier (r2s/stack_verify.py) judges it and only L_full
+episodes are kept. Constant instruction (stack.INSTRUCTION); the bucket, stratum, symbolic
+start state, move and expected end state are in meta/datagen_episodes.jsonl ("stack") and
+variation.extras.stack.
 """
 
 from __future__ import annotations
@@ -80,10 +88,12 @@ def _init_worker(cfg: dict) -> None:
 def _attempt(i: int) -> dict:
   from r2s.hanoi_expert import run_hanoi_episode
   from r2s.rollout import run_episode
+  from r2s.stack_expert import run_stack_episode
   cfg, spec = _W["cfg"], _W["spec"]
   try:
     v = variation_for(spec, cfg, i)
-    runner = run_hanoi_episode if cfg.get("hanoi") else run_episode
+    runner = (run_stack_episode if cfg.get("stack") else
+              run_hanoi_episode if cfg.get("hanoi") else run_episode)
     res = runner(spec, v, pinch_width=cfg["pinch_width"],
                  render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
@@ -120,9 +130,12 @@ def _attempt(i: int) -> dict:
 
 
 def variation_for(spec, cfg: dict, i: int):
-  """Attempt i's Variation: the single-cube one, (--multitask) the three-cube one, or
-  (--hanoi) one Tower-of-Hanoi move."""
+  """Attempt i's Variation: the single-cube one, (--multitask) the three-cube one,
+  (--hanoi) one Tower-of-Hanoi move, or (--stack) one scattered-stacking move."""
   from r2s.variations import sample_multitask_variation, sample_variation
+  if cfg.get("stack"):
+    from r2s.stack import sample_stack_variation
+    return sample_stack_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
   if cfg.get("hanoi"):
     from r2s.hanoi import sample_hanoi_variation
     return sample_hanoi_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
@@ -133,9 +146,10 @@ def variation_for(spec, cfg: dict, i: int):
 
 
 def episode_task(row: dict, default: str) -> str:
-  """Per-episode task string: the multitask / Hanoi instruction if there is one, else --task."""
+  """Per-episode task string: the multitask / Hanoi / stacking instruction if there is one,
+  else --task."""
   extras = (row.get("variation") or {}).get("extras", {})
-  mt = extras.get("multitask") or extras.get("hanoi")
+  mt = extras.get("multitask") or extras.get("hanoi") or extras.get("stack")
   return mt["instruction"] if mt else default
 
 
@@ -145,6 +159,24 @@ def hanoi_meta(row: dict) -> dict | None:
   if not h:
     return None
   return {k: h[k] for k in ("start_state", "move", "end_state", "moved_cube", "spots")}
+
+
+STACK_META_KEYS = ("bucket", "base_bucket", "stratum", "start_state", "start_desc", "move",
+                   "moved_cube", "end_state", "free_spot", "gaps_mm", "action_noise")
+
+
+def stack_meta(row: dict) -> dict | None:
+  """Start bucket, stratum, symbolic start state, move and expected end state of a stacking
+  episode (None otherwise)."""
+  h = (row.get("variation") or {}).get("extras", {}).get("stack")
+  if not h:
+    return None
+  return {k: h.get(k) for k in STACK_META_KEYS}
+
+
+def stack_bucket_of(row: dict) -> str:
+  m = stack_meta(row) or {}
+  return str(m.get("bucket", "?")) + (f"/{m['stratum']}" if m.get("stratum") else "")
 
 
 def target_of(row: dict) -> str | None:
@@ -283,6 +315,23 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
       hanoi_meta(rows[i])["start_state"] for i in acc_ids).items()))
     rep["hanoi_L_task_of_attempts"] = sum(bool(r["stats"].get("hanoi", {}).get("L_task"))
                                           for r in considered)
+  if cfg.get("stack"):
+    def table(key, rows_):
+      att = Counter(key(r) for r in rows_)
+      acc = Counter(key(r) for r in rows_ if r["accepted"])
+      return {k: {"attempts": att[k], "accepted": acc[k], "rate": round(acc[k] / max(att[k], 1), 4)}
+              for k in sorted(att)}
+    rep["stack_acceptance_by_bucket"] = table(stack_bucket_of, considered)
+    rep["stack_acceptance_by_start_state"] = table(
+      lambda r: (stack_meta(r) or {}).get("start_state", "?"), considered)
+    rep["stack_episodes_per_bucket"] = dict(sorted(Counter(
+      stack_bucket_of(rows[i]) for i in acc_ids).items()))
+    rep["stack_episodes_per_move"] = dict(sorted(Counter(
+      "{}>{}".format(*stack_meta(rows[i])["move"]) for i in acc_ids).items()))
+    rep["stack_L_task_of_attempts"] = sum(bool(r["stats"].get("stack", {}).get("L_task"))
+                                          for r in considered)
+    rep["stack_L_strict_of_accepted"] = sum(bool(rows[i]["stats"].get("stack", {}).get("L_strict"))
+                                            for i in acc_ids)
   if cfg.get("multitask"):
     rep["episodes_per_target"] = dict(Counter(target_of(rows[i]) for i in acc_ids))
     rep["episodes_per_task_string"] = dict(Counter(episode_task(rows[i], "") for i in acc_ids))
@@ -333,7 +382,8 @@ def finalize(out: Path, cfg: dict, rows: dict[int, dict], wall_s: float, workers
       meta={"attempt": i, "seed": meta["variation"]["seed"], "variation": meta["variation"],
             "verification": meta["stats"], "plan": meta["plan"],
             "phase_starts": _phase_starts(z["phases"]),
-            **({"hanoi": hanoi_meta(meta)} if hanoi_meta(meta) else {})}))
+            **({"hanoi": hanoi_meta(meta)} if hanoi_meta(meta) else {}),
+            **({"stack": stack_meta(meta)} if stack_meta(meta) else {})}))
   root = Path(export["dataset_dir"]) if export.get("dataset_dir") else out / "lerobot"
   if root.exists():
     shutil.rmtree(root)
@@ -390,6 +440,9 @@ def main() -> None:
   ap.add_argument("--hanoi", action="store_true",
                   help="Tower of Hanoi: one optimal move per episode from a random legal "
                        "start state (r2s/hanoi.py); constant instruction")
+  ap.add_argument("--stack", action="store_true",
+                  help="scattered-cube stacking: one move per episode toward a big-medium-small "
+                       "tower, starts from the buckets in r2s/stack.py; constant instruction")
   ap.add_argument("--per-target", type=int, default=None,
                   help="multitask: accepted episodes per target colour (default n/3)")
   ap.add_argument("--servo-hold", default="foh", choices=["foh", "zoh"],
@@ -401,10 +454,13 @@ def main() -> None:
   ap.add_argument("--no-dataset", action="store_true",
                   help="log + acceptance report only (no LeRobot dataset)")
   args = ap.parse_args()
-  if args.hanoi and args.multitask:
-    ap.error("--hanoi and --multitask are separate tasks")
+  if args.hanoi + args.multitask + args.stack > 1:
+    ap.error("--hanoi, --multitask and --stack are separate tasks")
   if args.hanoi and args.task == DEFAULT_TASK:
     from r2s.hanoi import INSTRUCTION
+    args.task = INSTRUCTION
+  if args.stack and args.task == DEFAULT_TASK:
+    from r2s.stack import INSTRUCTION
     args.task = INSTRUCTION
 
   out = Path(args.out).resolve()
@@ -422,15 +478,16 @@ def main() -> None:
     "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
     "multitask": args.multitask, "mt_layout": args.mt_layout,
     "per_target": (args.per_target or -(-args.n // 3)) if args.multitask else None,
-    "hanoi": args.hanoi,
+    "hanoi": args.hanoi, "stack": args.stack,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
     defaults = {"render_quality": "full", "variety": False, "record_hz": 30, "multitask": False,
-                "mt_layout": "default", "hanoi": False}
+                "mt_layout": "default", "hanoi": False, "stack": False}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality", "variety", "record_hz", "multitask", "mt_layout", "hanoi"):
+              "render_quality", "variety", "record_hz", "multitask", "mt_layout", "hanoi",
+              "stack"):
       if old.get(k, defaults.get(k)) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:

@@ -210,7 +210,7 @@ CAM_SIGMA = np.array([0.03, 0.03, 0.04, 0.10, 0.06, 0.06, 4.0])
 
 def _init_worker(out):
   os.environ.setdefault("OMP_NUM_THREADS", "1")
-  _G["pa"] = PointArm(n_points=40000)
+  _G["pa"] = PointArm(n_points=int(os.environ.get("FR_POINTS", "20000")))
   _G["out"] = out
 
 
@@ -370,11 +370,15 @@ def cmd_fit_sessions(a):
            [ce[str(e)]["camera"] for e in s["train_episodes"]]
     p0s.append(np.median(np.array(good), axis=0))
     items.append((z["state"][ix], [lowres(z["arm"][i], z["ignore"][i]) for i in ix]))
-  offsets = np.zeros(5)
+  offsets = np.array(a.init_offsets, float) if a.init_offsets else np.zeros(5)
+  centre = offsets.copy()
   t0 = time.time()
   with mp.get_context("fork").Pool(a.workers, initializer=_init_worker, initargs=(str(out),)) as pool:
-    res = pool.map(_session_job, [(st, re, p0, a.seed + k, a.iters) for k, ((st, re), p0) in enumerate(zip(items, p0s))],
-                   chunksize=1)
+    if a.init_cams:  # start from an earlier session fit instead of the per-episode medians
+      prev = json.loads((out / a.init_cams).read_text())["sessions"]
+      p0s = [np.array([s_["camera"][k] for k in CAM_NAMES]) for s_ in prev]
+    res = pool.map(_session_job_off, [(st, re, p0, a.seed + k, a.iters, offsets.tolist())
+                                      for k, ((st, re), p0) in enumerate(zip(items, p0s))], chunksize=1)
     cams = [np.asarray(r[0]) for r in res]
     print(f"session cameras (no offsets): soft IoU {[round(r[1], 3) for r in res]} ({time.time() - t0:.0f} s)", flush=True)
     log = []
@@ -384,7 +388,7 @@ def cmd_fit_sessions(a):
         # (a) shared per-joint offsets with cameras frozen (CMA-ES, sigma 3 deg, bound +-OFF_BOUND)
         es = cma.CMAEvolutionStrategy(offsets, 3.0, {"popsize": 10, "seed": a.seed + 100 + rnd, "verbose": -9,
                                                      "maxiter": a.offset_iters,
-                                                     "bounds": [[-a.bound] * 5, [a.bound] * 5]})
+                                                     "bounds": [(centre - a.bound).tolist(), (centre + a.bound).tolist()]})
         sub_items = []
         for (st, re), p in zip(items, cams):
           k = min(len(st), a.offset_frames)
@@ -412,7 +416,7 @@ def cmd_fit_sessions(a):
         log.append({"round": rnd, "offsets": offsets.tolist(), "offset_score": best[1],
                     "session_scores": [r[1] for r in res]})
         print(f"round {rnd}: cameras refit, soft IoU {[round(r[1], 3) for r in res]}", flush=True)
-  tag = "_offsets" if a.offsets else ""
+  tag = ("_offsets" if a.offsets else "") + (f"_{a.tag}" if a.tag else "")
   rec = {"offsets_deg_added_to_default": offsets.tolist(), "default_calib": asdict(ArmCalib()), "log": log,
          "sessions": [{**s, "camera": dict(zip(CAM_NAMES, c.tolist())), "n_fit_frames": len(it[0])}
                       for s, c, it in zip(ss, cams, items)]}
@@ -540,6 +544,10 @@ def main():
   f.add_argument("--bound", type=float, default=20.0)
   f.add_argument("--offset-iters", type=int, default=40)
   f.add_argument("--offset-frames", type=int, default=60)
+  f.add_argument("--init-offsets", type=float, nargs=5, default=None,
+                 help="start (and centre of the +-bound box) for the offsets, deg added to the defaults")
+  f.add_argument("--init-cams", default=None, help="session camera JSON to start from")
+  f.add_argument("--tag", default="")
   e = sub.choices["eval"]
   e.add_argument("--cams", default="cam_sessions.json")
   e.add_argument("--tag", default="")

@@ -1,0 +1,102 @@
+{
+  "format": "so101_pickplace_task_spec/v2",
+  "frame": "robot_base",
+  "units": "metres, seconds, radians",
+  "source": {
+    "kind": "friend_bowl_profile",
+    "video": null,
+    "notes": "Scene profile for the friend's SO-101 rig (MinhDuk/final_dataset_annotated). Object size, bowl, start positions, cameras and table texture come from the profile JSON (friendrig/profile.py, built on the server from measurements); the ranges here only seed the generic sampler and are overwritten per episode. Object trajectory = the default synthetic lift-carry-lower path."
+  },
+  "mount_height": 0.0,
+  "object": {
+    "kind": "box",
+    "size": 0.04,
+    "mass": 0.03,
+    "start_pose_range": {
+      "x": [
+        0.17,
+        0.27
+      ],
+      "y": [
+        -0.1,
+        0.06
+      ],
+      "yaw": [
+        -3.14159,
+        3.14159
+      ]
+    }
+  },
+  "place_target": {
+    "kind": "bin",
+    "pos_range": {
+      "x": [
+        0.1,
+        0.2
+      ],
+      "y": [
+        0.15,
+        0.21
+      ]
+    },
+    "min_separation": 0.12,
+    "success_xy_margin": 0.005
+  },
+  "approach": {
+    "direction": [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    "weight": 0.25,
+    "gate_std": 0.06
+  },
+  "object_trajectory": {
+    "waypoints": [
+      [
+        0.22,
+        -0.02,
+        0.015,
+        0.0
+      ],
+      [
+        0.22,
+        -0.02,
+        0.015,
+        3.5
+      ],
+      [
+        0.22,
+        -0.02,
+        0.09,
+        5.0
+      ],
+      [
+        0.15,
+        0.18,
+        0.09,
+        8.0
+      ],
+      [
+        0.15,
+        0.18,
+        0.021,
+        9.0
+      ],
+      [
+        0.15,
+        0.18,
+        0.021,
+        11.0
+      ]
+    ],
+    "grasp_time": 3.5,
+    "release_time": 9.5,
+    "robot_time_scale": 1.0,
+    "smoothing_window_s": 0.3,
+    "resample_dt": 0.1,
+    "weight": 4.0,
+    "std": 0.05,
+    "time_slack_s": 1.0
+  }
+}

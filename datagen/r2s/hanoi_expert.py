@@ -192,6 +192,7 @@ class HanoiExpert(Expert):
         info["tilt_deg"] = tilt_deg
         info["closing_vs_tangential_deg"] = round(math.degrees(math.acos(min(1.0, abs(
           float(closing @ tangential))))), 1)
+        info["approach_side_used"] = False  # side_offset is 0: straight down from above
         return plan, info
     raise last_err
 

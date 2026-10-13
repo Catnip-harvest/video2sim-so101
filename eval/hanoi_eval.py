@@ -17,8 +17,9 @@ instruction is always hanoi.INSTRUCTION. Judging is the Hanoi verifier
 (a) move. Scene = sample_hanoi_variation(seed, id) (the datagen draw; eval seed 1000 vs.
     training seed 1 by default, so no overlap). Policy mode stops early once a move is
     done (some cube now rests on a different spot, the arrangement is readable and legal,
-    every cube at rest, no jaw contact for 0.5 s, for 1 s in a row), when a cube falls off
-    the table, or at --max-sim-s. Expert mode runs the scripted expert natively (exactly
+    every cube and the arm at rest, no jaw contact for 0.5 s, for 1 s in a row; the still
+    arm means the next puzzle move-episode starts from rest), when a cube falls off the
+    table, or at --max-sim-s. Expert mode runs the scripted expert natively (exactly
     as datagen does), then replays its actions at 10 Hz through the harness, like
     sim_eval's pick-and-place expert mode. Each row: L_task / L_full / reasons for the
     expected next state, plus the observed end state.
@@ -49,10 +50,12 @@ from r2s import scene as S
 from r2s.hanoi_expert import (TAIL_S, MoveSim, expert_move, place_and_settle,
                               run_hanoi_episode, run_hanoi_puzzle_expert)
 from r2s.hanoi_verify import HanoiMonitor, read_state
+from r2s.paths import rm
 from r2s.planner import ARM_VMAX, JAW_VMAX, plan_config_for
 from r2s.render import _Encoder
 
 DONE_STEPS = 10  # 10 Hz steps in a row with the move done = 1 s
+ARM_STILL = 0.05  # rad/s: every arm and jaw joint slower than this counts as still
 FELL_Z = -0.02
 
 
@@ -70,6 +73,8 @@ class HanoiHarness:
     self.enc = _Encoder(video, (2 * size[0], size[1]), "h264", fps=10) if video else None
     sc, d = self.sc, self.sc.data
     self.lo, self.hi = sc.joint_lo, sc.joint_hi
+    jids = [mujoco.mj_name2id(sc.model, mujoco.mjtObj.mjOBJ_JOINT, n) for n in rm.ALL_JOINTS]
+    self.arm_dofs = np.array([sc.model.jnt_dofadr[j] for j in jids])
     self.cap = np.array([ARM_VMAX] * 5 + [JAW_VMAX]) * E.RATE_FRAC / S.FPS
     self.last_goal = np.r_[d.ctrl[sc.arm_act], d.ctrl[sc.g_act]].astype(float)
     self.last_frame = self.last_goal.copy()
@@ -144,8 +149,13 @@ class HanoiHarness:
     self.tm["physics"] += time.perf_counter() - t0
 
   def move_done(self, start_state: str) -> bool:
-    mon, d = self.mon, self.sc.data
+    """A move has been made and everything has come to rest: some cube is on a new spot,
+    the arrangement is readable and legal, no cube moves, no jaw has touched a cube for
+    0.5 s, and the arm itself is still (so the next move-episode starts from rest)."""
+    mon, d, sc = self.mon, self.sc.data, self.sc
     if any(mon.carrying.values()) or d.time - mon.last_jaw_contact_t <= 0.5 or not mon.at_rest():
+      return False
+    if float(np.max(np.abs(d.qvel[self.arm_dofs]))) > ARM_STILL:
       return False
     seen = read_state(self.v, self.positions())
     return seen["state"] is not None and seen["heights_ok"] and seen["state"] != start_state

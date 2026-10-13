@@ -175,7 +175,9 @@ $PY -I generate.py --spec ... --n 50 --workers 8 --no-render --servo-hold zoh --
 - `--servo-hold foh|zoh`;
 - `--max-attempts` (default 4n+50);
 - `--finalize-only` (rewrite the dataset from staged episodes);
-- `--no-dataset` (log and acceptance table only).
+- `--no-dataset` (log and acceptance table only);
+- `--hanoi` (Tower of Hanoi, one optimal move per episode from a random legal start state;
+  see `README_hanoi.md` at the repo root).
 
 **Resumable**: re-running the same command skips every attempt already in
 `attempts.jsonl` and redoes any accepted attempt whose staged files are missing.
@@ -350,8 +352,9 @@ plot_trajectories.py  human cube path vs generated cube paths (works without ren
 contact_sheet.py      phase-by-episode PNG grid and a tiled montage mp4 (needs --render)
 side_by_side.py       human clip | robot episode, aligned on grasp and release (needs --render)
 run_droplet.sh        full rendered run on Linux (EGL, OSMesa fallback)
-r2s/                  paths, variations, scene, planner, rollout (verifier), render, lerobot_io
-tests/test_datagen.py
+r2s/                  paths, variations, scene, planner, rollout (verifier), render, lerobot_io;
+                      hanoi (rules, solver, draw), hanoi_expert, hanoi_verify (README_hanoi.md)
+tests/test_datagen.py, tests/test_hanoi.py
 runs/                 local 50-episode results (attempt logs, acceptance tables, datasets, figures)
 ```
 

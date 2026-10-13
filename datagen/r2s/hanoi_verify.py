@@ -123,6 +123,8 @@ class HanoiMonitor:
   mon.frame_start(target6); every physics step after mj_step mon.step(); at the end
   mon.verdict(expected_end_state, moved_cube)."""
   check_legality = True  # Hanoi rule; scattered stacking (stack_verify.py) turns it off
+  min_carry_s = 0.0  # stacking ignores shorter "carries" (stack_verify.StackMonitor)
+  release_touchdown_rad = None  # stacking: table touch allowed once the jaw goal opened this much
 
   def __init__(self, sc: S.EpisodeScene, v):
     self.sc, self.v = sc, v
@@ -293,12 +295,21 @@ class HanoiMonitor:
         if both:
           cur["steps"] += 1
           self.carry_min_goal[c] = min(self.carry_min_goal[c], goal)
-          if table[i] or robot[i]:  # another cube under it is allowed: that is placing
+          # another cube under it is allowed: that is placing; so is the table when the
+          # monitor allows a touchdown during a slow release (jaws opening, cube not sliding)
+          touchdown = (self.release_touchdown_rad is not None and table[i] and vel < REST_SPEED
+                       and goal >= self.carry_min_goal[c] + self.release_touchdown_rad)
+          if (table[i] and not touchdown) or robot[i]:
             cur["foreign_steps"] += 1
             self._mark("foreign_contact_while_carried", t)
             for k, flag in (("table", table[i]), ("arm", robot[i])):
               if flag:
                 self.foreign[k] = self.foreign.get(k, 0) + 1
+        elif cur["steps"] < self.min_carry_s * S.FPS * S.SUBSTEPS:
+          # both jaws touched a falling cube for a moment while opening: not a grasp
+          self.cur[c] = None
+          self.carrying[c] = False
+          self.carry_min_goal[c] = math.inf
         else:  # the carry ended this step
           opening = goal >= self.carry_min_goal[c] + OPENING_RAD
           surf, surf_name = self._surface_under(c)

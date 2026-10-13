@@ -57,6 +57,15 @@ Tower of Hanoi (eval/hanoi_eval.py; demos from a SCRIPTED EXPERT, not a human vi
                   states reached. Both run in --mode policy or --mode expert; the
                   instruction is always the Hanoi one.
 
+Scattered-cube stacking (eval/stack_eval.py; demos from a SCRIPTED EXPERT):
+  --stack move    one move per episode from the datagen start buckets, scored by the
+                  stacking verifier against the rule's next state (L_task / L_full /
+                  L_strict), reported per start bucket and stratum;
+  --stack tower   the whole tower in one continuous scene from a full scatter (even ids) or
+                  a stable wrong stack (odd ids): up to --max-moves (default 8)
+                  move-episodes; solved / moves used / advancement / failure reasons.
+                  Both run in --mode policy or --mode expert; constant instruction.
+
 Writes OUT/episodes.jsonl (one row per episode), OUT/actions/*.npz (the 10 Hz actions and
 observed states, so any episode can be replayed/re-judged on CPU), OUT/summary.json (success rate with a 95 %
 Wilson CI, throughput, clipping, inference latency) and OUT/videos/*.mp4 for --videos N.
@@ -467,6 +476,9 @@ def _init(cfg: dict, worker: bool = False) -> None:
     if cfg.get("hanoi", "none") != "none":
       from r2s.hanoi import INSTRUCTION
       _G["runner"].set_task(INSTRUCTION)
+    if cfg.get("stack", "none") != "none":
+      from r2s.stack import INSTRUCTION as STACK_INSTRUCTION
+      _G["runner"].set_task(STACK_INSTRUCTION)
     _G["load_s"] = round(time.perf_counter() - t0, 1)
 
 
@@ -562,6 +574,9 @@ def _episode(item) -> dict:
   if cfg.get("hanoi", "none") != "none":
     import hanoi_eval
     return hanoi_eval.episode(item, cfg, spec, _G)
+  if cfg.get("stack", "none") != "none":
+    import stack_eval
+    return stack_eval.episode(item, cfg, spec, _G)
   idx, colour = item if isinstance(item, (tuple, list)) else (item, None)
   mode, idx = cfg["mode"], int(idx)
   tag = f"{idx:05d}" if colour is None else f"{idx:05d}_{colour}"
@@ -749,6 +764,9 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
   if cfg.get("hanoi", "none") != "none":
     import hanoi_eval
     s["hanoi"] = hanoi_eval.summarize(rows, cfg)
+  if cfg.get("stack", "none") != "none":
+    import stack_eval
+    s["stack"] = stack_eval.summarize(rows, cfg)
   return s
 
 
@@ -804,10 +822,16 @@ def main() -> None:
   ap.add_argument("--hanoi", default="none", choices=("none", "move", "puzzle"),
                   help="Tower of Hanoi (eval/hanoi_eval.py): move = one move per episode from a "
                        "random legal start state; puzzle = whole puzzle from AAA")
+  ap.add_argument("--stack", default="none", choices=("none", "move", "tower"),
+                  help="scattered-cube stacking (eval/stack_eval.py): move = one move per "
+                       "episode from the datagen start buckets; tower = whole tower from a "
+                       "scatter (even ids) or a wrong stack (odd ids)")
   ap.add_argument("--move-max-s", type=float, default=40.0,
-                  help="--hanoi puzzle, policy mode: time limit per move-episode (sim s)")
-  ap.add_argument("--max-moves", type=int, default=12,
-                  help="--hanoi puzzle: stop after this many move-episodes")
+                  help="--hanoi puzzle / --stack tower, policy mode: time limit per "
+                       "move-episode (sim s)")
+  ap.add_argument("--max-moves", type=int, default=None,
+                  help="--hanoi puzzle (default 12) / --stack tower (default 8): stop after "
+                       "this many move-episodes")
   ap.add_argument("--fresh", action="store_true", help="ignore an existing episodes.jsonl in --out")
   ap.add_argument("--out", required=True)
   a = ap.parse_args()
@@ -819,6 +843,11 @@ def main() -> None:
     ap.error("--multitask and --ood are separate evals")
   if a.hanoi != "none" and (a.multitask != "none" or a.ood != "none" or a.mode == "dataset-replay"):
     ap.error("--hanoi runs alone, in --mode policy or expert")
+  if a.stack != "none" and (a.hanoi != "none" or a.multitask != "none" or a.ood != "none"
+                            or a.mode == "dataset-replay"):
+    ap.error("--stack runs alone, in --mode policy or expert")
+  if a.max_moves is None:
+    a.max_moves = 8 if a.stack != "none" else 12
   if a.mode == "policy" and not a.checkpoint:
     ap.error("--checkpoint is required in policy mode")
   out = Path(a.out)
@@ -835,7 +864,7 @@ def main() -> None:
          "obs_codec": a.obs_codec == "h264", "smooth": a.smooth, "ema_alpha": a.ema_alpha,
          "replan_every": a.replan_every, "render_obs_every": a.render_obs_every, "ood": a.ood,
          "multitask": a.multitask, "hanoi": a.hanoi, "move_max_s": a.move_max_s,
-         "max_moves": a.max_moves}
+         "max_moves": a.max_moves, "stack": a.stack}
   # Resumable: rows already in OUT/episodes.jsonl are kept and their ids skipped, provided
   # the run-defining settings are the same.
   rows = []
@@ -844,7 +873,7 @@ def main() -> None:
     old = json.loads((out / "config.json").read_text()) if (out / "config.json").exists() else {}
     for k in ("mode", "checkpoint", "seed", "spec", "max_sim_s", "interp", "quality", "tail_s",
               "obs_codec", "smooth", "ema_alpha", "replan_every", "ood", "multitask", "hanoi",
-              "move_max_s", "max_moves"):
+              "move_max_s", "max_moves", "stack"):
       if k in old and old[k] != cfg[k]:
         sys.exit(f"{out} holds a run with {k}={old[k]!r}, now {cfg[k]!r}: use another --out or --fresh")
     for line in ep_log.read_text().splitlines():

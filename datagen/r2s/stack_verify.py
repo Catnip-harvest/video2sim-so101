@@ -6,10 +6,10 @@ both-jaw carries, drops, release height, other cubes moved / tipped, robot colli
 limits, torque, speed caps, penetration) with the Hanoi-only "larger on smaller" rule
 switched off (wrong stacks are legal start states here) and its own arrangement check.
 
-Reading the arrangement (``read_stack_state``): cube c sits ON cube X if c's lowest point
-is within 6 mm of X's highest point and c's centre lies over X's top face; it sits on the
-TABLE if its lowest point is within 6 mm of the table. Anything else (tilted against
-something, in the air) is unreadable.
+Reading the arrangement (``read_stack_state``): a cube must lie flat (tilted <= 10 deg);
+cube c sits ON cube X if c's lowest point is within 6 mm of X's highest point and c's centre
+lies over X's top face; it sits on the TABLE if its lowest point is within 6 mm of the
+table. Anything else (leaning against something, in the air) is unreadable.
 
 Verdict for one move (``StackMonitor.verdict``):
   L_task   the arrangement equals the expected next state, and
@@ -41,6 +41,7 @@ from .hanoi_verify import (END_WINDOW_S, FULL_CLAUSES as _HANOI_FULL, STYLE_CLAU
                            tilt_deg)
 
 READ_Z = 0.006
+READ_TILT_DEG = 10.0
 XY_TASK = 0.010
 XY_STRICT = 0.005
 Z_TOL = 0.004
@@ -76,7 +77,9 @@ def read_stack_state(poses: dict[str, tuple[np.ndarray, np.ndarray]]) -> dict:
       over = abs(local[0]) <= half[o] and abs(local[1]) <= half[o]
       if over and abs(bot[c] - top[o]) <= READ_Z:
         best = o
-    if best is not None:
+    if tilt_deg(poses[c][1]) > READ_TILT_DEG:
+      sup[c] = "?"
+    elif best is not None:
       sup[c] = best
     elif abs(bot[c]) <= READ_Z:
       sup[c] = K.TABLE
@@ -90,6 +93,13 @@ def read_stack_state(poses: dict[str, tuple[np.ndarray, np.ndarray]]) -> dict:
 
 class StackMonitor(HanoiMonitor):
   check_legality = False
+  # The stacking expert opens its jaws slowly at the release; a pad can brush the cube
+  # again for a step or two as it settles. Shorter "carries" than this are not grasps.
+  min_carry_s = 0.1
+  # ... and a cube put on the table touches down (1.5 mm) while both pads still touch it.
+  # That is placing, not dragging, if the jaw goal has opened >= 0.05 rad and the cube is
+  # not sliding (< 2 cm/s); any other table contact while carried still fails.
+  release_touchdown_rad = 0.05
 
   def poses(self) -> dict:
     d = self.sc.data

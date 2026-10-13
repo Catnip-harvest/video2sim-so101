@@ -152,6 +152,7 @@ class HanoiExpert(Expert):
   """
   carry_clearance = CARRY_CLEARANCE  # subclasses (stack_expert.py) override these
   tilts_deg = HANOI_TILTS_DEG
+  release_gap = RELEASE_GAP
 
   def __init__(self, sc: S.EpisodeScene, spec: TaskSpec, v: Variation, cfg: PlanConfig,
                ctx: MoveContext, pinch_width: float | None = None):
@@ -254,7 +255,7 @@ class HanoiExpert(Expert):
     cfg, ctx = self.cfg, self.ctx
     self.off_local = R_grip.T @ (np.asarray(obj_pos) - np.asarray(site_pos))
     below = float(np.abs(np.asarray(R_obj)[2, :]).sum() * self.half)  # centre to lowest corner
-    release_z = ctx.dest_surface + below + RELEASE_GAP
+    release_z = ctx.dest_surface + below + self.release_gap
     obj_pos = np.asarray(obj_pos, float)
     dx, dy = ctx.dest_xy
     top = np.array([dx, dy, max(float(obj_pos[2]), self.carry_z())])

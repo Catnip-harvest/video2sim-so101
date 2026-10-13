@@ -3,8 +3,8 @@
 One move = pick a clear cube and put it on another cube (medium on large, small on medium)
 or on free table space in the zone (taking a wrongly stacked cube off). It is the Hanoi
 expert (hanoi_expert.HanoiExpert: straight-down approach, per-cube grasp height, vertical
-lift, arc carry, slow final lowering, release 3 mm above the landing surface, retreat, ready
-pose) with three changes that scattered cubes at ANY yaw need:
+lift, arc carry, slow final lowering, release, retreat, ready pose) with four changes that
+scattered cubes at ANY yaw need:
 
   finger tilt per move   A 5-joint arm tilts its fingers only in its own vertical plane, and
                          a cube is level in the jaws only if the jaws close perpendicular to
@@ -17,11 +17,19 @@ pose) with three changes that scattered cubes at ANY yaw need:
                          the cube by asin(sin(face angle) * sin(tilt)), at most 5.3 deg at
                          7.5 deg tilt and 10.6 deg at 15 deg; the place stage lowers by the
                          measured lowest corner, so the cube lands corner-first and settles flat.
+                         Tilted fingers closing off-perpendicular also tip the jaw line, so
+                         one jaw tip dips by (mouth / 2 + 5 mm) * sin(eps); the grasp is
+                         raised by that much (else that tip hits the table, seen at 15 deg).
+                         The tilt choice counts this raise; tilts go up to 20 deg.
   carry clearance 12 mm  (Hanoi: 20 mm) above the tallest other cube, to stay inside reach on
                          the final move (small cube onto a two-cube stack, top 80 mm).
   smaller jaw opening    mouth = cube + 25 mm (Hanoi: + 40 mm) so the open jaws fit between
                          cubes only 3-10 mm apart; the collision-checked planner still tries
                          every face pair and both jaw sides.
+  gentle release         lowered to 1.5 mm (Hanoi: 3 mm) above the landing surface, jaws
+                         opened at 0.3 rad/s until the pads clear the cube, then at full
+                         speed. A full-speed release let the squeezed fixed jaw spring the cube
+                         sideways by up to 13 mm; with this, placements are within 5 mm.
 """
 
 from __future__ import annotations
@@ -33,7 +41,7 @@ import numpy as np
 from . import scene as S
 from . import stack as K
 from .hanoi import CUBES, SIZES
-from .hanoi_expert import (RELEASE_GAP, TAIL_S, HanoiExpert, MoveContext, MoveSim, cube_top,
+from .hanoi_expert import (TAIL_S, HanoiExpert, MoveContext, MoveSim, cube_top,
                            expert_move_ctx,
                            place_and_settle)
 from .paths import TaskSpec
@@ -56,6 +64,8 @@ CEILING_MM = {
 TILT_CANDIDATES = (0.0, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0)
 REACH_MARGIN = 0.003
 HOVER_MIN = 0.015
+RELEASE_SLOW = 0.3  # rad/s jaw opening until the pads are RELEASE_CLEAR clear of the cube
+RELEASE_CLEAR = 0.004
 RETREAT_MIN = 0.020  # hanoi_expert.HanoiExpert.plan_place lifts the open jaws at least this much
 
 
@@ -69,6 +79,7 @@ def ceiling_at(xy, tilt_deg: float) -> float:
 
 class StackExpert(HanoiExpert):
   carry_clearance = 0.012
+  release_gap = 0.0015  # Hanoi: 3 mm; lower = less room for the cube to skid when it lands
   open_margin = 0.025  # jaw mouth = cube + 25 mm
 
   def __init__(self, *a, **k):
@@ -113,7 +124,7 @@ class StackExpert(HanoiExpert):
     # The retreat after the release lifts the open jaws RETREAT_MIN above the release pose
     # (reported only: with the cube released the planner re-tilts the fingers freely, and
     # at r >= 0.15 m the 20 deg tilt reaches it; at r = 0.142 it did not, which set ZONE_R).
-    release_site = ctx.dest_surface + self.half + 0.002 + RELEASE_GAP + above_centre
+    release_site = ctx.dest_surface + self.half + 0.002 + self.release_gap + above_centre
     first, need_pick, need_place, need_retreat = TILT_CANDIDATES[-1], 0.0, 0.0, 0.0
     for t in TILT_CANDIDATES:
       dip = self._dip(sin_phi, np.radians(t))
@@ -131,6 +142,20 @@ class StackExpert(HanoiExpert):
 
   def ceiling(self, xy) -> float:
     return ceiling_at(xy, self.tilt_choice)
+
+  def jaw_move(self, plan, g1: float, label: str) -> None:
+    """Release slowly until the jaws are clear of the cube faces, then at full speed. A
+    full-speed release let the squeezed (soft-contact) fixed jaw spring the cube sideways
+    by up to 13 mm along the closing axis as the moving jaw left (seen: M on L, 12.5 mm)."""
+    q0, g0 = plan.last()
+    if label != "release" or g1 <= g0:
+      return super().jaw_move(plan, g1, label)
+    g_free = min(g1, mouth_to_jaw_angle(self.v.obj_size + RELEASE_CLEAR))
+    if g_free > g0:
+      n = max(1, int(np.ceil((g_free - g0) / RELEASE_SLOW * S.FPS)))
+      plan.add(np.repeat(q0[None], n, 0), g0 + (g_free - g0) * np.arange(1, n + 1) / n, label)
+    if g1 > max(g0, g_free):
+      super().jaw_move(plan, g1, label)
 
   def _closings(self, normals: list, tilt_deg: float) -> list:
     # normals arrive sorted: the face pair closest to perpendicular-to-the-arm first

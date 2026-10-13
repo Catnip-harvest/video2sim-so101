@@ -45,8 +45,11 @@ ORTHO_Y = (-0.45, 0.45)
 
 def exclusion(img: np.ndarray) -> np.ndarray:
   bad = cv2.dilate(dark_mask(img, 90).astype(np.uint8), np.ones((31, 31), np.uint8))
+  from friendrig.objects import bowl_mask
   ob = (green_mask(img) | white_mask(img)).astype(np.uint8)
   bad |= cv2.dilate(ob, np.ones((25, 25), np.uint8))
+  # the bowl's shaded outer wall is not "white": use the grown bowl outline, widened
+  bad |= cv2.dilate(bowl_mask(img).astype(np.uint8), np.ones((41, 41), np.uint8))
   return bad.astype(bool)
 
 

@@ -157,6 +157,7 @@ def customise_spec(spec, v, prof) -> None:
   q = np.zeros(4)
   mujoco.mju_mat2Quat(q, R.flatten())
   cam = spec.camera("front")
+  cam.alt.type = mujoco.mjtOrientation.mjORIENTATION_QUAT  # the engine made it with xyaxes
   cam.pos, cam.quat, cam.fovy = pos.tolist(), q.tolist(), float(p[6])
 
 
@@ -174,8 +175,16 @@ def customise_robot(robot, prof) -> None:
     mujoco.mju_quat2Mat(R0, np.asarray(cam.quat, float))
     R0 = R0.reshape(3, 3)
     pos0 = np.asarray(cam.pos, float)
-    if wc.get("flip"):  # camera on the other gripper face (friendrig/wristcam.py)
-      pos0, R0 = _rz(np.pi) @ pos0, _rz(np.pi) @ R0
+    if wc.get("flip"):
+      # The friend's wrist camera sits on the OTHER face of the gripper (friendrig/wristcam.py):
+      # turn the whole camera_mount body (camera, board, lens, mount mesh) 180 deg about the
+      # wrist_roll axis. Its two collision boxes would then overlap the moving jaw's sweep, and the
+      # real housing's shape is not measured, so they are made non-colliding (visual only).
+      mount = robot.body("camera_mount")
+      mount.quat = [0.0, 0.0, 0.0, 1.0]
+      for g in ("camera_box1", "camera_box2"):
+        robot.geom(g).contype = 0
+        robot.geom(g).conaffinity = 0
     R = R0 @ _rx(wc["drot"][0]) @ _ry(wc["drot"][1]) @ _rz(wc["drot"][2])
     q = np.zeros(4)
     mujoco.mju_mat2Quat(q, R.flatten())

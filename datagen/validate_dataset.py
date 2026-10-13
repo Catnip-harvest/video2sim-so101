@@ -213,11 +213,23 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
     c.check(len(meta) == n_ep, "datagen_episodes.jsonl has one row per episode")
     env = data["observation.environment_state"].astype(float)
     bad, start = [], 0
+    n_hanoi = 0
     for e in range(min(n_ep, len(meta))):
       L = lengths[e]
       p = env[start:start + L, :3]
       start += L
       v = meta[e]["variation"]
+      h = (v.get("extras") or {}).get("hanoi")
+      if h:  # Hanoi: the moved cube starts at its stack height, rises, ends on its new stack
+        from r2s import hanoi as H
+        n_hanoi += 1
+        cube, dest = h["moved_cube"], np.asarray(h["spots"][h["move"][1]], float)
+        z0, z1 = H.centre_height(h["start_state"], cube), H.centre_height(h["end_state"], cube)
+        ok = (abs(p[0, 2] - z0) < 0.003 and p[:, 2].max() - p[0, 2] >= 0.02
+              and np.linalg.norm(p[-1, :2] - dest) <= 0.02 and abs(p[-1, 2] - z1) <= 0.006)
+        if not ok:
+          bad.append(e)
+        continue
       half = v["obj_size"] / 2
       bx, by = v["bin_xy"]
       lim = mj_scene.BIN_INNER_HALF - 0.005
@@ -226,7 +238,9 @@ def validate(root: Path, decode_videos: bool = True) -> Checker:
             and abs(p[-1, 2] - (mj_scene.bin_floor_top() + half)) < 0.004)
       if not ok:
         bad.append(e)
-    c.check(not bad, f"every episode's object pose shows pick -> lift -> rest in its bin ({bad[:5]})")
+    what = ("moved cube: start height -> lift >= 2 cm -> rests on its destination stack"
+            if n_hanoi else "pick -> lift -> rest in its bin")
+    c.check(not bad, f"every episode's object pose shows {what} ({bad[:5]})")
 
   stats = json.loads((root / "meta" / "stats.json").read_text())
   for k in feats:

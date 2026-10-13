@@ -69,7 +69,9 @@ def main():
   out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
   D = FriendData()
   spec = load_task_spec(a.spec)
-  cal = ArmCalib(offset_deg=list(np.asarray(ArmCalib().offset_deg) + np.asarray(prof.get("arm_offsets_deg", [0] * 5))))
+  gm = prof.get("gripper_map_deg_at_0_100") or [ArmCalib().gripper_deg_at_0, ArmCalib().gripper_deg_at_100]
+  cal = ArmCalib(offset_deg=list(np.asarray(ArmCalib().offset_deg) + np.asarray(prof.get("arm_offsets_deg", [0] * 5))),
+                 gripper_deg_at_0=float(gm[0]), gripper_deg_at_100=float(gm[1]))
   sess_of = {e: s for s in prof["sessions"] for e in s.get("episodes", [])}
   summary = []
   for ep in a.episodes:

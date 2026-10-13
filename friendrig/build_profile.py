@@ -53,11 +53,12 @@ def main():
   if a.wrist:
     wf = json.loads(Path(a.wrist).read_text())
     c = wf["fitted"]
-    wrist = {"dpos": c[:3], "drot": c[3:6], "fovy": c[6], "source": a.wrist}
+    wrist = {"dpos": c[:3], "drot": c[3:6], "fovy": c[6], "flip": bool(wf.get("flip", False)), "source": a.wrist}
   dims = ob["dims_m"]
   prof = {"name": "friend_bowl", "sessions": sessions,
           "ortho_extent": {"x": list(pl["ortho_x_m"]), "y": list(pl["ortho_y_m"])},
           "wrist_cam": wrist, "arm_offsets_deg": cs.get("offsets_deg_added_to_default", [0] * 5),
+          "gripper_map_deg_at_0_100": (wf.get("gripper_map_deg_at_0_100") if a.wrist else None),
           "cube": {"size": dims["cube"], "rgb": g_rgb},
           "bowl": {"rim_radius": dims["rim_radius"], "height": dims["height"], "base_radius": dims["base_radius"],
                    "rgb": w_rgb},
@@ -65,6 +66,14 @@ def main():
           "arm_rgb": [0.05, 0.05, 0.06], "composite": not a.no_composite, "look_dr": bool(a.look_dr),
           "sources": {"cams": a.cams, "objects": "objects.json", "plates": "plates/plates.json"}}
   Path(a.profile).write_text(json.dumps(prof, indent=1))
+  # ArmCalib for the dataset export (sim radians <-> friend's lerobot degrees), same numbers
+  from calib.so101_units import ArmCalib
+  base = ArmCalib()
+  gm = prof["gripper_map_deg_at_0_100"] or [base.gripper_deg_at_0, base.gripper_deg_at_100]
+  cal = ArmCalib(offset_deg=list(np.asarray(base.offset_deg) + np.asarray(prof["arm_offsets_deg"])),
+                 gripper_deg_at_0=float(gm[0]), gripper_deg_at_100=float(gm[1]),
+                 source=f"friendrig stage 1 ({a.cams}) + stage 2 ({a.wrist}); fitted on TRAIN episodes")
+  cal.save(Path(a.profile).with_name("friend_arm_calib.json"))
   print(json.dumps({k: prof[k] for k in ("cube", "bowl", "arm_offsets_deg", "wrist_cam")}, indent=1))
 
 

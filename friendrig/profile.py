@@ -172,10 +172,14 @@ def customise_robot(robot, prof) -> None:
     cam = robot.camera("wrist_cam")
     R0 = np.zeros(9)
     mujoco.mju_quat2Mat(R0, np.asarray(cam.quat, float))
-    R = R0.reshape(3, 3) @ _rx(wc["drot"][0]) @ _ry(wc["drot"][1]) @ _rz(wc["drot"][2])
+    R0 = R0.reshape(3, 3)
+    pos0 = np.asarray(cam.pos, float)
+    if wc.get("flip"):  # camera on the other gripper face (friendrig/wristcam.py)
+      pos0, R0 = _rz(np.pi) @ pos0, _rz(np.pi) @ R0
+    R = R0 @ _rx(wc["drot"][0]) @ _ry(wc["drot"][1]) @ _rz(wc["drot"][2])
     q = np.zeros(4)
     mujoco.mju_mat2Quat(q, R.flatten())
-    cam.pos = (np.asarray(cam.pos) + np.asarray(wc["dpos"])).tolist()
+    cam.pos = (pos0 + np.asarray(wc["dpos"])).tolist()
     cam.quat = q.tolist()
     cam.fovy = float(wc["fovy"])
 

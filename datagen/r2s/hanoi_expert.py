@@ -5,9 +5,9 @@ the table, or on top of a larger cube). The expert reuses the pick-and-place pla
 (planner.Expert: IK, collision-checked waypoints, speed caps, finger re-tilt) and changes
 only what stacking needs:
 
-  grasp height   the grasp site goes GRASP_ABOVE_CENTRE above the cube's centre, so the
-                 jaw pads (which reach 12 mm below to 2 mm above the site) straddle the
-                 centre of mass and a tall cube does not pivot in the jaws; but never so low
+  grasp height   the grasp site goes GRASP_ABOVE_CENTRE (5-12 mm, per cube) above the
+                 cube's centre, so the jaw pads (which reach 12 mm below to 2 mm above the
+                 site) hold it at or just above the centre of mass; but never so low
                  that the jaw tips come within 2 mm of whatever the cube stands on (the
                  table or the larger cube below it)
   approach       straight down from above the cube (no sideways offset towards the human's
@@ -50,7 +50,12 @@ from .planner import (REACH_R, REACH_Z, Expert, Plan, PlanConfig, PlanError, _li
 from .rollout import EpisodeResult, Recorder, _jsonable, _run_frames, _speed_ok
 from .variations import HOME_Q, PAN_AXIS, Variation
 
-GRASP_ABOVE_CENTRE = 0.005
+# Grasp-site height above the cube's centre, per cube. The jaw pads reach 12 mm below to
+# 2 mm above the site, so 5-12 mm puts the contact patch on or just above the centre of
+# mass. Measured (8 large-cube moves each): at 0 / 5 mm the upper moving jaw (mesh1)
+# bites the large cube's top edge, 2.1-3.0 mm deep (penetration failure 8/8, 4/8); at
+# 10-15 mm 0/8 fail. Medium and small cubes pass at 0-10 mm.
+GRASP_ABOVE_CENTRE = {"L": 0.012, "M": 0.008, "S": 0.005}
 CARRY_CLEARANCE = 0.020
 RELEASE_GAP = 0.003
 SLOW_ZONE = 0.020
@@ -153,7 +158,7 @@ class HanoiExpert(Expert):
     self.ctx = ctx
     # Collision checks see every cube where it is NOW (not at the model's initial pose).
     self._coll.qpos[:] = sc.data.qpos
-    self.grasp_z = max(float(ctx.obj_pos[2]) + GRASP_ABOVE_CENTRE,
+    self.grasp_z = max(float(ctx.obj_pos[2]) + GRASP_ABOVE_CENTRE[ctx.cube],
                        ctx.surface_below + rm.JAW_TIP_BELOW_SITE + cfg.tip_clearance)
     room = max(reach_ceiling(ctx.obj_pos) - self.grasp_z, 0.015)
     self.cfg.preapproach_height = min(cfg.preapproach_height, room)

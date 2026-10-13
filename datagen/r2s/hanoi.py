@@ -27,7 +27,7 @@ Scene numbers (robot base frame, metres; PAN_AXIS is the shoulder-pan axis):
               SPOT_AZIMUTH_DEG (A, B, C), so all three are equally reachable; each spot
               centre jitters inside a 1 cm disc per episode; centre-to-centre >= 9 cm is
               enforced (nominal spacing ~12 cm)
-  cubes       edges 45 / 35 / 25 mm, wood-like density 400-700 kg/m^3, friction 0.4-1.0,
+  cubes       edges 45 / 35 / 25 mm, masses 40-60 / 25-40 / 15-25 g, friction 0.4-1.0,
               faces within +-10 deg of square to the arm (the spot's radial direction, as
               a person would set them down; the expert grasps the face pair closest to
               tangential, see hanoi_expert.py), each cube's centre within 3 mm of its
@@ -76,7 +76,13 @@ CUBE_XY_JITTER = 0.003  # a cube's centre vs. its spot (or the cube it stands on
 CUBE_YAW_JITTER = math.radians(10.0)  # cube faces vs. the spot's radial direction
 SPOT_MARK_RADIUS = (0.033, 0.027)  # dark ring outer radius, light centre radius
 CUBE_RGB = {"L": (0.12, 0.25, 0.90), "M": (0.12, 0.70, 0.18), "S": (0.85, 0.12, 0.10)}
-DENSITY = (400.0, 700.0)  # kg/m^3: wood / PLA
+# Cube masses (kg). The pick-and-place cube's band is 15-41 g (spec 25 g x 0.61-1.65), and
+# the grasp gate was validated there. Lighter cubes are a problem in MuJoCo's soft contact
+# model: under the same jaw squeeze a contact sinks deeper the lighter the body (8 g wooden
+# 25 mm cubes sank 2.1-2.6 mm into the jaw tips and failed the verifier's 2 mm
+# penetration rule). So the masses stay in that band, scaled up for the larger cubes
+# (dense toy blocks / printed PLA).
+MASS_RANGE = {"L": (0.040, 0.060), "M": (0.025, 0.040), "S": (0.015, 0.025)}
 START_GAP = 0.0004  # m per stack level: cubes are dropped into place from just above
 
 
@@ -252,7 +258,7 @@ def sample_hanoi_variation(spec: TaskSpec, base_seed: int, attempt: int, variety
         "size": size, "xy": [float(xy[0]), float(xy[1])],
         "z": centre_height(state, cube) + START_GAP * (level + 1),
         "yaw": spot_azimuth(xy) + float(rng.uniform(-CUBE_YAW_JITTER, CUBE_YAW_JITTER)),
-        "mass": float(rng.uniform(*DENSITY) * size ** 3),
+        "mass": float(rng.uniform(*MASS_RANGE[cube])),
         "friction": float(rng.uniform(0.4, 1.0)),
       }
   for cube in CUBES:  # colours drawn last, in a fixed order (render only)

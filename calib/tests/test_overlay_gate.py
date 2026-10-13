@@ -3,9 +3,14 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "datagen"))
 from calib.overlay_gate import cam_frame, iou, real_arm_mask  # noqa: E402
+from r2s.render import gl_available  # noqa: E402
+
+_GL_OK, _GL_MSG = gl_available()
 
 
 def test_camera_looks_at_lookat():
@@ -34,6 +39,7 @@ def test_iou():
   assert np.isclose(iou(a, b), 25 / 75)
 
 
+@pytest.mark.skipif(not _GL_OK, reason=f"needs an OpenGL backend (MUJOCO_GL=egl/osmesa): {_GL_MSG}")
 def test_sim_mask_renders_arm():
   from calib.overlay_gate import SimArm
   sim = SimArm(160, 120)

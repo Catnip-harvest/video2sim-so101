@@ -359,9 +359,14 @@ def place_and_settle(sc: S.EpisodeScene, v: Variation, settle_s: float = SETTLE_
 
 
 def expert_move(sim: MoveSim, spec: TaskSpec, v: Variation, state: str, move: tuple[str, str],
-                cfg: PlanConfig, pinch_width: float | None = None) -> tuple[dict, list[str]]:
+                cfg: PlanConfig, pinch_width: float | None = None,
+                start_target: np.ndarray | None = None) -> tuple[dict, list[str]]:
   """Plan and simulate one move from the current simulated state. Returns (plan info,
-  planner failure reasons); raises nothing (a PlanError becomes a reason)."""
+  planner failure reasons); raises nothing (a PlanError becomes a reason).
+
+  The plan starts from the last servo target this MoveSim sent; before its first frame,
+  from ``start_target`` (6 values: the target the servos currently hold, e.g. when
+  planning on a copy of an eval harness's scene) or else the episode's start pose."""
   sc, d = sim.sc, sim.sc.data
   ctx = move_context(sc, v, sim.ids, state, move)
   view = scene_for_cube(sc, sim.ids, ctx.cube)
@@ -390,6 +395,8 @@ def expert_move(sim: MoveSim, spec: TaskSpec, v: Variation, state: str, move: tu
   try:
     if sim.rec.action:
       q0, g0 = np.asarray(sim.rec.action[-1][:5], float), float(sim.rec.action[-1][5])
+    elif start_target is not None:
+      q0, g0 = np.asarray(start_target[:5], float), float(start_target[5])
     else:
       q0, g0 = hanoi_start_pose(v), float(v.gripper_start)
     holder = {}

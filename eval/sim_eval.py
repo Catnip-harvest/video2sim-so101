@@ -49,6 +49,14 @@ P3-A-lite (named cube among three; demos from a SCRIPTED EXPERT, not a human vid
   summary.json gets "named_cube". pass / L_task / L_full stay the verifier's verdict on the
   planner's cube (body "object"); for swap runs naming another cube use named_cube instead.
 
+Tower of Hanoi (eval/hanoi_eval.py; demos from a SCRIPTED EXPERT, not a human video):
+  --hanoi move    one move per episode from a random legal non-goal start state, scored by
+                  the Hanoi verifier against the solver's next state (L_task / L_full);
+  --hanoi puzzle  the whole puzzle from "AAA" in one continuous scene: up to --max-moves
+                  move-episodes of at most --move-max-s each; solved / moves used / illegal
+                  states reached. Both run in --mode policy or --mode expert; the
+                  instruction is always the Hanoi one.
+
 Writes OUT/episodes.jsonl (one row per episode), OUT/actions/*.npz (the 10 Hz actions and
 observed states, so any episode can be replayed/re-judged on CPU), OUT/summary.json (success rate with a 95 %
 Wilson CI, throughput, clipping, inference latency) and OUT/videos/*.mp4 for --videos N.
@@ -64,8 +72,9 @@ import sys
 import time
 from pathlib import Path
 
-os.environ["MUJOCO_GL"] = "osmesa"  # EGL fails on this droplet (container default is egl)
-os.environ["PYOPENGL_PLATFORM"] = "osmesa"
+if sys.platform.startswith("linux"):  # Windows has no osmesa: mujoco refuses to import with it
+  os.environ["MUJOCO_GL"] = "osmesa"  # EGL fails on this droplet (container default is egl)
+  os.environ["PYOPENGL_PLATFORM"] = "osmesa"
 os.environ.setdefault("LP_NUM_THREADS", "1")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
@@ -455,6 +464,9 @@ def _init(cfg: dict, worker: bool = False) -> None:
     _G["runner"] = PolicyRunner(cfg["checkpoint"], device=cfg["device"], task=TASK)
     if cfg.get("multitask", "none") != "none":
       _G["runner"].set_task("")  # set per episode from the scene's instruction
+    if cfg.get("hanoi", "none") != "none":
+      from r2s.hanoi import INSTRUCTION
+      _G["runner"].set_task(INSTRUCTION)
     _G["load_s"] = round(time.perf_counter() - t0, 1)
 
 
@@ -547,6 +559,9 @@ def _run_key(item) -> str:
 
 def _episode(item) -> dict:
   cfg, spec = _G["cfg"], _G["spec"]
+  if cfg.get("hanoi", "none") != "none":
+    import hanoi_eval
+    return hanoi_eval.episode(item, cfg, spec, _G)
   idx, colour = item if isinstance(item, (tuple, list)) else (item, None)
   mode, idx = cfg["mode"], int(idx)
   tag = f"{idx:05d}" if colour is None else f"{idx:05d}_{colour}"
@@ -731,6 +746,9 @@ def summarize(rows: list[dict], cfg: dict, wall_s: float, load_s: float | None) 
   if cfg.get("multitask", "none") != "none":
     s["multitask"] = cfg["multitask"]
     s["named_cube"] = MT.summarize_named(rows)
+  if cfg.get("hanoi", "none") != "none":
+    import hanoi_eval
+    s["hanoi"] = hanoi_eval.summarize(rows, cfg)
   return s
 
 
@@ -783,6 +801,13 @@ def main() -> None:
                   help="P3-A three-cube eval row (eval/multitask.py); use --seed 5000")
   ap.add_argument("--instruction-swap", action="store_true",
                   help="= --multitask swap: each scene id once per named colour (red/green/blue)")
+  ap.add_argument("--hanoi", default="none", choices=("none", "move", "puzzle"),
+                  help="Tower of Hanoi (eval/hanoi_eval.py): move = one move per episode from a "
+                       "random legal start state; puzzle = whole puzzle from AAA")
+  ap.add_argument("--move-max-s", type=float, default=40.0,
+                  help="--hanoi puzzle, policy mode: time limit per move-episode (sim s)")
+  ap.add_argument("--max-moves", type=int, default=12,
+                  help="--hanoi puzzle: stop after this many move-episodes")
   ap.add_argument("--fresh", action="store_true", help="ignore an existing episodes.jsonl in --out")
   ap.add_argument("--out", required=True)
   a = ap.parse_args()
@@ -792,6 +817,8 @@ def main() -> None:
     a.multitask = "swap"
   if a.multitask != "none" and a.ood != "none":
     ap.error("--multitask and --ood are separate evals")
+  if a.hanoi != "none" and (a.multitask != "none" or a.ood != "none" or a.mode == "dataset-replay"):
+    ap.error("--hanoi runs alone, in --mode policy or expert")
   if a.mode == "policy" and not a.checkpoint:
     ap.error("--checkpoint is required in policy mode")
   out = Path(a.out)
@@ -807,7 +834,8 @@ def main() -> None:
          "workers": a.workers, "check_images": a.check_images, "ids": ids,
          "obs_codec": a.obs_codec == "h264", "smooth": a.smooth, "ema_alpha": a.ema_alpha,
          "replan_every": a.replan_every, "render_obs_every": a.render_obs_every, "ood": a.ood,
-         "multitask": a.multitask}
+         "multitask": a.multitask, "hanoi": a.hanoi, "move_max_s": a.move_max_s,
+         "max_moves": a.max_moves}
   # Resumable: rows already in OUT/episodes.jsonl are kept and their ids skipped, provided
   # the run-defining settings are the same.
   rows = []
@@ -815,7 +843,8 @@ def main() -> None:
   if ep_log.exists() and not a.fresh:
     old = json.loads((out / "config.json").read_text()) if (out / "config.json").exists() else {}
     for k in ("mode", "checkpoint", "seed", "spec", "max_sim_s", "interp", "quality", "tail_s",
-              "obs_codec", "smooth", "ema_alpha", "replan_every", "ood", "multitask"):
+              "obs_codec", "smooth", "ema_alpha", "replan_every", "ood", "multitask", "hanoi",
+              "move_max_s", "max_moves"):
       if k in old and old[k] != cfg[k]:
         sys.exit(f"{out} holds a run with {k}={old[k]!r}, now {cfg[k]!r}: use another --out or --fresh")
     for line in ep_log.read_text().splitlines():

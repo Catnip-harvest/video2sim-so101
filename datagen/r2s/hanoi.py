@@ -275,7 +275,7 @@ def sample_hanoi_variation(spec: TaskSpec, base_seed: int, attempt: int, variety
     bodies.append({"name": f"extra_{k}", "shape": "box", "size": c["size"], "height": c["size"],
                    "mass": c["mass"], "friction": c["friction"], "rgb": c["rgb"],
                    "xy": c["xy"], "yaw": c["yaw"], "z": c["z"]})
-  marks = [{"xy": spots[s], "radius": SPOT_MARK_RADIUS} for s in SPOTS]
+  marks = [{"xy": spots[s], "radius": list(SPOT_MARK_RADIUS)} for s in SPOTS]
   v.extras = {**v.extras, "free_bodies": bodies, "object_z": m["z"], "no_bin": True,
               "spot_marks": marks,
               "hanoi": {"spots": spots, "start_state": state, "move": list(move),

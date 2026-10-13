@@ -78,6 +78,9 @@ def _attempt(i: int) -> dict:
   cfg, spec = _W["cfg"], _W["spec"]
   try:
     v = sample_variation(spec, cfg["seed"], i, variety=cfg.get("variety", False))
+    if cfg.get("profile"):  # e.g. friend_bowl: measured scene (friendrig/profile.py)
+      from friendrig.profile import apply_to_variation
+      v = apply_to_variation(v, cfg["profile"])
     res = run_episode(spec, v, pinch_width=cfg["pinch_width"],
                       render_size=tuple(cfg["size"]), servo_foh=cfg["servo_hold"] == "foh")
   except Exception as e:  # noqa: BLE001  (logged as a rejection, never silently dropped)
@@ -304,6 +307,9 @@ def main() -> None:
   ap.add_argument("--dataset-dir", default=None, help="write the dataset here (default <out>/lerobot)")
   ap.add_argument("--no-wrist", action="store_true", help="front camera only")
   ap.add_argument("--codec", default="h264", choices=["h264", "av1"])
+  ap.add_argument("--profile", default=None,
+                  help="scene profile JSON (friend_bowl: friendrig/profile.py): measured cameras, "
+                       "object sizes, bowl, placement distribution, table texture")
   ap.add_argument("--task", default=DEFAULT_TASK)
   ap.add_argument("--servo-hold", default="foh", choices=["foh", "zoh"],
                   help="foh: servo goal ramps over each 33 ms frame (default); "
@@ -328,13 +334,14 @@ def main() -> None:
     "pinch_width": pinch_width_from_spec(Path(spec_path)), "no_dataset": args.no_dataset,
     "servo_hold": args.servo_hold, "render_quality": args.render_quality,
     "variety": args.variety, "record_hz": args.record_hz, "keep_rejects": args.keep_rejects,
+    "profile": str(Path(args.profile).resolve()) if args.profile else None,
   }
   run_json = out / "run.json"
   if run_json.exists():
     old = json.loads(run_json.read_text())
     defaults = {"render_quality": "full", "variety": False, "record_hz": 30}
     for k in ("spec", "seed", "size", "codec", "video_keys", "pinch_width", "servo_hold",
-              "render_quality", "variety", "record_hz"):
+              "render_quality", "variety", "record_hz", "profile"):
       if old.get(k, defaults.get(k)) != cfg[k]:
         sys.exit(f"{out} was started with {k}={old.get(k)!r}, now {cfg[k]!r}; use a new --out")
     if old.get("render") and not cfg["render"]:

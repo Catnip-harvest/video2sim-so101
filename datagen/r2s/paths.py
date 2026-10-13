@@ -12,6 +12,8 @@ DEMO_ROOT = MANIP_ROOT / "demo"
 
 if str(TASK_ROOT) not in sys.path:
   sys.path.insert(0, str(TASK_ROOT))
+if str(MANIP_ROOT) not in sys.path:  # repo root: friendrig (scene profiles)
+  sys.path.append(str(MANIP_ROOT))
 
 from so101_pickplace import ik, mj_scene  # noqa: E402,F401
 from so101_pickplace import robot_model as rm  # noqa: E402,F401

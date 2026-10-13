@@ -21,6 +21,8 @@ from .scene import FPS, build_episode_scene
 from .variations import Variation
 
 CAMERAS = {"observation.images.front": "front", "observation.images.wrist": "wrist_cam"}
+# friend_bowl profile: cam_head is composited over the real empty-table plate when the profile says
+# so (friendrig/plate.py); plain MuJoCo otherwise.
 CODECS = {"h264": "libx264", "av1": "libsvtav1"}
 # OSMesa (CPU) cost per image, measured on the droplet with LP_NUM_THREADS=1 at 256x256:
 # full 3.7/s, shadow 12/s, fast 39/s. Shadows + floor reflection + 4x MSAA dominate.
@@ -99,6 +101,17 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
   w, h = size
   r = mujoco.Renderer(m, h, w)
   encs = {k: _Encoder(Path(out_paths[k]), size, codec, fps=fps) for k in video_keys}
+  plate, table_id = None, -1
+  fr = (v.extras or {}).get("friend")
+  if fr:
+    from friendrig import profile as fp
+    prof = fp.load_profile(fr["profile"])
+    if fr.get("composite", prof.get("composite", False)):
+      import cv2
+      plate = fp.plate_image(fp.session_of(prof, fr["session"])["plate"])
+      if plate.shape[1] != w or plate.shape[0] != h:
+        plate = cv2.resize(plate, (w, h), interpolation=cv2.INTER_AREA)
+      table_id = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, "table")
   stats = {k: {"sum": np.zeros(3), "sumsq": np.zeros(3), "min": np.ones(3),
                "max": np.zeros(3), "n": 0} for k in video_keys}
   try:
@@ -110,6 +123,12 @@ def render_episode(v: Variation, qpos_full: np.ndarray, video_keys: list[str],
         for f, val in flags.items():
           r.scene.flags[f] = val
         img = r.render()
+        if plate is not None and CAMERAS[k] == "front":
+          r.enable_segmentation_rendering()
+          seg = r.render()
+          r.disable_segmentation_rendering()
+          fg = (seg[..., 1] == int(mujoco.mjtObj.mjOBJ_GEOM)) & (seg[..., 0] != table_id)
+          img = np.where(fg[..., None], img, plate)
         encs[k].add(img)
         if i % stats_every == 0:
           x = img.reshape(-1, 3).astype(np.float64) / 255.0

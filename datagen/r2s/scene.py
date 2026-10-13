@@ -69,6 +69,11 @@ def _cam_xyaxes(pos: np.ndarray, lookat: np.ndarray) -> list[float]:
 
 def build_episode_scene(v: Variation, object_kind: str = "box",
                         render_size: tuple[int, int] = (256, 256)) -> EpisodeScene:
+  prof = None
+  if (v.extras or {}).get("friend"):  # friend_bowl profile (friendrig/profile.py)
+    from friendrig import profile as fp
+    prof = fp.load_profile(v.extras["friend"]["profile"])
+    fp.apply_bin_constants(prof)
   spec = mujoco.MjSpec()
   spec.option.timestep = TIMESTEP
   spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
@@ -102,6 +107,8 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
                           size=(0.8, 0.8, 0.01), material="table_mat",
                           contype=rm.WORLD_CONTYPE, conaffinity=rm.WORLD_CONAFFINITY)
   robot = rm.so101_spec()
+  if prof:
+    fp.customise_robot(robot, prof)
   robot.option.timestep = TIMESTEP  # avoid the attach-conflict warning; parent wins anyway
   rm.add_position_actuators(robot, arm_effort_limit=v.arm_effort,
                             gripper_effort_limit=v.gripper_effort)
@@ -115,7 +122,7 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
   obj.body("object").pos = (v.obj_xy[0], v.obj_xy[1], half + 0.0005)
   obj.body("object").quat = (np.cos(v.obj_yaw / 2), 0.0, 0.0, np.sin(v.obj_yaw / 2))
   spec.attach(obj, prefix="", frame=spec.worldbody.add_frame())
-  b = mj_scene.bin_spec()
+  b = fp.bowl_spec(prof) if prof else mj_scene.bin_spec()
   for g in b.geoms:
     g.rgba = (*v.bin_rgb, 1.0)
   spec.attach(b, prefix="", frame=spec.worldbody.add_frame(pos=(v.bin_xy[0], v.bin_xy[1], 0.0)))
@@ -123,6 +130,8 @@ def build_episode_scene(v: Variation, object_kind: str = "box",
   if extra:  # distractors: free joint + plain contacts, added after everything else
     add_free_bodies(spec, extra)
 
+  if prof:
+    fp.customise_spec(spec, v, prof)
   model = spec.compile()
   data = mujoco.MjData(model)
 

@@ -220,10 +220,11 @@ def apply_to_variation(v, profile_path: str):
   r_max = float(prof.get("expert_reach_max_m", 0.28))
 
   def xy_ok(c, b):
-    # the generic reach band, tightened to r_max: the scripted expert cannot lift a 40 mm cube over a
-    # 60 mm bowl rim from further out (13 Oct smoke run: 3/20 ik_unreachable, all at r ~0.29 m)
-    rc = np.linalg.norm(np.asarray(c) - PAN_AXIS); rb_ = np.linalg.norm(np.asarray(b) - PAN_AXIS)
-    return (_in_reach(np.asarray(c)) and _in_reach(np.asarray(b)) and rc <= r_max and rb_ <= r_max
+    # the generic reach band (0.08-0.30 m from the pan axis) for both, and the CUBE capped at r_max: the
+    # scripted expert cannot lift a 40 mm cube to bowl-rim height from further out (13 Oct smoke run:
+    # 3/20 ik_unreachable, all cubes at r ~0.29 m)
+    rc = np.linalg.norm(np.asarray(c) - PAN_AXIS)
+    return (_in_reach(np.asarray(c)) and _in_reach(np.asarray(b)) and rc <= r_max
             and np.linalg.norm(np.asarray(c) - b) >= sep)
 
   d = sample_scene(prof, rng, xy_ok)

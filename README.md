@@ -1,6 +1,6 @@
 # video2sim-so101
 
-**One short video of a hand moving a cube becomes 1,000 physics-verified robot demos in simulation, which then train three robot policies on a single AMD MI300X (ROCm).** The robot is the LeRobot SO-101 arm. **Every number and robot clip on this page is from simulation (MuJoCo), not a real robot.**
+**One short video of a hand moving a cube becomes 1,000 physics-verified robot demos in simulation, which then train three robot policies on a single AMD MI300X (ROCm).** The robot is the LeRobot SO-101 arm. **Every robot clip on this page is from simulation (MuJoCo).** Every number is from simulation too, except the [real-data section](#real-data-follow-up-1314-oct-2026), which is an offline test on recorded real-arm episodes.
 
 <p align="center">
   <img src="docs/media/pipeline_reel.gif" width="720" alt="Pipeline reel. 1: a 3-second stock clip of a hand moving a sugar cube. 2: the cube's path extracted from that clip. 3: one physics-checked demo of the SO-101 arm in simulation. 4: the fine-tuned MolmoAct2 placing the cube in the tray in a simulated scene it never saw. End card: 68.5% strict success on 200 unseen simulated scenes.">
@@ -42,13 +42,36 @@ Two pass levels: **L_task** = the cube was carried by both jaws and ends release
 
 Full tables, failure breakdowns and every verdict: **[docs/RESULTS.md](docs/RESULTS.md)**.
 
+## Real-data follow-up (13–14 Oct 2026)
+
+A second MI300X run took the same tools to a real SO-101 that a collaborator teleoperated. **His recordings and the fine-tuned model are private and are not in this repo;** only the numbers and the rig-rebuilding code are.
+
+**1. MolmoAct2 fine-tuned on real episodes.** `allenai/MolmoAct2-SO100_101`, LoRA rank 64 on the vision-language part with the action expert fully trained, 10,000 steps at batch 16 on 474 real episodes (30 Hz, 1 s action chunks, overhead and wrist cameras). 50 episodes were held out. At 545 points in them, the model saw the recorded cameras and joint angles and predicted the next second of actions; the table is the average absolute error against what the operator actually commanded.
+
+| | Fine-tuned | Base, no fine-tune | Arm holds still |
+|---|---|---|---|
+| 5 joints (degrees) | **4.30** | 15.24 | 6.68 |
+| Gripper (0–100 scale) | **4.56** | 10.87 | 9.75 |
+| First action of each chunk (degrees) | **1.21** | 11.24 | — |
+
+- The error was 4.54° at 2,500 steps and 4.34° at 5,000; the curve is flat after that.
+- Most of the gain over a still arm is in shoulder lift and elbow. On wrist roll the still arm is slightly better (2.38° against 2.87°).
+- **This is an offline test.** It shows the predictions follow a human operator on unseen episodes. It does not show that the arm completes the task; only a run on the arm can.
+
+**2. A clipping bug, found and fixed.** MolmoAct2 rescales every joint into −1…+1 using its pretraining statistics and clips anything outside, during training as well as at run time. The collaborator's calibration put wrist roll outside that range in **96% of frames**, and pan, lift, elbow and wrist flex in 20–34%. The first model could only ever command a wrist roll of 43.5°, and a 2,500-step test had a 51° wrist-roll error. The fix keeps the pretrained range wherever the data fits and widens it only where the data goes further; clipping fell to **0.18% or less per joint**. The October simulation model was affected too, with wrist roll clipped in 38% of its training frames. Auditing this before every MolmoAct2 fine-tune is now a standing step.
+
+**3. The real rig rebuilt in simulation.** Code on the `friendrig/v1` branch.
+- **Camera fit.** The overhead camera moved between recording sessions, so each of the 19 sessions gets its own fitted camera. On held-out frames the sim arm's outline overlaps the real arm at **IoU 0.69** (500 frames), up from 0.49 in the earlier check below. The wrist camera reaches 0.43, up from 0.10, but its image is still rotated by about 30–40°.
+- **Objects from the footage.** Cube 39.8 mm, bowl 137 mm across; placements detected in 94.5% of episodes.
+- **Scripted expert in the rebuilt scene:** 20/20 on a test set, and 1,000 of 1,021 accepted in the large run (97.9%). That rendered dataset has a known flaw (wrist roll spans 104–274° against 45–106° on the real arm) and is not yet used for training.
+
 ## What did not work
 
 - **Picking the named cube among three (language).** SmolVLA (reads the instruction) moved the named cube in 9/60 held-out scenes; ACT without language input in 8/60. Not distinguishable. A random pick among three cubes would be right 1 time in 3, but here the main failure was inaction: in about 75% of runs no cube moved at all. 600 demos were not enough to learn this task.
 - **A V-JEPA 2 "judge".** The pre-registered video probe scored AUC 0.784 against 0.802 for a single last-frame DINOv2 baseline (it needed +0.02). JEPA lost as specified.
-- **Matching the sim arm to a real arm's camera view.** The overlay check reached a mask IoU of 0.49 against a 0.8 pass mark. Inconclusive: the test cannot tell the default joint mapping from a 20° error.
+- **Matching the sim arm to a real arm's camera view (first attempt).** The overlay check reached a mask IoU of 0.49 against a 0.8 pass mark. Inconclusive: the test cannot tell the default joint mapping from a 20° error. The per-session camera fit in the real-data follow-up raised this to 0.69, still short of 0.8.
 - **The sim-to-real visual gap is large.** In V-JEPA feature space our renders sit about 90 times further from real SO-101 clips than two halves of the real data are from each other.
-- **Not run:** any real-robot test; π0.5 (its tokenizer is gated and access was not granted in time); the filtered-BC "practice round" (built and CPU-tested, dropped for time); parallel policy replicas (they hung on this machine, so evals ran one process at a time).
+- **Not run:** any closed-loop test on a real robot; π0.5 (its tokenizer is gated and access was not granted in time); the filtered-BC "practice round" (built and CPU-tested, dropped for time); parallel policy replicas (they hung on this machine, so evals ran one process at a time).
 
 ## Built on
 
@@ -82,6 +105,7 @@ Work happened on parallel branches; until they are merged, this is where each pi
 | `multitask/scene-v1` | Three-cube, named-target task: expert, verifier rules and eval |
 | `jepa/judge` | V-JEPA 2 success probe and realism score (negative result) |
 | `calib/so101-units` | Sim-to-LeRobot joint-unit conversion and the real-camera overlay check |
+| `friendrig/v1` | Rebuilding a real SO-101 rig in simulation: per-session camera fit, wrist camera, objects measured from footage, kinematic replay |
 | `v2/object-mesh` | Mesh-to-MuJoCo object converter, validated on YCB scans |
 | `droplet/step1-render-smoke` | Render-quality option and the MolmoAct2 smoke script |
 | `report/overnight` | Raw run report, ledger and gate files (separate history); summarised in [docs/RESULTS.md](docs/RESULTS.md) |
@@ -90,7 +114,7 @@ Work happened on parallel branches; until they are merged, this is where each pi
 ## Next steps
 
 - **Physics vs kinematic demos.** Train on R2R2R-style kinematic replays of the same scenes and compare with the physics-verified set, to measure what the physics filter is worth.
-- **Real-robot test** on an SO-101.
+- **Closed-loop test on the real arm** with the fine-tuned real-data model (LeRobot's `lerobot-rollout` with real-time chunking).
 - **A drawer task**, the first step beyond pick-and-place.
 - **Phone-scan objects.** `v2/object-mesh` already turns any mesh into a checked MuJoCo object. An image-to-3D system such as NVIDIA's [GATOR](https://arxiv.org/abs/2610.11215) (code not yet released) is the kind of piece that would slot in front of it.
 - **LLM agents that write new skill modules** for the scripted expert, each gated by the same physics verifier.
@@ -135,7 +159,7 @@ docker exec sprint bash -lc "cd /work/video2sim-so101 && INSTALL_LEROBOT=0 PY=py
 
 ## Limits
 
-- **All results are simulation.** Nothing has been run on a real SO-101.
+- **No closed-loop real-robot result.** The simulation results are simulation, and the real-data result is an offline prediction test.
 - **The stock clip has no calibration sheet,** so its scale is uncertain by about ±20%.
 - **The demos come from a scripted expert** that follows the video's cube path; they are not retargeted human motion.
 - **One task, one object family** (a 20–26 mm cube into an 11 cm tray).
